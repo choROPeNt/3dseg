@@ -1,8 +1,8 @@
 import torch.nn as nn
 
-from .buildingblocks import DoubleConv, ExtResNetBlock, create_encoders, \
+from torch3dseg.utils.buildingblocks import DoubleConv, ExtResNetBlock, create_encoders, \
     create_decoders
-from .utils import number_of_features_per_level, get_class
+from torch3dseg.utils.utils import number_of_features_per_level, get_class
 
 
 class Abstract3DUNet(nn.Module):
@@ -167,5 +167,5 @@ class UNet2D(Abstract3DUNet):
 
 
 def get_model(model_config):
-    model_class = get_class(model_config['name'], modules=['utils.model'])
+    model_class = get_class(model_config['name'], modules=['torch3dseg.utils.model'])
     return model_class(**model_config)

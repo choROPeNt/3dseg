@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, ConcatDataset, Dataset
 
-from utils.utils import get_logger, get_class
+from torch3dseg.utils.utils import get_logger, get_class
 
 logger = get_logger('Dataset')
 
@@ -163,9 +163,9 @@ class FilterSliceBuilder(SliceBuilder):
 
 def _loader_classes(class_name):
     modules = [
-        'datasets.hdf5',
-        'datasets.dsb',
-        'datasets.utils'
+        'torch3dseg.datasets.hdf5',
+        'torch3dseg.datasets.dsb',
+        'torch3dseg.datasets.utils'
     ]
     return get_class(class_name, modules)
 

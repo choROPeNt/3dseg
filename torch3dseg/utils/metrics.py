@@ -447,7 +447,7 @@ def get_evaluation_metric(config):
     """
 
     def _metric_class(class_name):
-        m = importlib.import_module('utils.metrics')
+        m = importlib.import_module('torch3dseg.utils.metrics')
         clazz = getattr(m, class_name)
         return clazz
 

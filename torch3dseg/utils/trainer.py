@@ -6,16 +6,16 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from torch.utils.tensorboard import SummaryWriter
 
-from .utils import get_logger, get_number_of_learnable_parameters, create_optimizer, \
+from torch3dseg.utils.utils import get_logger, get_number_of_learnable_parameters, create_optimizer, \
     create_lr_scheduler, get_tensorboard_formatter
-from .model import get_model
-from .losses import get_loss_criterion
-from .metrics import get_evaluation_metric
-from datasets.utils import get_train_loaders
+from torch3dseg.utils.model import get_model
+from torch3dseg.utils.losses import get_loss_criterion
+from torch3dseg.utils.metrics import get_evaluation_metric
+from torch3dseg.datasets.utils import get_train_loaders
 
 from torchsummary import summary
 
-from . import utils
+from torch3dseg.utils import utils
 
 logger = get_logger('UNet3DTrainer')
 

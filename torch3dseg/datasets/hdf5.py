@@ -6,8 +6,8 @@ import h5py
 import numpy as np
 
 import augment.transforms as transforms
-from datasets.utils import get_slice_builder, ConfigDataset, calculate_stats
-from utils.utils import get_logger
+from torch3dseg.datasets.utils import get_slice_builder, ConfigDataset, calculate_stats
+from torch3dseg.utils.utils import get_logger
 
 logger = get_logger('HDF5Dataset')
 
