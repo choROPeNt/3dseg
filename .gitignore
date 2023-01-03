@@ -5,7 +5,6 @@ __pycache__/
 
 # Folders to omit
 checkpoints/
-datasets/
 data/
 
 # C extensions
