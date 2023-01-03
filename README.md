@@ -4,7 +4,7 @@
 
 Clone this repository and navigate to it in your terminal. Then run:
 
-```python
+```Powershell
 python -m pip install -e .
 ```
 
