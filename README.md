@@ -13,5 +13,5 @@ This should install the `3dseg` python package via PIP that the scripts depend o
 ## training
 
 ```Powershell
-python ./scripts/train.py --config <CONFIG>
+  <CONFIG>
 ```
