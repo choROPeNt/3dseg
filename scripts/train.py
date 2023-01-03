@@ -3,9 +3,9 @@ import torch
 import h5py
 import random
 
-from utils.config import load_config
-from utils.utils import get_logger
-from utils.trainer import create_trainer
+from 3dseg.utils.config import load_config
+from 3dseg.utils.utils import get_logger
+from 3dseg.utils.trainer import create_trainer
 
 
 logger = get_logger('TrainingSetup')
