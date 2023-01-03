@@ -4,7 +4,7 @@
 
 Clone this repository and navigate to it in your terminal. Then run:
 
-```Powershell
+```
 python -m pip install -e .
 ```
 
@@ -12,6 +12,6 @@ This should install the `3dseg` python package via PIP that the scripts depend o
 
 ## training
 
-```Powershell
-  <CONFIG>
+```
+python ./scripts/train.py --config <CONFIG>
 ```
