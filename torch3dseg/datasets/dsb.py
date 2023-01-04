@@ -6,8 +6,8 @@ import numpy as np
 import torch
 
 from augment import transforms
-from datasets.utils import ConfigDataset, calculate_stats
-from utils.utils import get_logger
+from torch3dseg.datasets.utils import ConfigDataset, calculate_stats
+from torch3dseg.utils.utils import get_logger
 
 logger = get_logger('DSB2018Dataset')
 
