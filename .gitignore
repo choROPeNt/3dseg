@@ -7,6 +7,9 @@ __pycache__/
 checkpoints/
 data/
 
+## Labelbox ap key
+api_key.txt
+
 # C extensions
 *.so
 
