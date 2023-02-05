@@ -1,0 +1,33 @@
+# install latest labelbox version (3.0 or above)
+
+# !pip3 install labelbox[data]
+
+
+import labelbox
+
+# Enter your Labelbox API key here
+
+def  main():
+    # Create Labelbox client
+    with open("dataset_utils/api_key.txt") as LB_API_KEY:
+        lb = labelbox.Client(api_key=LB_API_KEY)
+
+    print("API check done")
+    # # Get project by ID
+
+    project = lb.get_project('ckqqdrhd9bino0yck5g00erzn')
+
+    # # Export image and text data as an annotation generator:
+
+    # labels = project.label_generator()
+
+    # # Export video annotations as an annotation generator:
+
+    # labels = project.video_label_generator()
+
+    # # Export labels created in the selected date range as a json file:
+
+    # labels = project.export_labels(download = True, start="2023-01-30", end="2023-02-05")
+
+if __name__ == "__main__":
+    mein()
