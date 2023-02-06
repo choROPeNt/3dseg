@@ -7,6 +7,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import h5py
+from tqdm import tqdm
 
 # Enter your Labelbox API key here
 def rgb2gray(rgb):
@@ -27,14 +28,15 @@ def  main():
     hex_to_rgb = lambda hex_color: tuple(int(hex_color[i+1:i+3], 16) for i in (0, 2, 4))
     colors = {tool.name: hex_to_rgb(tool.color) for tool in OntologyBuilder.from_project(project).tools}
     
+    slices = 50
     ## create arrays
-    vol = np.ndarray(shape=(1000,1000,224))
-    seg = np.ndarray(shape=(1000,1000,224))
+    vol = np.ndarray(shape=(1000,1000,slices))
+    seg = np.ndarray(shape=(1000,1000,slices))
     
-
+    labels = labels[150:150+slices]
     
     # Grab the first label and corresponding image
-    for n,label in enumerate(labels):
+    for n,label in enumerate(tqdm(labels)):
         image_np = label.data.value
         seg_np = np.empty_like(image_np)
         image_np = rgb2gray(image_np)
@@ -45,7 +47,8 @@ def  main():
         seg_np = rgb2gray(seg_np)
         seg[:,:,n] = seg_np
     
-    with h5py.File("Biax_type285.hdf5", "w") as f:
+
+    with h5py.File("Biax_type285_150-199.hdf5", "w") as f:
         f.create_dataset('raw', data = vol)
         f.create_dataset('label', data = seg)
 
