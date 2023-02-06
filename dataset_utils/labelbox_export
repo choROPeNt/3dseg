@@ -8,6 +8,7 @@ import os
 import matplotlib.pyplot as plt
 import h5py
 from tqdm import tqdm
+import json
 
 # Enter your Labelbox API key here
 def rgb2gray(rgb):
@@ -23,34 +24,43 @@ def  main():
     # 
     labels = project.label_generator()
     labels = labels.as_list()
+    labels_old = project.export_labels(download = True)
 
+        #label = labels_old[0]
+    # print(labels_old[0]["ID"])
+    # print(labels_old[0]["External ID"])
     # Create a mapping for the colors
     hex_to_rgb = lambda hex_color: tuple(int(hex_color[i+1:i+3], 16) for i in (0, 2, 4))
     colors = {tool.name: hex_to_rgb(tool.color) for tool in OntologyBuilder.from_project(project).tools}
     
-    slices = 50
-    ## create arrays
-    vol = np.ndarray(shape=(1000,1000,slices))
-    seg = np.ndarray(shape=(1000,1000,slices))
+    # slices = 224
+    # ## create arrays
+    # vol = np.ndarray(shape=(1000,1000,slices))
+    # seg = np.ndarray(shape=(1000,1000,slices))
     
-    labels = labels[150:150+slices]
-    
+    # labels = labels[200:200+slices]
+    i=14
     # Grab the first label and corresponding image
-    for n,label in enumerate(tqdm(labels)):
-        image_np = label.data.value
-        seg_np = np.empty_like(image_np)
-        image_np = rgb2gray(image_np)
-        vol[:,:,n] = image_np
-        for annotation in label.annotations:
-            if isinstance(annotation.value, Geometry):
-                seg_np = annotation.value.draw(canvas = seg_np, color = colors[annotation.name], thickness = 5)
-        seg_np = rgb2gray(seg_np)
-        seg[:,:,n] = seg_np
-    
+    for n,(label,label_old) in enumerate(tqdm(zip(labels[i:],labels_old[i:]))):
+        # Serializing json
+        if label.uid == label_old["ID"]:
+            file_out= os.path.join('data','BIIAX',"Biax_type285_" + os.path.splitext(label_old["External ID"])[0] +".hdf5")
 
-    with h5py.File("Biax_type285_150-199.hdf5", "w") as f:
-        f.create_dataset('raw', data = vol)
-        f.create_dataset('label', data = seg)
+            if not os.path.isfile(file_out):
+
+                image_np = label.data.value
+                seg_np = np.empty_like(image_np)
+                image_np = rgb2gray(image_np)
+
+                for annotation in label.annotations:
+                    if isinstance(annotation.value, Geometry):
+                        seg_np = annotation.value.draw(canvas = seg_np, color = colors[annotation.name], thickness = 5)
+                seg_np = rgb2gray(seg_np)
+
+                file_out= os.path.join('data','BIIAX',"Biax_type285_" + os.path.splitext(label_old["External ID"])[0] +".hdf5")
+                with h5py.File(file_out, "w") as f:
+                    f.create_dataset('raw', data = image_np)
+                    f.create_dataset('label', data = seg_np)
 
 
 if __name__ == "__main__":
