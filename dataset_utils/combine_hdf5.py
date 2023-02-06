@@ -20,10 +20,10 @@ def main(dir):
             for key in keys:
                 w,h = f[key].shape
                 slices = len(os.listdir(dir))
-                out[key] = np.empty([w,h,slices])
+                out[key] = np.empty([slices,w,h])
 
         for key in keys:
-            out[key][:,:,n]=f[key]
+            out[key][n,:,:]=f[key]
     file_out = os.path.split(dir)[-1]+'.hdf5'
     print(file_out)
     dir_out = os.path.split(dir)[:-1]
@@ -34,6 +34,6 @@ def main(dir):
 
 if __name__=="__main__":
 
-    DIR = 'C:\\Users\\dchristi\\Documents\\Projekte\\MachineLearning\\3dseg\\data\\BIIAX\\Biax_type285_img_0001-0050'
+    DIR = 'C:\\Users\\dchristi\\Documents\\Projekte\\MachineLearning\\3dseg\\data\\BIIAX\\Biax_type285_img_1751-1800'
     main(dir=DIR)
 
