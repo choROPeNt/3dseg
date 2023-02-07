@@ -6,6 +6,8 @@ __pycache__/
 # Folders to omit
 checkpoints/
 data/
+slurm_out/
+
 
 ## Labelbox ap key
 api_key.txt
