@@ -49,7 +49,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: False
   # path to the checkpoint directory
-  checkpoint_dir: /lustre/ssd/ws/dchristi-3dseg/checkpoints/RSNA_run_001
+  checkpoint_dir: checkpoints/RSNA_run_001
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -70,7 +70,7 @@ loaders:
   # when reading from multiple threads.
   dataset: StandardHDF5Dataset
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
-  batch_size: 4
+  batch_size: 1
   # how many subprocesses to use for data loading
   num_workers: 12
   # path to the raw data within the H5
@@ -81,13 +81,13 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
-      - /lustre/ssd/ws/dchristi-3dseg/dataset/RSNA/train/
+      - data/RSNA/train/
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
-      patch_shape: [16,128,128]
+      patch_shape: [16, 128, 128]
       # train stride between patches
       stride_shape: [10, 40, 40]
       # minimum volume of the labels in the patch
@@ -134,12 +134,12 @@ loaders:
   val:
     # path to the val datasets
     file_paths:
-      - /lustre/ssd/ws/dchristi-3dseg/dataset/RSNA/val/
+      - data/RSNA/val/
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [16,128,128]
+      patch_shape:  [16, 128, 128]
       # train stride between patches
       stride_shape: [10, 40, 40]
       # minimum volume of the labels in the patch

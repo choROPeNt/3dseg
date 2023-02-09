@@ -203,7 +203,7 @@ def get_train_loaders(config):
         "Train and validation 'file_paths' overlap. One cannot use validation data for training!"
 
     train_datasets = dataset_class.create_datasets(loaders_config, phase='train')
-
+    print(len(train_datasets))
     val_datasets = dataset_class.create_datasets(loaders_config, phase='val')
 
     num_workers = loaders_config.get('num_workers', 1)
