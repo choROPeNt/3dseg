@@ -28,8 +28,11 @@ def main(dataDIR):
 
     print(local_file_paths)
     if local_file_paths:
-        client = Client(api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJja2x1bWtuc2hkYXB6MDc5MDY4bGw2bGd0Iiwib3JnYW5pemF0aW9uSWQiOiJja2x1bWtuczFhbXF3MDc3NHNyNGplMzRiIiwiYXBpS2V5SWQiOiJjbGRxYXNsbzMzMDEzMDd6NmdmajJncjlkIiwic2VjcmV0IjoiOTE4OTgyM2RiMjAwOGRhYjNlMjk0MDRjOWQ1NjZiYjkiLCJpYXQiOjE2NzU1MzU4NjcsImV4cCI6MjMwNjY4Nzg2N30.K7B4nfwPn7xQFbvCfoKJzVPHfzqfDU6UgOmtvM3HlEA")
-        dataset = client.create_dataset(name="ENF_200_04_cam00")
+        with open("dataset_utils/api_key.txt") as LB_API_KEY:
+            client = Client(api_key=LB_API_KEY.readlines()[0])
+        print('API-key valid')
+        
+        dataset = client.create_dataset(name="neapel_001")
         # Create data payload
         # Use global key, a unique ID to identify an asset throughout Labelbox workflow. Learn more: https://docs.labelbox.com/docs/global-keys
         # You can add metadata fields to your data rows. Learn more: https://docs.labelbox.com/docs/import-metadata
@@ -41,11 +44,11 @@ def main(dataDIR):
         except Exception as err:
             print(f'Error while creating labelbox dataset -  Error: {err}')
     ## delte tmp files
-    shutil.rmtree(os.path.join(dataDIR,'tmp'))
+        shutil.rmtree(os.path.join(dataDIR,'tmp'))
 
 
 if __name__ == "__main__":
 
-    dataDIR = os.path.join('.','datasets','00_Example-data','223_18_Duereth_ENF','AD0_10V_10kN','ENF_200_4','cam00')
+    dataDIR = os.path.join('.','data','Neapel','neapel_001')
 
     main(dataDIR)
