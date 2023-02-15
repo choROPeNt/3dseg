@@ -9,7 +9,7 @@ import argparse
 import fnmatch
 import shutil
 
-image_format = ('.jpg','.png','.bmp')
+image_format = ('.jpg','.png','.bmp','')
 
 
 def main(dataDIR):
@@ -49,6 +49,6 @@ def main(dataDIR):
 
 if __name__ == "__main__":
 
-    dataDIR = os.path.join('.','data','Neapel','neapel_001')
+    dataDIR = os.path.join('.','data','Neapel','neapel_001','DICOM')
 
     main(dataDIR)
