@@ -9,7 +9,7 @@ import argparse
 import fnmatch
 import shutil
 
-image_format = ('.jpg','.png','.bmp','')
+image_format = ('.jpg','.png','.bmp','dcm')
 
 
 def main(dataDIR):
@@ -21,6 +21,7 @@ def main(dataDIR):
         else:
             if not os.path.isdir(os.path.join(dataDIR,'tmp')):
                 os.mkdir(os.path.join(dataDIR,'tmp'))
+
             file_tmp, ext = os.path.splitext(file)
             with Image.open(os.path.join(dataDIR,file)) as im:
                 im.save(os.path.join(dataDIR,'tmp',file_tmp+'.png') , "png")
@@ -44,6 +45,7 @@ def main(dataDIR):
         except Exception as err:
             print(f'Error while creating labelbox dataset -  Error: {err}')
     ## delte tmp files
+    if os.path.isdir(os.path.join(dataDIR,'tmp')):
         shutil.rmtree(os.path.join(dataDIR,'tmp'))
 
 
