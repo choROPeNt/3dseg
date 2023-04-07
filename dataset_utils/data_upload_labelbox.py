@@ -33,7 +33,7 @@ def main(dataDIR):
             client = Client(api_key=LB_API_KEY.readlines()[0])
         print('API-key valid')
         
-        dataset = client.create_dataset(name="neapel_001")
+        dataset = client.create_dataset(name="Biax_type285_img_0251-0300")
         # Create data payload
         # Use global key, a unique ID to identify an asset throughout Labelbox workflow. Learn more: https://docs.labelbox.com/docs/global-keys
         # You can add metadata fields to your data rows. Learn more: https://docs.labelbox.com/docs/import-metadata
@@ -51,6 +51,6 @@ def main(dataDIR):
 
 if __name__ == "__main__":
 
-    dataDIR = os.path.join('.','data','Neapel','neapel_001','DICOM')
+    dataDIR = os.path.join('.','data','BIIAX','Biax_type285_img_0251-0300','raw')
 
     main(dataDIR)
