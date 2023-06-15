@@ -5,7 +5,7 @@ model:
   # number of input channels to the model
   in_channels: 1
   # number of output channels
-  out_channels: 1
+  out_channels: 3
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
@@ -14,13 +14,15 @@ model:
   num_groups: 8
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
   final_sigmoid: true
+  # if True applies the final normalization layer (sigmoid or softmax), otherwise the networks returns the output from the final convolution layer; use False for regression problems, e.g. de-noising
+  is_segmentation: true
 # loss function to be used during training
 loss:
   name: BCEDiceLoss
   # a target value that is ignored and does not contribute to the input gradient
   ignore_index: null
   # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
-  skip_last_target: true
+  skip_last_target: false
 optimizer:
   # to do learning rate scheduler
   # initial learning rate
@@ -36,7 +38,7 @@ eval_metric:
   # use the last target channel to compute the metric
   use_last_target: true
   # use only the first channel for computing the metric
-  use_first_input: true
+  use_first_input: false
 lr_scheduler:
   name: ReduceLROnPlateau
   # make sure to use the 'min' mode cause lower AdaptedRandError is better
@@ -47,39 +49,39 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: False
   # path to the checkpoint directory
-  checkpoint_dir: .\checkpoints\BIIAX_run_001
+  checkpoint_dir: ./checkpoints/BIIAX_run_test
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
   pre_trained: null
   # how many iterations between validations
-  validate_after_iters: 10
+  validate_after_iters: 1000
   # how many iterations between tensorboard logging
-  log_after_iters: 1
+  log_after_iters: 10
   # max number of epochs
   max_num_epochs: 100
   # max number of iterations
-  max_num_iterations: 150000
+  max_num_iterations: 1000000
 # Configure training and validation loaders
 loaders:
+  dataset: StandardHDF5Dataset
   # how many subprocesses to use for data loading
   num_workers: 8
   # path to the raw data within the H5
   raw_internal_path: /raw
   # path to the the label data withtin the H5
-  label_internal_path: /label
+  label_internal_path: /masks
   # configuration of the train loader
   train:
     # path to the training datasets
     file_paths:
-      - .\data\BIIAX\train
-
+      - ./data/BIIAX/Biax_type285_img_0201-0250_channel4.hdf5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
-      patch_shape: [16, 128, 128]
+      patch_shape: [16, 256, 256]
       # train stride between patches
       stride_shape: [10, 40, 40]
       # minimum volume of the labels in the patch
@@ -117,23 +119,18 @@ loaders:
           mode: reflect
         - name: ElasticDeformation
           spline_order: 0
-        - name: StandardLabelToBoundary
-          # append original ground truth labels to the last channel (to be able to compute the eval metric)
-          append_label: true
         - name: ToTensor
-          expand_dims: false
+          expand_dims: true
            # configuration of the val loader
   val:
     # path to the val datasets
     file_paths:
-      - .\data\BIIAX\val
-  
-
+      - ./data/BIIAX/Biax_type285_img_0001-0050_channel4.hdf5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [16, 128, 128]
+      patch_shape: [16, 256, 256]
       # train stride between patches
       stride_shape: [10, 40, 40]
       # minimum volume of the labels in the patch
@@ -148,7 +145,5 @@ loaders:
         - name: ToTensor
           expand_dims: true
       label:
-        - name: StandardLabelToBoundary
-          append_label: true
         - name: ToTensor
           expand_dims: false
