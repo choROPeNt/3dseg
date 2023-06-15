@@ -5,7 +5,7 @@ from itertools import chain
 import h5py
 import numpy as np
 
-import augment.transforms as transforms
+import torch3dseg.augment.transforms as transforms
 from torch3dseg.datasets.utils import get_slice_builder, ConfigDataset, calculate_stats
 from torch3dseg.utils.utils import get_logger
 

@@ -32,7 +32,6 @@ def create_trainer(config):
     # put the model on GPUs
     logger.info(f"Sending the model to '{config['device']}'")
 
-
     model = model.to(device)
     # summary(model, (1,30,30,30))
     # Log the number of learnable parameters
@@ -304,7 +303,6 @@ class UNet3DTrainer:
     def _forward_pass(self, input, target, weight=None):
         # forward pass
         output = self.model(input)
-
         # compute the loss
         if weight is None:
             loss = self.loss_criterion(output, target)
@@ -389,6 +387,9 @@ class UNet3DTrainer:
         for name, batch in img_sources.items():
             for tag, image in self.tensorboard_formatter(name, batch):
                 self.writer.add_image(prefix + tag, image, self.num_iterations)
+
+    def get_loader(self):
+        return self.loaders['train']
 
     @staticmethod
     def _batch_size(input):

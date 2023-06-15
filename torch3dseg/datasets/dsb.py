@@ -5,7 +5,7 @@ import imageio
 import numpy as np
 import torch
 
-from augment import transforms
+from torch3dseg.augment import transforms
 from torch3dseg.datasets.utils import ConfigDataset, calculate_stats
 from torch3dseg.utils.utils import get_logger
 
