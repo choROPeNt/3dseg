@@ -15,7 +15,7 @@ def main():
     # Load and log experiment configuration
     config = load_config()
     logger.info(config)
-    print("hello world")
+
 
     manual_seed = config.get('manual_seed', None)
     if manual_seed is not None:
@@ -25,8 +25,6 @@ def main():
         torch.manual_seed(manual_seed)
         # see https://pytorch.org/docs/stable/notes/randomness.html
         torch.backends.cudnn.deterministic = True
-
-
 
     # create trainer
     trainer = create_trainer(config)
