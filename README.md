@@ -6,7 +6,8 @@
 
 
 
--[ ] [tensorboar3d](https://www.kitware.com/tensorboardplugin3d-visualizing-3d-deep-learning-models-in-tensorboard/)
+- [x] [tensorboar3d](https://www.kitware.com/tensorboardplugin3d-visualizing-3d-deep-learning-models-in-tensorboard/)
+- [ ] create bigger dataset of volume
 
 ## Installation
 

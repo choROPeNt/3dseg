@@ -32,13 +32,13 @@ optimizer:
 # evaluation metric
 eval_metric:
   # use AdaptedRandError metric
-  name: BoundaryAdaptedRandError
-  # probability maps threshold
-  threshold: 0.4
-  # use the last target channel to compute the metric
-  use_last_target: true
-  # use only the first channel for computing the metric
-  use_first_input: false
+  name: MeanIoU
+  # # probability maps threshold
+  # threshold: 0.4
+  # # use the last target channel to compute the metric
+  # use_last_target: true
+  # # use only the first channel for computing the metric
+  # use_first_input: false
 lr_scheduler:
   name: ReduceLROnPlateau
   # make sure to use the 'min' mode cause lower AdaptedRandError is better
@@ -49,20 +49,20 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: False
   # path to the checkpoint directory
-  checkpoint_dir: ./checkpoints/BIIAX_run_test
+  checkpoint_dir: ./checkpoints/BIIAX_run_001
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
   pre_trained: null
   # how many iterations between validations
-  validate_after_iters: 1000
+  validate_after_iters: 10000
   # how many iterations between tensorboard logging
-  log_after_iters: 10
+  log_after_iters: 100
   # max number of epochs
-  max_num_epochs: 100
+  max_num_epochs: 10
   # max number of iterations
-  max_num_iterations: 1000000
+  max_num_iterations: 100000
 # Configure training and validation loaders
 loaders:
   dataset: StandardHDF5Dataset
@@ -77,6 +77,8 @@ loaders:
     # path to the training datasets
     file_paths:
       - ./data/BIIAX/Biax_type285_img_0201-0250_channel4.hdf5
+      - ./data/BIIAX/Biax_type285_img_0901-0950_channel4.hdf5
+      - ./data/BIIAX/Biax_type285_img_1751-1800_channel4.hdf5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
