@@ -1,6 +1,6 @@
 # 3dseg for CT-Data
 
-Thsi reposirory is based on 
+This reposirory is based on [pytorch-3dunet](https://github.com/wolny/pytorch-3dunet.git) implementation. 
 
 
 ## TODO's
