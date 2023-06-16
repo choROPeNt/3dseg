@@ -4,10 +4,10 @@ import os
 import torch
 import torch.nn as nn
 
-from datasets.utils import get_test_loaders
-from utils import utils
-from utils.config import load_config
-from utils.model import get_model
+from torch3dseg.datasets.utils import get_test_loaders
+from torch3dseg.utils import utils
+from torch3dseg.utils.config import load_config
+from torch3dseg.utils.model import get_model
 
 logger = utils.get_logger('UNet3DPredict')
 
@@ -15,7 +15,7 @@ def _get_predictor(model, output_dir, config):
     predictor_config = config.get('predictor', {})
     class_name = predictor_config.get('name', 'StandardPredictor')
 
-    m = importlib.import_module('utils.predictor')
+    m = importlib.import_module('torch3dseg.utils.predictor')
     predictor_class = getattr(m, class_name)
 
     return predictor_class(model, output_dir, config, **predictor_config)
