@@ -1,5 +1,8 @@
 # 3dseg for CT-Data
 
+Thsi reposirory is based on 
+
+
 ## TODO's
 
 #TODO: [tensorboar3d](https://www.kitware.com/tensorboardplugin3d-visualizing-3d-deep-learning-models-in-tensorboard/)
@@ -11,9 +14,20 @@
 
 ## Installation
 
-Clone this repository and navigate to it in your terminal. Then run:
+Clone this repository using the terminal:
 
+```bash
+git clone https://github.com/choROPeNt/3dseg.git
 ```
+
+and navigate to it in your terminal. 
+```bash
+cd 3dseg
+```
+
+Then run:
+
+```bash
 python -m pip install -e .
 ```
 
