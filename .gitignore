@@ -9,7 +9,7 @@ data/
 slurm_out/
 notebooks/
 notebooks
-
+predict/
 ## Labelbox ap key
 api_key.txt
 
