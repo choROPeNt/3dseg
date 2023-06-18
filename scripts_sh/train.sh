@@ -23,7 +23,9 @@
 module load modenv/hiera GCCcore/10.2.0 Python/3.8.6 CUDA/11.7.0
 
 source .venv_3dseg/bin/activate
+echo $1
+python ./scripts/train.py --config $1
 
-python ./scripts/train.py --config configs/train_config_BIIAX.yml
 
+#configs/train_config_NEAPEL.yml
 exit 0
