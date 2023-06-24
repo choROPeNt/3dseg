@@ -24,6 +24,6 @@ module load modenv/hiera GCCcore/10.2.0 Python/3.8.6 CUDA/11.7.0
 
 source .venv_3dseg/bin/activate
 
-python ./scripts/predict.py --config configs/test_config_pore.yml
+python ./scripts/predict.py --config configs/test_config_BIIAX.yml
 
 exit 0
