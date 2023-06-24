@@ -37,15 +37,25 @@ This should install the `3dseg` python package via PIP in the current active vir
 
 
 ## losses
-### DicelLoss
 
-$$\mathcal{D} = \frac{2 \sum_i^N p_i g_i}{\sum_i^Np_i^2+\sum_i^N g_i^2}$$
+### dice Loss
+$$\mathcal{L}_{\text{Dice}} = \frac{2 \sum_i^N p_i g_i}{\sum_i^Np_i^2+\sum_i^N g_i^2}$$
+### binary-corss entropy
+- [Pytorch - BCEloss](https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html)
 
-### BinaryCrossEntropy
+$$ \mathcal{L}_{\text{BCE}}(x,y) = \{ l_1,\dots,l_N\}^\top \quad l_N=-w_n \left[ y_n \; \log x_n + (1-y_N)\;\log (1-x_n)\right]$$
 
+$\mathcal{L}_{\text{BCE}}$ over one batch is determined by
 
+$$\mathcal{L}_{\text{BCE}}(x,y) = \left\{
+\begin{array}{ll}
+\frac{1}{N} \sum_i^N l_i & \text{if reduction = 'mean'} \\
+\sum_i^N l_i & \text{if reduction = 'sum'} \\
+\end{array}
+\right.$$
 
-### BCEDiceLoss
+### BCE-DiceLoss
+
 linear combination of BCE and Dice loss
 
 $$ $$
