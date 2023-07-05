@@ -36,7 +36,7 @@ eval_metric:
   # use the last target channel to compute the metric
   use_last_target: true
   # use only the first channel for computing the metric
-  use_first_input: true
+  use_first_input: False
 lr_scheduler:
   name: ReduceLROnPlateau
   # make sure to use the 'min' mode cause lower AdaptedRandError is better
