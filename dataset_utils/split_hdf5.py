@@ -123,6 +123,6 @@ def main(filepath,blocks):
                     fout.create_dataset(key, data = array[n,:,:,:,:])
 
 if __name__ == "__main__":
-    filepath = './data/pore-detection/pore_001.hdf5'
+    filepath = './data/Neapel/neapel_001.hdf5'
     blocks = (1,2,2)
     main(filepath,blocks)

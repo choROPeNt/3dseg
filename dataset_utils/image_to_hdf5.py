@@ -21,10 +21,8 @@ def main(imgs_folder,dir_out,file_out,masks_folder=None):
 
     for n in tqdm(range(len(image_list))):
         
-        img = np.array(Image.open(os.path.join(imgs_folder,image_list[n])))
+        raw[n,:,:] = np.array(Image.open(os.path.join(imgs_folder,image_list[n])))
 
-
-        raw[n,:,:] = img
     
     out['raw'] = raw
 
@@ -41,10 +39,8 @@ def main(imgs_folder,dir_out,file_out,masks_folder=None):
 
         for n in tqdm(range(len(masks_list))):
         
-            mask = np.array(Image.open(os.path.join(masks_folder,masks_list[n])))
+            masks[n,:,:] = np.array(Image.open(os.path.join(masks_folder,masks_list[n])))()
 
-            mask = 1.0 * (mask > 0)
-            masks[n,:,:] = mask 
 
         print('checking for labels')
         obj_ids = np.unique(masks)
@@ -65,11 +61,11 @@ def main(imgs_folder,dir_out,file_out,masks_folder=None):
 
 
 if __name__ == "__main__":
-    imgs_folder = './data/pore-detection/raw/img'
-    masks_folder = './data/pore-detection/raw/mask'
-    # masks_folder = ''
-    dir_out = './data/pore-detection/'
-    file_out = 'pore_001'
+    imgs_folder = './data/BIIAX/img_0916-1831'
+    # masks_folder = './data/pore-detection/raw/mask'
+    masks_folder = ''
+    dir_out = './data/BIIAX/'
+    file_out = 'Biay_type285_img_0916-1831_raw'
 
     if os.path.exists(imgs_folder) and os.path.exists(masks_folder):
         main(imgs_folder,dir_out,file_out,masks_folder=masks_folder)
