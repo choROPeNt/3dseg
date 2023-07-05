@@ -1,11 +1,11 @@
-model_path: ./checkpoints/pore_run_001/best_checkpoint.pytorch
+model_path: ./checkpoints/NEAPEL_run_002/best_checkpoint.pytorch
 device: cuda:0
 model:
   name: UNet3D
   # number of input channels to the model
   in_channels: 1
   # number of output channels
-  out_channels: 2
+  out_channels: 4
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
@@ -30,11 +30,11 @@ loaders:
   # test loaders configuration
   test:
     file_paths:
-      - ./data/pore-detection/pore_001.hdf5
+      - ./data/Neapel/neapel_001_all.hdf5
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
-      patch_shape: [80,120,120]
+      patch_shape: [40, 256, 256]
       # train stride between patches
       stride_shape: [10, 40, 40]
       # minimum volume of the labels in the patch
