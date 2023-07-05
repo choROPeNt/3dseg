@@ -97,14 +97,14 @@ loaders:
       raw:
         - name: Standardize
         - name: RandomFlip
-        - name: RandomRotate90
-        - name: RandomRotate
-          # rotate only in ZY plane due to anisotropy
-          axes: [[2, 1]]
-          angle_spectrum: 45
-          mode: reflect
-        - name: ElasticDeformation
-          spline_order: 3
+        # - name: RandomRotate90
+        # - name: RandomRotate
+        #   # rotate only in ZY plane due to anisotropy
+        #   axes: [[2, 1]]
+        #   angle_spectrum: 45
+        #   mode: reflect
+        # - name: ElasticDeformation
+        #   spline_order: 3
         - name: GaussianBlur3D
           execution_probability: 0.5
         - name: AdditiveGaussianNoise
