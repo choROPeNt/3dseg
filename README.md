@@ -68,7 +68,7 @@ python ./scripts/train.py --config <CONFIG>
 
 
 
-
+[b,c,d,w,h] -> [b,3*c,d,w,h]
 
 ## support
 ### virtual enviroment
