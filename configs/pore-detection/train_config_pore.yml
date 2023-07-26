@@ -5,7 +5,7 @@ model:
   # number of input channels to the model
   in_channels: 1
   # number of output channels
-  out_channels: 2
+  out_channels: 1
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
@@ -13,7 +13,7 @@ model:
   # number of groups in the groupnorm
   num_groups: 8
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
-  final_sigmoid: false
+  final_sigmoid: true
   # if True applies the final normalization layer (sigmoid or softmax), otherwise the networks returns the output from the final convolution layer; use False for regression problems, e.g. de-noising
   is_segmentation: true
 # loss function to be used during training
@@ -42,12 +42,12 @@ eval_metric:
 lr_scheduler:
   name: ReduceLROnPlateau
   # make sure to use the 'min' mode cause lower AdaptedRandError is better
-  mode: min
+  mode: max
   factor: 0.2
   patience: 20
 trainer:
   # model with lower eval score is considered better
-  eval_score_higher_is_better: False
+  eval_score_higher_is_better: true
   # path to the checkpoint directory
   checkpoint_dir: ./checkpoints/pore_run_002
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
@@ -56,17 +56,18 @@ trainer:
   # make sure to decrease the learning rate in the optimizer config accordingly
   pre_trained: null
   # how many iterations between validations
-  validate_after_iters: 10000
+  validate_after_iters: 200
   # how many iterations between tensorboard logging
-  log_after_iters: 100
+  log_after_iters: 50
   # max number of epochs
-  max_num_epochs: 5
+  max_num_epochs: 100
   # max number of iterations
   max_num_iterations: 100000
 # Configure training and validation loaders
 loaders:
   dataset: StandardHDF5Dataset
-  batch_size: 6
+  batch_size: 2
+   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
   # how many subprocesses to use for data loading
   num_workers: 8
   # path to the raw data within the H5
@@ -77,16 +78,15 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
-      - ./data/pore-detection/pore_001-00.hdf5
-      - ./data/pore-detection/pore_001-01.hdf5
-      - ./data/pore-detection/pore_001-02.hdf5
+      - ./data/pore-detection/Test1_Porendetektion/Test2.h5
+
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
-      patch_shape: [80,120,120]
+      patch_shape: [32,64,64]
       # train stride between patches
-      stride_shape: [10, 40, 40]
+      stride_shape: [4, 8, 8]
       # minimum volume of the labels in the patch
       threshold: 0.1
       # probability of accepting patches which do not fulfil the threshold criterion
@@ -96,46 +96,46 @@ loaders:
       raw:
         - name: Standardize
         - name: RandomFlip
-        - name: RandomRotate90
-        - name: RandomRotate
-          # rotate only in ZY plane due to anisotropy
-          axes: [[2, 1]]
-          angle_spectrum: 45
-          mode: reflect
-        - name: ElasticDeformation
-          spline_order: 3
-        - name: GaussianBlur3D
-          execution_probability: 0.5
+        # - name: RandomRotate90
+        # - name: RandomRotate
+        #   # rotate only in ZY plane due to anisotropy
+        #   axes: [[2, 1]]
+        #   angle_spectrum: 45
+        #   mode: reflect
+        # - name: ElasticDeformation
+        #   spline_order: 3
+        # - name: GaussianBlur3D
+        #   execution_probability: 0.5
         - name: AdditiveGaussianNoise
           execution_probability: 0.2
-        - name: AdditivePoissonNoise
-          execution_probability: 0.2
+        # - name: AdditivePoissonNoise
+        #   execution_probability: 0.2
         - name: ToTensor
           expand_dims: true
       label:
         - name: RandomFlip
-        - name: RandomRotate90
-        - name: RandomRotate
-          # rotate only in ZY plane due to anisotropy
-          axes: [[2, 1]]
-          angle_spectrum: 45
-          mode: reflect
-        - name: ElasticDeformation
-          spline_order: 0
+        # - name: RandomRotate90
+        # - name: RandomRotate
+        #   # rotate only in ZY plane due to anisotropy
+        #   axes: [[2, 1]]
+        #   angle_spectrum: 45
+        #   mode: reflect
+        # - name: ElasticDeformation
+        #   spline_order: 0
         - name: ToTensor
           expand_dims: true
            # configuration of the val loader
   val:
     # path to the val datasets
     file_paths:
-      - ./data/pore-detection/pore_001-03.hdf5
+      - ./data/pore-detection/Test1_Porendetektion/Test3.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [80,120,120]
+      patch_shape: [32,64,64]
       # train stride between patches
-      stride_shape: [10, 40, 40]
+      stride_shape: [4, 8, 8]
       # minimum volume of the labels in the patch
       threshold: 0.1
       # probability of accepting patches which do not fulfil the threshold criterion
@@ -149,4 +149,4 @@ loaders:
           expand_dims: true
       label:
         - name: ToTensor
-          expand_dims: false
+          expand_dims: true
