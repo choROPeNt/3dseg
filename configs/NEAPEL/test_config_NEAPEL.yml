@@ -19,7 +19,7 @@ predictor:
   name: 'StandardPredictor'
 loaders:
   # save predictions to output_dir
-  output_dir: ./data/Neapel/train/predict
+  output_dir: ./predict/Neapel/neapel_002/Thinlayer 1-3_2023-03-30_155044/
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 1
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
@@ -29,7 +29,7 @@ loaders:
   # test loaders configuration
   test:
     file_paths:
-      - ./data/Neapel/neapel_001_all.hdf5
+      - ./data/NEAPEL/neapel_002/Thinlayer 1-3_2023-03-30_155044/tomo-HR/Thinlayer 1-3_tomo-HR_recon_aligned_uint8.hdf5
     slice_builder:
       name: SliceBuilder
       patch_shape: [40, 256, 256]
