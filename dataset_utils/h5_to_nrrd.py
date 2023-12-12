@@ -18,8 +18,8 @@ def main(file_pred,file_seg):
     out_arr = np.empty((w,h,d),dtype=np.ushort)
     print('output file memory consumption: %.3f  Gbyte' %(out_arr.nbytes/1024**3))
     ## 
-    dummy = 10
 
+    ##TODO implement np.argmax(array,dim=0) !!!!!!
     for slice in tqdm(range(d)):
         ## load patch
         pred_arr = np.array(pred_file['predictions'][:,slice,:,:])
@@ -40,7 +40,7 @@ def main(file_pred,file_seg):
 
         plt.show()
 
-
+    ##TODO change this here no hard coding
     header_seg['Segment0_Extent'] = '0 990 0 1012 0 993'
     header_seg['Segment1_Extent'] = '0 990 0 1012 0 993'
     header_seg['Segment2_Extent'] = '0 990 0 1012 0 993'
