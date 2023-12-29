@@ -13,6 +13,11 @@ predict/
 ## Labelbox ap key
 api_key.txt
 
+# MacOSX 
+
+.DS_Store
+
+
 # C extensions
 *.so
 
