@@ -47,18 +47,18 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: ./checkpoints
+  checkpoint_dir: ./checkpoints/BIIAX_model_03-lowres
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
   pre_trained: null
   # how many iterations between validations
-  validate_after_iters: 10
+  validate_after_iters: 200
   # how many iterations between tensorboard logging
-  log_after_iters: 1
+  log_after_iters: 10
   # max number of epochs
-  max_num_epochs: 5
+  max_num_epochs: 20
   # max number of iterations
   max_num_iterations: 150000
 # Configure training and validation loaders
@@ -71,20 +71,20 @@ loaders:
   # path to the raw data within the H5
   raw_internal_path: /raw
   # path to the the label data withtin the H5
-  label_internal_path: /masks
+  label_internal_path: /masks_2c
   # configuration of the train loader
   train:
     # path to the training datasets
     file_paths:
-      - ./data/160_10-layer/volumes/00/160_10-layer_00_red.h5
+      - ./data/160_10-layer/volumes/00/160_10-layer_00_red_2.h5
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
-      patch_shape: [64, 64, 64]
+      patch_shape: [8, 64, 64]
       # train stride between patches
-      stride_shape: [4, 4, 4]
+      stride_shape: [2, 4, 4]
       # minimum volume of the labels in the patch
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
@@ -127,15 +127,15 @@ loaders:
   val:
     # path to the val datasets
     file_paths:
-      - ./data/160_10-layer/volumes/00/160_10-layer_00_red-copy.h5
+      - ./data/160_10-layer/volumes/00/160_10-layer_00_red_2-copy.h5
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [64, 64, 64]
+      patch_shape: [8, 64, 64]
       # train stride between patches
-      stride_shape: [8, 8, 8]
+      stride_shape: [2, 4, 4]
       # minimum volume of the labels in the patch
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
