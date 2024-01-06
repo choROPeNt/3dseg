@@ -13,16 +13,16 @@
 #SBATCH --mem-per-cpu=10000             # memory per CPU core
 #SBATCH --gres=gpu:1                    # number of gpus
 #SBATCH -J "torch_NEAPEL_3dseg"         # job name
-#SBATCH --output=slurm_out/3dseg-pore-%j.out
+#SBATCH --output=slurm_out/3dseg-train-%j.out
 #SBATCH --mail-user=christian.duereth@tu-dresden.de   # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 #SBATCH -A p_autoshear
 ##################################################################
 ##################################################################
 
-module load modenv/hiera GCCcore/10.2.0 Python/3.8.6 CUDA/11.7.0
+module load release/23.04 GCC/12.2.0 Python/3.10.8 OpenMPI/4.1.4 CUDA/11.8.0
 
-source .venv_3dseg/bin/activate
+source ../.venv/bin/activate
 echo $1
 python ./scripts/train.py --config $1
 
