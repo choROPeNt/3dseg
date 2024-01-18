@@ -5,7 +5,7 @@ model:
   # number of input channels to the model
   in_channels: 1
   # number of output channels
-  out_channels: 1
+  out_channels: 2
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
@@ -49,7 +49,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: ./checkpoints/pore_run_002
+  checkpoint_dir: ./checkpoints/pore_run_001
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -66,7 +66,7 @@ trainer:
 # Configure training and validation loaders
 loaders:
   dataset: StandardHDF5Dataset
-  batch_size: 2
+  batch_size: 32
    # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
   # how many subprocesses to use for data loading
   num_workers: 8
@@ -78,19 +78,19 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
-      - ./data/pore-detection/Test1_Porendetektion/Test2.h5
+      - ./data/pore-detection/Pinprobe_komplett/pinprobe_01.h5
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
-      patch_shape: [32,64,64]
+      patch_shape: [64,64,64]
       # train stride between patches
-      stride_shape: [4, 8, 8]
+      stride_shape: [16, 16, 16]
       # minimum volume of the labels in the patch
-      threshold: 0.1
+      threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
-      slack_acceptance: 0.01
+      slack_acceptance: 0.005
 
     transformer:
       raw:
@@ -128,19 +128,18 @@ loaders:
   val:
     # path to the val datasets
     file_paths:
-      - ./data/pore-detection/Test1_Porendetektion/Test3.h5
+      - ./data/pore-detection/Pinprobe_komplett/pinprobe_01-copy.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [32,64,64]
+      patch_shape: [64,64,64]
       # train stride between patches
-      stride_shape: [4, 8, 8]
+      stride_shape: [16, 16, 16]
       # minimum volume of the labels in the patch
-      threshold: 0.1
+      threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
-      slack_acceptance: 0.01
-
+      slack_acceptance: 0.005
     # data augmentation
     transformer:
       raw:

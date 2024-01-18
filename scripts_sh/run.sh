@@ -24,12 +24,14 @@ module load release/23.04 GCC/12.2.0 Python/3.10.8 OpenMPI/4.1.4 CUDA/11.8.0
 
 source ../.venv/bin/activate
 
-train_config=./configs/BIIAX/00-lowres-3c/train.yml
-pred_config=./configs/BIIAX/00-lowres-3c/pred.yml
+# train_config=./configs/BIIAX/00-lowres-3c/train.yml
+# pred_config=./configs/BIIAX/00-lowres-3c/pred.yml
+
+train_config=./configs/pore-detection/train_config_pore.yml
 
 
 python ./scripts/train.py --config $train_config
 
-python ./scripts/predict.py --config $pred_config
+# python ./scripts/predict.py --config $pred_config
 
 exit 0
