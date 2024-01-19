@@ -35,11 +35,20 @@ This should install the `3dseg` python package via PIP in the current active vir
 
 ## 3DUnet model
 
+The model is a 3D-UNet 
+
+
+
+
 
 ## losses
 
-### dice Loss
+### Dice Loss
+The DiceLoss $\mathcal{L}_{Dice}$ is defined as following
 $$\mathcal{L}_{\text{Dice}} = \frac{2 \sum_i^N p_i g_i}{\sum_i^Np_i^2+\sum_i^N g_i^2}$$
+
+
+
 ### binary-corss entropy
 - [Pytorch - BCEloss](https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html)
 
@@ -73,6 +82,14 @@ python ./scripts/train.py --config <CONFIG>
 ## support
 ### virtual enviroment
 
-to create a virtual enviroment you may run
+to create a virtual enviroment named `.venv` you may run
 ```bash
+python -m venv .venv
 ````
+
+to activate the virtual enviroment please run
+
+- for linux and macos
+```bash
+source .venv/bin/activate
+```
