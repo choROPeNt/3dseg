@@ -130,6 +130,8 @@ class StandardPredictor(_AbstractPredictor):
                 # forward pass
                 predictions = self.model(batch)
 
+                print(predictions[0])
+
                 # wrap predictions into a list if there is only one output head from the network
                 if output_heads == 1:
                     predictions = [predictions]
@@ -188,6 +190,8 @@ class StandardPredictor(_AbstractPredictor):
         prediction_datasets = self.get_output_dataset_names(output_heads, prefix='predictions')
         for prediction_map, normalization_mask, prediction_dataset in zip(prediction_maps, normalization_masks,
                                                                           prediction_datasets):
+            
+            print(normalization_mask)
             prediction_map = prediction_map / normalization_mask
 
             if dataset.mirror_padding is not None:

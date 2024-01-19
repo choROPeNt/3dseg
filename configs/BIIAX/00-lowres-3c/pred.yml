@@ -1,5 +1,5 @@
 model_path: ./checkpoints/BIIAX_model_00-lowres-3c/best_checkpoint.pytorch
-device: cuda:0
+device: cpu
 model:
   name: UNet3D
   # number of input channels to the model
@@ -21,17 +21,17 @@ predictor:
 loaders:
   dataset: StandardHDF5Dataset
   # save predictions to output_dir
-  output_dir: ./predict/160_10-layer/volumes/00/model-00-lowres-3c
+  output_dir: ./predict/160_10-layer/volumes/00/model-00-lowres-3c-test
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
-  batch_size: 48
+  batch_size: 64
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
-  mirror_padding: [32, 32, 32]
+  mirror_padding: [2, 16, 16]
   # how many subprocesses to use for data loading
   num_workers: 8
   # test loaders configuration
   test:
     file_paths:
-      - ./data/160_10-layer/volumes/00/160_10-layer_00_croped.h5
+      - ./data/160_10-layer/volumes/00/160_10-layer_00_croped-test.h5
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
