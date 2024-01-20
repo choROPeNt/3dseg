@@ -191,7 +191,6 @@ class StandardPredictor(_AbstractPredictor):
         for prediction_map, normalization_mask, prediction_dataset in zip(prediction_maps, normalization_masks,
                                                                           prediction_datasets):
             
-            print(prediction_map)
             prediction_map = prediction_map / normalization_mask
 
             if dataset.mirror_padding is not None:
