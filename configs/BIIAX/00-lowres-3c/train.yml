@@ -47,9 +47,9 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: ./checkpoints/BIIAX_model_02-lowres-2024-01-15
+  checkpoint_dir: ./checkpoints/BIIAX_model_05-lowres-2024-01-15
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
-  resume: null
+  resume: ./checkpoints/BIIAX_model_02-lowres-2024-01-15/last_checkpoint.pytorch
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
   pre_trained: null
@@ -58,7 +58,7 @@ trainer:
   # how many iterations between tensorboard logging
   log_after_iters: 50
   # max number of epochs
-  max_num_epochs: 20
+  max_num_epochs: 500
   # max number of iterations
   max_num_iterations: 150000
 # Configure training and validation loaders
@@ -71,7 +71,7 @@ loaders:
   # path to the raw data within the H5
   raw_internal_path: /raw
   # path to the the label data withtin the H5
-  label_internal_path: /masks_3c
+  label_internal_path: /masks
   # configuration of the train loader
   train:
     # path to the training datasets
@@ -94,31 +94,31 @@ loaders:
         - name: Standardize
         - name: RandomFlip
         - name: RandomRotate90
-        # - name: RandomRotate
-        #   # rotate only in ZY plane due to anisotropy
-        #   axes: [[2, 1]]
-        #   angle_spectrum: 45
-        #   mode: reflect
-        # - name: ElasticDeformation
-        #   spline_order: 3
+        - name: RandomRotate
+          # rotate only in ZY plane due to anisotropy
+          axes: [[2, 1]]
+          angle_spectrum: 45
+          mode: reflect
+        - name: ElasticDeformation
+          spline_order: 3
         - name: GaussianBlur3D
           execution_probability: 0.5
         - name: AdditiveGaussianNoise
           execution_probability: 0.2
-        # - name: AdditivePoissonNoise
-        #   execution_probability: 0.2
+        - name: AdditivePoissonNoise
+          execution_probability: 0.2
         - name: ToTensor
           expand_dims: true
       label:
         - name: RandomFlip
         - name: RandomRotate90
-        # - name: RandomRotate
-        #   # rotate only in ZY plane due to anisotropy
-        #   axes: [[2, 1]]
-        #   angle_spectrum: 45
-        #   mode: reflect
-        # - name: ElasticDeformation
-        #   spline_order: 0
+        - name: RandomRotate
+          # rotate only in ZY plane due to anisotropy
+          axes: [[2, 1]]
+          angle_spectrum: 45
+          mode: reflect
+        - name: ElasticDeformation
+          spline_order: 0
         - name: ToTensor
           expand_dims: true
 

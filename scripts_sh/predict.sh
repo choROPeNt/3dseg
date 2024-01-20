@@ -10,7 +10,7 @@
 #SBATCH --ntasks=1                                      # limit to one node
 #SBATCH --cpus-per-task=8                               # number of processor cores (i.e. threads)
 #SBATCH --partition=alpha
-#SBATCH --mem-per-cpu=10000                             # memory per CPU core
+#SBATCH --mem-per-cpu=4000                             # memory per CPU core
 #SBATCH --gres=gpu:1                                    # number of gpus
 #SBATCH -J "torch_3dseg_pore"                           # job name
 #SBATCH --output=slurm_out/3dseg-predict-%j.out
