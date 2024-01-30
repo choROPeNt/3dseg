@@ -130,7 +130,6 @@ class StandardPredictor(_AbstractPredictor):
                 # forward pass
                 predictions = self.model(batch)
 
-
                 # wrap predictions into a list if there is only one output head from the network
                 if output_heads == 1:
                     predictions = [predictions]
