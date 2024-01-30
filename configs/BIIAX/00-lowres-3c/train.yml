@@ -24,7 +24,7 @@ loss:
   skip_last_target: false
 optimizer:
   # initial learning rate
-  learning_rate: 0.0002
+  learning_rate: 0.00002
   # weight decay
   weight_decay: 0.00001
 # evaluation metric
@@ -47,12 +47,12 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: ./checkpoints/BIIAX_model_06-lowres-2024-01-29
+  checkpoint_dir: ./checkpoints/BIIAX_model_07-lowres-2024-01-29
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
-  pre_trained: null
+  pre_trained: ./checkpoints/BIIAX_model_06-lowres-2024-01-29/best_checkpoint.pytorch
   # how many iterations between validations
   validate_after_iters: 200
   # how many iterations between tensorboard logging
