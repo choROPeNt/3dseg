@@ -47,9 +47,9 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: ./checkpoints/BIIAX_model_05-lowres-2024-01-15
+  checkpoint_dir: ./checkpoints/BIIAX_model_06-lowres-2024-01-29
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
-  resume: ./checkpoints/BIIAX_model_02-lowres-2024-01-15/last_checkpoint.pytorch
+  resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
   pre_trained: null
@@ -76,14 +76,14 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
-      - ./data/160_10-layer/volumes/00/160_10-layer_00_2024-01-15_croped.h5
+      - ./data/160_10-layer/volumes/00/160_10-layer_0055_2024-01-29_croped.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
-      patch_shape: [16, 64, 64]
+      patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [2, 16, 16]
+      stride_shape: [8, 8, 8]
       # minimum volume of the labels in the patch
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
@@ -126,15 +126,15 @@ loaders:
   val:
     # path to the val datasets
     file_paths:
-      - ./data/160_10-layer/volumes/00/160_10-layer_00_2024-01-15_croped-copy.h5
+      - ./data/160_10-layer/volumes/00/160_10-layer_0055_2024-01-29_croped-copy.h5
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [16, 64, 64]
+      patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [2, 16, 16]
+      stride_shape: [16, 16, 16]
       # minimum volume of the labels in the patch
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
