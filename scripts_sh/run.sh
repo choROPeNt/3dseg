@@ -10,9 +10,9 @@
 #SBATCH --ntasks=1                                      # limit to one node
 #SBATCH --cpus-per-task=8                               # number of processor cores (i.e. threads)
 #SBATCH --partition=alpha
-#SBATCH --mem-per-cpu=10000                             # memory per CPU core
+#SBATCH --mem-per-cpu=8G                             # memory per CPU core
 #SBATCH --gres=gpu:1                                    # number of gpus
-#SBATCH -J "torch_3dseg_BIIAX_lowres"                           # job name
+#SBATCH -J "torch_3dseg"                           # job name
 #SBATCH --output=slurm_out/3dseg_BIIAX_lowres-%j.out
 #SBATCH --mail-user=christian.duereth@tu-dresden.de     # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
