@@ -4,15 +4,17 @@ setup(
     name="torch3dseg",
     py_modules=["torch3dseg"],
     install_requires=[
+        ## computation packages
         "torch",
         "torchvision",
         "numpy", 
-        "tqdm",
-        "h5py",
-        "pyyaml",
-        "tensorboard",
         "scikit-image",
+        ## analytics packages
+        "tqdm",
+        "tensorboard",
         "torchsummary",
-        "nrrd"
-        ],
+        ## data pacakges
+        "h5py", 
+        "pynrrd",
+        "pyyaml", ],
 )
