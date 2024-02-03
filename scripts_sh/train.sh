@@ -22,7 +22,8 @@
 
 module load release/23.04 GCC/12.2.0 Python/3.10.8 OpenMPI/4.1.4 CUDA/11.8.0
 
-source ../.venv/bin/activate
+source .venv_3dseg/bin/activate
+
 echo $1
 python ./scripts/train.py --config $1
 
