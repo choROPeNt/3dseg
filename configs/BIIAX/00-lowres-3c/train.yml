@@ -1,4 +1,4 @@
-device: cuda:0
+# device: cuda:0
 model:
   name: UNet3D
   # number of input channels to the model
@@ -39,26 +39,26 @@ eval_metric:
   # use_first_input: true
 lr_scheduler:
   name: ReduceLROnPlateau
-  # make sure to use the 'min' mode cause lower AdaptedRandError is better
+  # make sure to use the 'max' mode cause higher MeanIoU is better
   mode: max
   factor: 0.2
-  patience: 20
+  patience: 10
 trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: ./checkpoints/BIIAX_model_07-lowres-2024-01-29
+  checkpoint_dir: /lustre/ssd/ws/dchristi-3dseg/checkpoints/BIIAX_model_00-lowres-2024-02-07
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
-  pre_trained: ./checkpoints/BIIAX_model_06-lowres-2024-01-29/best_checkpoint.pytorch
+  pre_trained: null
   # how many iterations between validations
   validate_after_iters: 200
   # how many iterations between tensorboard logging
-  log_after_iters: 50
+  log_after_iters: 100
   # max number of epochs
-  max_num_epochs: 500
+  max_num_epochs: 100
   # max number of iterations
   max_num_iterations: 150000
 # Configure training and validation loaders
@@ -76,7 +76,12 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
-      - ./data/160_10-layer/volumes/00/160_10-layer_0055_2024-01-29_croped.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_xyz.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_xzy.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_yxz.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_yzx.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_zxy.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_zyx.seg.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
@@ -126,7 +131,12 @@ loaders:
   val:
     # path to the val datasets
     file_paths:
-      - ./data/160_10-layer/volumes/00/160_10-layer_0055_2024-01-29_croped-copy.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_xyz.copy.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_xzy.copy.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_yxz.copy.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_yzx.copy.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_zxy.copy.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_zyx.copy.seg.h5
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
@@ -134,7 +144,7 @@ loaders:
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
       patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [16, 16, 16]
+      stride_shape: [48, 48, 48]
       # minimum volume of the labels in the patch
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
