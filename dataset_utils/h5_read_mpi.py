@@ -19,7 +19,7 @@ def main(file,key="predictions",**kwargs):
    
         f.create_dataset("labels",data=data.astype(np.uint8))
 
-    
+
     
 
 
@@ -28,5 +28,5 @@ def main(file,key="predictions",**kwargs):
 
 if __name__=="__main__":
 
-    file = "/Volumes/data/BIIAX_model_00-lowres-2024-02-07/160_10-layer_00_rot_0000-0230_0230-0460_predictions-test.h5"
+    file = "/Volumes/data/BIIAX_model_00-lowres-2024-02-07/160_10-layer_00_uint8_predictions.h5"
     main(file)
