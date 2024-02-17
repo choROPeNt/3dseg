@@ -67,7 +67,7 @@ loaders:
   # how many subprocesses to use for data loading
   num_workers: 24
   # size of every batch (please check GPU mem size)
-  batch_size: 8
+  batch_size: 6
   # path to the raw data within the H5
   raw_internal_path: /raw
   # path to the the label data withtin the H5

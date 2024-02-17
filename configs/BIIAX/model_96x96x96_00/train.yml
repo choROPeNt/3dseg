@@ -65,9 +65,9 @@ trainer:
 loaders:
   dataset: StandardHDF5Dataset
   # how many subprocesses to use for data loading
-  num_workers: 24
+  num_workers: 16
   # size of every batch (please check GPU mem size)
-  batch_size: 24
+  batch_size: 18
   # path to the raw data within the H5
   raw_internal_path: /raw
   # path to the the label data withtin the H5
