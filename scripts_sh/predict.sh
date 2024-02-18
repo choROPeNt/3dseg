@@ -5,7 +5,7 @@
 ##################################################################
 ## SLURM Defintions
 ##################################################################
-#SBATCH --time=10:00:00                                 # walltime
+#SBATCH --time=2:00:00                                 # walltime
 #SBATCH --nodes=1                                       # number of nodes
 #SBATCH --ntasks=1                                      # limit to one node
 #SBATCH --cpus-per-task=24                               # number of processor cores (i.e. threads)
