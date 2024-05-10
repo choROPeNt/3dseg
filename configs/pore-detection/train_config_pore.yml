@@ -26,7 +26,7 @@ loss:
 optimizer:
   # to do learning rate scheduler
   # initial learning rate
-  learning_rate: 0.0002
+  learning_rate: 0.002
   # weight decay
   weight_decay: 0.00001
 # evaluation metric
@@ -43,13 +43,13 @@ lr_scheduler:
   name: ReduceLROnPlateau
   # make sure to use the 'min' mode cause lower AdaptedRandError is better
   mode: max
-  factor: 0.2
+  factor: 0.1
   patience: 20
 trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: ./checkpoints/pore_run_001
+  checkpoint_dir: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/pore_run_002
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -62,14 +62,14 @@ trainer:
   # max number of epochs
   max_num_epochs: 100
   # max number of iterations
-  max_num_iterations: 100000
+  max_num_iterations: 1000000
 # Configure training and validation loaders
 loaders:
   dataset: StandardHDF5Dataset
   batch_size: 32
    # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
   # how many subprocesses to use for data loading
-  num_workers: 8
+  num_workers: 12
   # path to the raw data within the H5
   raw_internal_path: /raw
   # path to the the label data withtin the H5
@@ -78,8 +78,7 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
-      - ./data/pore-detection/Pinprobe_komplett/pinprobe_01.h5
-
+      - /lustre/ssd/ws/dchristi-3dseg2/data/pore-detection/Parallelprobe_train.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
@@ -128,7 +127,7 @@ loaders:
   val:
     # path to the val datasets
     file_paths:
-      - ./data/pore-detection/Pinprobe_komplett/pinprobe_01-copy.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/pore-detection/pinnprobe_valid.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
