@@ -1,4 +1,4 @@
-model_path: /lustre/ssd/ws/dchristi-3dseg/checkpoints/model_128x128x128_00/best_checkpoint.pytorch
+model_path: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/model_128x128x128_02/best_checkpoint.pytorch
 device: cuda:0
 model:
   name: UNet3D
@@ -9,7 +9,7 @@ model:
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
-  f_maps: 48
+  f_maps: 32
   # number of groups in the groupnorm
   num_groups: 8
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
@@ -22,18 +22,20 @@ predictor:
 loaders:
   dataset: StandardHDF5Dataset
   # save predictions to output_dir
-  output_dir: /lustre/ssd/ws/dchristi-3dseg/predict/model_128x128x128_00/
+  output_dir: /lustre/ssd/ws/dchristi-3dseg2/predict/
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 16
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
   mirror_padding: [32, 32, 32]
   # how many subprocesses to use for data loading
-  num_workers: 24
+  num_workers: 6
+  # path to the raw data within the H5
+  raw_internal_path: /raw
   # test loaders configuration
   test:
     file_paths:
-      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/volumes/00/rand_subvolume/160_10-layer_00_0.h5
-      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/volumes/00/rand_subvolume/160_10-layer_00_1.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/160_10-layer/volumes/00/subvolumes/160_10-layer_00_uint8_2070-2300_2070-2300.h5
+      # - /lustre/ssd/ws/dchristi-3dseg2/data/160_10-layer/volumes/00/rand_subvolume/160_10-layer_00_1.h5
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
