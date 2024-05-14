@@ -31,7 +31,7 @@ cp.cuda.Device(1).use()"
 
 - `PyTorch==2.1.2` mit `CUDA==11.8.0`
 ```bash
-python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 ```
 - some issues with CUDA 12.0 
 - [x] clarify the CUDA version  
