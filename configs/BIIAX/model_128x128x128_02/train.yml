@@ -47,7 +47,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /lustre/ssd/ws/dchristi-3dseg/checkpoints/model_128x128x128_02/
+  checkpoint_dir: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/model_128x128x128_03/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -76,7 +76,7 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
-      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0055_train.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/160_10-layer/labels/00/160_10-layer_0055_train.seg.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
@@ -126,7 +126,7 @@ loaders:
   val:
     # path to the val datasets
     file_paths:
-      - /lustre/ssd/ws/dchristi-3dseg/data/160_10-layer/labels/00/160_10-layer_0460-0690_0690-0920_val.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/160_10-layer/labels/00/160_10-layer_0460-0690_0690-0920_val.seg.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
