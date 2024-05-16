@@ -1,7 +1,7 @@
 
 device: cuda:0
 model:
-  name: UNet3D
+  name: ResidualUNet3D
   # number of input channels to the model
   in_channels: 1
   # number of output channels
@@ -49,7 +49,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/pore_run_002
+  checkpoint_dir: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/pore_001
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -78,7 +78,7 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
-      - /lustre/ssd/ws/dchristi-3dseg2/data/pore-detection/Parallelprobe_train.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/PoreDetection/Parallelprobe_Grauwerte.seg.vol.train.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
@@ -95,39 +95,39 @@ loaders:
       raw:
         - name: Standardize
         - name: RandomFlip
-        # - name: RandomRotate90
-        # - name: RandomRotate
-        #   # rotate only in ZY plane due to anisotropy
-        #   axes: [[2, 1]]
-        #   angle_spectrum: 45
-        #   mode: reflect
-        # - name: ElasticDeformation
-        #   spline_order: 3
-        # - name: GaussianBlur3D
-        #   execution_probability: 0.5
+        - name: RandomRotate90
+        - name: RandomRotate
+          # rotate only in ZY plane due to anisotropy
+          axes: [[2, 1]]
+          angle_spectrum: 45
+          mode: reflect
+        - name: ElasticDeformation
+          spline_order: 3
+        - name: GaussianBlur3D
+          execution_probability: 0.5
         - name: AdditiveGaussianNoise
           execution_probability: 0.2
-        # - name: AdditivePoissonNoise
-        #   execution_probability: 0.2
+        - name: AdditivePoissonNoise
+          execution_probability: 0.2
         - name: ToTensor
           expand_dims: true
       label:
         - name: RandomFlip
-        # - name: RandomRotate90
-        # - name: RandomRotate
-        #   # rotate only in ZY plane due to anisotropy
-        #   axes: [[2, 1]]
-        #   angle_spectrum: 45
-        #   mode: reflect
-        # - name: ElasticDeformation
-        #   spline_order: 0
+        - name: RandomRotate90
+        - name: RandomRotate
+          # rotate only in ZY plane due to anisotropy
+          axes: [[2, 1]]
+          angle_spectrum: 45
+          mode: reflect
+        - name: ElasticDeformation
+          spline_order: 0
         - name: ToTensor
           expand_dims: true
            # configuration of the val loader
   val:
     # path to the val datasets
     file_paths:
-      - /lustre/ssd/ws/dchristi-3dseg2/data/pore-detection/pinnprobe_valid.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/PoreDetection/Pinprobe_komplett.seg.vol.val.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder

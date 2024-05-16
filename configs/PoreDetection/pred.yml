@@ -1,7 +1,7 @@
 model_path: ./checkpoints/pore_run_001/best_checkpoint.pytorch
 device: cuda:0
 model:
-  name: UNet3D
+  name: ResidualUNet3D
   # number of input channels to the model
   in_channels: 1
   # number of output channels
