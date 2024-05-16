@@ -1,6 +1,6 @@
 # device: cuda:0
 model:
-  name: UNet3D
+  name: ResidualUNet3D
   # number of input channels to the model
   in_channels: 1
   # number of output channels
@@ -47,12 +47,12 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/model_64x64x64_00_24-05-15/
+  checkpoint_dir: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/model_64x64x64_01_24-05-16/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
-  pre_trained: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/model_64x64x64_00_24-05-15/best_checkpoint.pytorch
+  pre_trained: null
   # how many iterations between validations
   validate_after_iters: 200
   # how many iterations between tensorboard logging
@@ -85,7 +85,7 @@ loaders:
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
       patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [8, 8, 8]
+      stride_shape: [12, 12, 12]
       # minimum volume of the labels in the patch
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
@@ -94,13 +94,13 @@ loaders:
     transformer:
       raw:
         - name: Standardize
-        - name: RandomFlip
-        - name: RandomRotate90
-        - name: RandomRotate
-          # rotate only in ZY plane due to anisotropy
-          axes: [[2, 1]]
-          angle_spectrum: 45
-          mode: reflect
+        # - name: RandomFlip
+        # - name: RandomRotate90
+        # - name: RandomRotate
+        #   # rotate only in ZY plane due to anisotropy
+        #   axes: [[2, 1]]
+        #   angle_spectrum: 45
+        #   mode: reflect
         - name: ElasticDeformation
           spline_order: 3
         - name: GaussianBlur3D
@@ -112,13 +112,13 @@ loaders:
         - name: ToTensor
           expand_dims: true
       label:
-        - name: RandomFlip
-        - name: RandomRotate90
-        - name: RandomRotate
-          # rotate only in ZY plane due to anisotropy
-          axes: [[2, 1]]
-          angle_spectrum: 45
-          mode: reflect
+        # - name: RandomFlip
+        # - name: RandomRotate90
+        # - name: RandomRotate
+        #   # rotate only in ZY plane due to anisotropy
+        #   axes: [[2, 1]]
+        #   angle_spectrum: 45
+        #   mode: reflect
         - name: ElasticDeformation
           spline_order: 0
         - name: ToTensor
