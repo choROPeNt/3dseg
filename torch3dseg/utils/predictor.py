@@ -13,7 +13,7 @@ from torch3dseg.utils.utils import remove_halo
 logger = get_logger('UNetPredictor')
 
 
-def _get_output_file(dataset, suffix='_predictions', output_dir=None):
+def _get_output_file(dataset, suffix='.pred', output_dir=None):
     input_dir, file_name = os.path.split(dataset.file_path)
     if output_dir is None:
         output_dir = input_dir
