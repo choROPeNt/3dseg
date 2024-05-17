@@ -1,4 +1,4 @@
-model_path: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/model_64x64x64_00_24-05-15/best_checkpoint.pytorch
+model_path: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/model_64x64x64_01_24-05-16/best_checkpoint.pytorch
 device: cuda:0
 model:
   name: ResidualUNet3D
@@ -22,7 +22,7 @@ predictor:
 loaders:
   dataset: StandardHDF5Dataset
   # save predictions to output_dir
-  output_dir: /lustre/ssd/ws/dchristi-3dseg2/predict/model_64x64x64_00/
+  output_dir: /lustre/ssd/ws/dchristi-3dseg2/predict/model_64x64x64_01/
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 64
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
@@ -32,9 +32,11 @@ loaders:
   # test loaders configuration
   test:
     file_paths:
-      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/test/160_10-layer_00_1.h5
-      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/test/200_10-layer_00_1.h5
-      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/test/285_10-layer_00_1.h5
+      # - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/test/160_10-layer_00_0.vol.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/test/200_10-layer_01_0.vol.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/test/285_10-layer_01_0.vol.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/test/200_10-layer_01_1.vol.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/test/285_10-layer_01_1.vol.h5
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
