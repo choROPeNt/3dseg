@@ -113,20 +113,16 @@ def main():
             obj_ids = np.unique(item)[1:] # skip background
             print(obj_ids)
             
-            
             masks = item == obj_ids[:, None, None, None]
             labels = np.zeros((len(obj_ids),*item.shape)).astype(np.int16)
 
             slice = 30
-
             for cls in range(0,masks.shape[0]):
                 labels[cls-1] = label(masks[cls,::],connectivity=2)
                 plt.imshow(labels[cls-1,:,:,slice])
                 plt.show()
 
-            
             print(f"created new array labels with {labels.shape} and {labels.dtype}")
-
 
             data_type_seg = labels.dtype
             size = labels.shape
@@ -138,7 +134,6 @@ def main():
             for i, array in enumerate(labels):
                 fileout = file_name_[0] +f".{i}" +".pred.nrrd"
                 print(f"Creating file {fileout} in {directory}")
-    
                 nrrd.write(os.path.join(directory,fileout), labels[i,::],header=header_seg)
         
         
