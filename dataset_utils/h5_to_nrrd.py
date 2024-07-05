@@ -110,7 +110,7 @@ def main():
   
         if key == "predictions":
             print(f"proccessing {key} with {item.shape} and {item.dtype}")
-            obj_ids = np.unique(item)[1:] # skip background
+            obj_ids = np.unique(item)[:1] # skip background
             print(obj_ids)
             
             masks = item == obj_ids[:, None, None, None]
@@ -118,7 +118,8 @@ def main():
 
             slice = 30
             for cls in range(0,masks.shape[0]):
-                labels[cls-1] = label(masks[cls,::],connectivity=2)
+                # labels[cls-1] = label(masks[cls,::],connectivity=2)
+                labels[cls-1] = masks[cls,::]
                 plt.imshow(labels[cls-1,:,:,slice])
                 plt.show()
 
