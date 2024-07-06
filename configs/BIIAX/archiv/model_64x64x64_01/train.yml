@@ -76,9 +76,15 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
+<<<<<<< HEAD
       - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/train/160_10-layer_0055.seg.h5
       - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/train/200_10-layer_00_0.seg.h5
       - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/train/285_10-layer_00_0.seg.h5
+=======
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/train/160_10-layer_0055.vol.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/train/200_10-layer_00_0.vol.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/train/285_10-layer_00_0.vol.seg.h5
+>>>>>>> 629e93b (Re-initialize repository without old history.)
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
@@ -90,7 +96,10 @@ loaders:
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
       slack_acceptance: 0.001
+<<<<<<< HEAD
 
+=======
+>>>>>>> 629e93b (Re-initialize repository without old history.)
     transformer:
       raw:
         - name: Standardize
@@ -123,12 +132,21 @@ loaders:
           spline_order: 0
         - name: ToTensor
           expand_dims: true
+<<<<<<< HEAD
 
+=======
+>>>>>>> 629e93b (Re-initialize repository without old history.)
   # configuration of the val loader
   val:
     # path to the val datasets
     file_paths:
+<<<<<<< HEAD
       - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/val/160_10-layer_00_uint8_0460-0690_0690-0920.seg.h5
+=======
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/val/160_10-layer_00_uint8_0460-0690_0690-0920.vol.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/val/200_10-layer_00_1.vol.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/val/285_10-layer_00_1.vol.seg.h5
+>>>>>>> 629e93b (Re-initialize repository without old history.)
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
@@ -140,7 +158,10 @@ loaders:
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
       slack_acceptance: 0.001
+<<<<<<< HEAD
 
+=======
+>>>>>>> 629e93b (Re-initialize repository without old history.)
     # data augmentation
     transformer:
       raw:

@@ -152,12 +152,21 @@ class UNet3DTrainer:
             self.best_eval_score = state['best_eval_score']
             self.num_iterations = state['num_iterations']
             self.num_epochs = state['num_epochs']
+<<<<<<< HEAD
             self.checkpoint_dir = os.path.split(resume)[0]
         elif pre_trained is not None:
             logger.info(f"Logging pre-trained model from '{pre_trained}'...")
             utils.load_checkpoint(pre_trained, self.model, None)
             if 'checkpoint_dir' not in kwargs:
                 self.checkpoint_dir = os.path.split(pre_trained)[0]
+=======
+            # self.checkpoint_dir = os.path.split(resume)[0]
+        elif pre_trained is not None:
+            logger.info(f"Logging pre-trained model from '{pre_trained}'...")
+            utils.load_checkpoint(pre_trained, self.model, None)
+            # if 'checkpoint_dir' not in kwargs:
+                # self.checkpoint_dir = os.path.split(pre_trained)[0]
+>>>>>>> 629e93b (Re-initialize repository without old history.)
 
     def fit(self):
         for _ in range(self.num_epochs, self.max_num_epochs):
