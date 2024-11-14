@@ -1,7 +1,7 @@
-model_path: checkpoints/model_128x128x128_02/best_checkpoint.pytorch
+model_path: checkpoints/model_128x128x128_01-24-05-16/best_checkpoint.pytorch
 device: cuda:0
 model:
-  name: UNet3D
+  name: ResidualUNet3D
   # number of input channels to the model
   in_channels: 1
   # number of output channels
@@ -22,26 +22,30 @@ predictor:
 loaders:
   dataset: StandardHDF5Dataset
   # save predictions to output_dir
-  output_dir: predict/
+  output_dir: predict/model_128x128x128_01-24-05-16/best_checkpoint/
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
-  batch_size: 16
+  batch_size: 4
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
   mirror_padding: [32, 32, 32]
   # how many subprocesses to use for data loading
-  num_workers: 6
+  num_workers: 4
   # path to the raw data within the H5
   raw_internal_path: /raw
   # test loaders configuration
   test:
     file_paths:
-      - data/160_10-layer_00_0.h5
-      # - /lustre/ssd/ws/dchristi-3dseg2/data/160_10-layer/volumes/00/rand_subvolume/160_10-layer_00_1.h5
+      # - data/BIIAX/test/160_10-layer_01_0.vol.h5
+      - data/BIIAX/test/160_10-layer_01_1.vol.h5
+      # - data/BIIAX/test/200_10-layer_01_0.vol.h5
+      # - data/BIIAX/test/200_10-layer_01_1.vol.h5
+      # - data/BIIAX/test/285_10-layer_01_0.vol.h5
+      # - data/BIIAX/test/285_10-layer_01_1.vol.h5
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
       patch_shape: [128, 128, 128]
       # train stride between patches
-      stride_shape: [16, 16, 16]
+      stride_shape: [96, 96, 96]
     transformer:
       raw:
         - name: Standardize
