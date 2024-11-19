@@ -1,0 +1,153 @@
+# device: cuda:0
+model:
+  name: ResidualUNet3D
+  # number of input channels to the model
+  in_channels: 1
+  # number of output channels
+  out_channels: 3
+  # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
+  layer_order: gcr
+  # initial number of feature maps
+  f_maps: 32
+  # number of groups in the groupnorm
+  num_groups: 8
+  # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
+  final_sigmoid: true
+  # if True applies the final normalization layer (sigmoid or softmax), otherwise the networks returns the output from the final convolution layer; use False for regression problems, e.g. de-noising
+  is_segmentation: true
+# loss function to be used during training
+loss:
+  name: BCEDiceLoss
+  # a target value that is ignored and does not contribute to the input gradient
+  ignore_index: null
+  # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
+  skip_last_target: false
+optimizer:
+  # initial learning rate
+  learning_rate: 0.010
+  # weight decay
+  weight_decay: 0.00001
+# evaluation metric
+eval_metric:
+  # use AdaptedRandError metric
+  name: MeanIoU
+  # probability maps threshold
+  # threshold: 0.4
+  # # use the last target channel to compute the metric
+  # use_last_target: true
+  # # use only the first channel for computing the metric
+  # use_first_input: true
+lr_scheduler:
+  name: ReduceLROnPlateau
+  # make sure to use the 'max' mode cause higher MeanIoU is better
+  mode: max
+  factor: 0.5
+  patience: 5
+trainer:
+  # model with lower eval score is considered better
+  eval_score_higher_is_better: true
+  # path to the checkpoint directory
+  checkpoint_dir: /lustre/ssd/ws/dchristi-3dseg2/checkpoints/model_128x128x128_01-24-05-16/
+  # path to latest checkpoint; if provided the training will be resumed from that checkpoint
+  resume: null
+  # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
+  # make sure to decrease the learning rate in the optimizer config accordingly
+  pre_trained: null
+  # how many iterations between validations
+  validate_after_iters: 200
+  # how many iterations between tensorboard logging
+  log_after_iters: 100
+  # max number of epochs
+  max_num_epochs: 500
+  # max number of iterations
+  max_num_iterations: 150000
+# Configure training and validation loaders
+loaders:
+  dataset: StandardHDF5Dataset
+  # how many subprocesses to use for data loading
+  num_workers: 6
+  # size of every batch (please check GPU mem size)
+  batch_size: 6
+  # path to the raw data within the H5
+  raw_internal_path: /raw
+  # path to the the label data withtin the H5
+  label_internal_path: /masks
+  # configuration of the train loader
+  train:
+    # path to the training datasets
+    file_paths:
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/train/160_10-layer_0055.vol.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/train/200_10-layer_00_0.vol.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/train/285_10-layer_00_0.vol.seg.h5
+    # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
+    slice_builder:
+      name: FilterSliceBuilder
+      # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
+      patch_shape: [128, 128, 128]
+      # train stride between patches
+      stride_shape: [24, 24, 24]
+      # minimum volume of the labels in the patch
+      threshold: 0.01
+      # probability of accepting patches which do not fulfil the threshold criterion
+      slack_acceptance: 0.001
+
+    transformer:
+      raw:
+        - name: Standardize
+        # - name: RandomFlip
+        # - name: RandomRotate90
+        # - name: RandomRotate
+        #   # rotate only in ZY plane due to anisotropy
+        #   axes: [[2, 1]]
+        #   angle_spectrum: 45
+        #   mode: reflect
+        - name: ElasticDeformation
+          spline_order: 3
+        - name: GaussianBlur3D
+          execution_probability: 0.5
+        - name: AdditiveGaussianNoise
+          execution_probability: 0.2
+        - name: AdditivePoissonNoise
+          execution_probability: 0.2
+        - name: ToTensor
+          expand_dims: true
+      label:
+        # - name: RandomFlip
+        # - name: RandomRotate90
+        # - name: RandomRotate
+        #   # rotate only in ZY plane due to anisotropy
+        #   axes: [[2, 1]]
+        #   angle_spectrum: 45
+        #   mode: reflect
+        - name: ElasticDeformation
+          spline_order: 0
+        - name: ToTensor
+          expand_dims: true
+
+  # configuration of the val loader
+  val:
+    # path to the val datasets
+    file_paths:
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/val/160_10-layer_00_uint8_0460-0690_0690-0920.vol.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/val/200_10-layer_00_1.vol.seg.h5
+      - /lustre/ssd/ws/dchristi-3dseg2/data/BIIAX/val/285_10-layer_00_1.vol.seg.h5
+    # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
+    slice_builder:
+      name: FilterSliceBuilder
+      # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
+      patch_shape: [128, 128, 128]
+      # train stride between patches
+      stride_shape: [96, 96, 96]
+      # minimum volume of the labels in the patch
+      threshold: 0.01
+      # probability of accepting patches which do not fulfil the threshold criterion
+      slack_acceptance: 0.001
+    # data augmentation
+    transformer:
+      raw:
+        - name: Standardize
+        - name: ToTensor
+          expand_dims: true
+      label:
+        - name: ToTensor
+          expand_dims: true
