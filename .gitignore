@@ -8,6 +8,7 @@ checkpoints/
 data/
 slurm_out/
 predict/
+notebooks/
 ## Labelbox ap key
 api_key.txt
 
