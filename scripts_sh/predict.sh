@@ -44,6 +44,7 @@ python ./scripts/predict.py --config $1
 ##################################################################
 ## SLURM Defintions
 ##################################################################
+<<<<<<< HEAD
 #SBATCH --time=3:00:00                                 # walltime
 #SBATCH --nodes=1                                       # number of nodes
 #SBATCH --ntasks=1                                      # limit to one node
@@ -51,6 +52,15 @@ python ./scripts/predict.py --config $1
 #SBATCH --partition=alpha
 #SBATCH --mem-per-cpu=12G                             # memory per CPU core
 #SBATCH --gres=gpu:2                                    # number of gpus
+=======
+#SBATCH --time=5:00:00                                 # walltime
+#SBATCH --nodes=1                                       # number of nodes
+#SBATCH --ntasks=1                                      # limit to one node
+#SBATCH --cpus-per-gpu=6                               # number of processor cores (i.e. threads)
+#SBATCH --partition=alpha
+#SBATCH --mem=480G                             # memory per CPU core
+#SBATCH --gres=gpu:4                                    # number of gpus
+>>>>>>> c01128b (minor updates)
 #SBATCH -J "3dseg-torch_predict"                           # job name
 #SBATCH --output=slurm_out/3dseg-torch_pred-%j.out
 #SBATCH --mail-user=christian.duereth@tu-dresden.de     # email address

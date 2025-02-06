@@ -1,6 +1,6 @@
 
 device: cuda:0
-model_path: ./checkpoints/NEAPEL_run_002/best_checkpoint.pytorch
+model_path: /data/horse/ws/dchristi-3dseg/checkpoints/NEAPEL/NEAPEL_run_004/best_checkpoint.pytorch
 model:
   name: UNet3D
   # number of input channels to the model
@@ -17,23 +17,24 @@ model:
   final_sigmoid: true
 predictor:
   name: 'StandardPredictor'
+  output_type: 'probabilities'
 loaders:
   # save predictions to output_dir
-  output_dir: ./predict/Neapel/neapel_002/Thinlayer 1-3_2023-03-30_155044/
+  output_dir: /data/horse/ws/dchristi-3dseg/predict/NEAPEL/NEAPEL_run_004/
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
-  batch_size: 1
+  batch_size: 8
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
   mirror_padding: [16, 32, 32]
   # how many subprocesses to use for data loading
-  num_workers: 8
+  num_workers: 24
   # test loaders configuration
   test:
     file_paths:
-      - ./data/NEAPEL/neapel_002/Thinlayer 1-3_2023-03-30_155044/tomo-HR/Thinlayer 1-3_tomo-HR_recon_aligned_uint8.hdf5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/Thinlayer 1-3_tomo-HR_recon_aligned-gzip_subvolume_1.h5
     slice_builder:
       name: SliceBuilder
       patch_shape: [40, 256, 256]
-      stride_shape: [10, 40, 40]
+      stride_shape: [24, 240, 240]
     transformer:
       raw:
         - name: Standardize

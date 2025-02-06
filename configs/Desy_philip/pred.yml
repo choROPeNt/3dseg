@@ -1,0 +1,48 @@
+model_path: /data/horse/ws/dchristi-3dseg/checkpoints/Desy_Philip/model_64x64x64_01_25-01-21/best_checkpoint.pytorch
+device: cuda:0
+model:
+  name: ResidualUNet3D
+  # number of input channels to the model
+  in_channels: 1
+  # number of output channels
+  out_channels: 2
+  # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
+  layer_order: gcr
+  # initial number of feature maps
+  f_maps: 32
+  # number of groups in the groupnorm
+  num_groups: 8
+  # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
+  final_sigmoid: true
+  # if True applies the final normalization layer (sigmoid or softmax), otherwise the networks returns the output from the final convolution layer; use False for regression problems, e.g. de-noising
+  is_segmentation: true
+predictor:
+  name: 'StandardPredictor'
+  output_type: 'classes' # 'probability'
+loaders:
+  dataset: StandardHDF5Dataset
+  # save predictions to output_dir
+  output_dir: /data/horse/ws/dchristi-3dseg/predict/Desy_Philip/Trainingsdaten_Kab_02_005/
+  # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
+  batch_size: 64
+  # path to the raw data within the H5
+  raw_internal_path: /volume
+  # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
+  mirror_padding: [32, 32, 32]
+  # how many subprocesses to use for data loading
+  num_workers: 6
+  # test loaders configuration
+  test:
+    file_paths:
+      - /data/horse/ws/dchristi-3dseg/data/Desy_Philip/Trainingsdaten_Kab_02_005/Kab_02_005.eval.h5
+    slice_builder:
+      name: FilterSliceBuilder
+      # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
+      patch_shape: [64, 64, 64]
+      # train stride between patches
+      stride_shape: [16, 16, 16]
+    transformer:
+      raw:
+        - name: Standardize
+        - name: ToTensor
+          expand_dims: true

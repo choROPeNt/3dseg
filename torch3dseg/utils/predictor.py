@@ -199,9 +199,16 @@ class StandardPredictor(_AbstractPredictor):
                 prediction_map = prediction_map[:, z_s, y_s, x_s]
             
             ##TODO set out put to labels
+<<<<<<< HEAD
             if 'output_type' in self.config.get('predictor', {}):
                 if self.config['predictor']['output_type'] == 'classes':
                     prediction_map = np.argmax(prediction_map, axis=0).astype(np.uint8)
+=======
+            if self.config['predictor']['output_type'] == 'classes':
+                prediction_map = np.argmax(prediction_map,axis=0).astype(np.uint8)
+            else:
+                pass
+>>>>>>> c01128b (minor updates)
 
             output_file.create_dataset(prediction_dataset, data=prediction_map, compression="gzip")
 

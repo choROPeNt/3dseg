@@ -6,6 +6,7 @@
 ## SLURM Defintions
 ##################################################################
 <<<<<<< HEAD
+<<<<<<< HEAD
 #SBATCH --time=8:00:00                 # walltime
 #SBATCH --nodes=1                       # number of nodes
 #SBATCH --ntasks=1                      # limit to one node
@@ -19,12 +20,19 @@
 #SBATCH --mem-per-cpu=16G               # memory per CPU core
 =======
 #SBATCH --time=12:00:00                 # walltime
+=======
+#SBATCH --time=6:00:00                 # walltime
+>>>>>>> 365f597 (minor updates)
 #SBATCH --nodes=1                       # number of nodes
 #SBATCH --ntasks=1                      # limit to one node
 #SBATCH --cpus-per-task=6               # number of processor cores (i.e. threads)
 #SBATCH --partition=alpha
+<<<<<<< HEAD
 #SBATCH --mem-per-cpu=32G               # memory per CPU core
 >>>>>>> 629e93b (Re-initialize repository without old history.)
+=======
+#SBATCH --mem-per-cpu=12G               # memory per CPU core
+>>>>>>> 365f597 (minor updates)
 #SBATCH --gres=gpu:1                    # number of gpus
 #SBATCH -J "3dseg-torch_train"          # job name
 >>>>>>> 0d06ee2 (Re-initialize repository without old history.)
