@@ -6,6 +6,7 @@ from torch3dseg.utils.config import load_config_direct
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Update YAML configuration with argparse values.")
     parser.add_argument("--config", type=str, default="config.yml", help="Path to the base YAML configuration file")
+    parser.add_argument("--dir",type=str, default="configs", help="directory to store the  YAML configuration files")
     parser.add_argument("--f_maps", type=int, help="Initial number of feature maps")
     parser.add_argument("--num_groups", type=int, help="Number of groups in GroupNorm")
     parser.add_argument("--learning_rate", type=float, help="Learning rate for optimizer")
@@ -14,15 +15,15 @@ def parse_arguments():
     
     return vars(parser.parse_args())
 
-def get_unique_filename(base_filename="omniopt_run01_01.yml"):
-    if not os.path.exists(base_filename):
-        return base_filename
+def get_unique_filename(config_path, save_dir):
+    base_name = os.path.splitext(os.path.basename(config_path))[0]
+    os.makedirs(save_dir, exist_ok=True)
     
-    base_name, ext = os.path.splitext(base_filename)
-    i = 1
-    while os.path.exists(f"{base_name}_{i}{ext}"):
+    i = 0
+    while os.path.exists(os.path.join(save_dir, f"{base_name}_{i:03d}.yml")):
         i += 1
-    return f"{base_name}_{i}{ext}"
+    
+    return os.path.join(save_dir, f"{base_name}_{i:03d}.yml")
 
 def load_and_update_yaml(config_path, args):
     with open(config_path, 'r') as file:
@@ -50,10 +51,14 @@ def write_to_yaml(config, filepath):
         yaml.dump(config, file, default_flow_style=False)
     print(f"Updated configuration saved to {filepath}")
 
+##########################
+## Main Programm
+##########################
 def main():
     args = parse_arguments()
     config_path = args.pop("config")
-    filepath = get_unique_filename()
+    save_dir = args.pop("dir")
+    filepath = get_unique_filename(config_path, save_dir)
     updated_config = load_and_update_yaml(config_path, args)
     write_to_yaml(updated_config, filepath)
     config = load_config_direct(filepath)
