@@ -31,6 +31,10 @@ def main():
     # Start training
     trainer.fit()
 
+    test_loss = 0
+    #print statement esp. for OmniOpt (single line!!)
+    print(f"RESULT: {test_loss:>8f} \n")
+
 if __name__ == '__main__':
     main()
 
