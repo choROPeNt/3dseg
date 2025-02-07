@@ -1,7 +1,9 @@
 import argparse
 import yaml
 import os
+
 from torch3dseg.utils.config import load_config_direct
+from torch3dseg.utils.trainer import create_trainer
 from torch3dseg.utils import utils
 
 logger = utils.get_logger('ConfigPreProcessing')
@@ -12,6 +14,8 @@ def parse_arguments():
     parser.add_argument("--config", type=str, default="config.yml", help="Path to the base YAML configuration file")
     parser.add_argument("--dir",type=str, default="configs", help="directory to store the  YAML configuration files")
     parser.add_argument("--checkpoint_dir",type=str, default="checkpoints", help="directory to store the  YAML configuration files")
+    
+    
     ## Hyperparameters
     parser.add_argument("--f_maps", type=int, help="Initial number of feature maps")
     parser.add_argument("--num_groups", type=int, help="Number of groups in GroupNorm")
@@ -67,6 +71,7 @@ def main():
     #######################
     ## Pre-Processing
     #######################
+    logger = utils.get_logger('ConfigPreProcessing')
     # Get Arguments
     args = parse_arguments()
     config_path = args.pop("config")
@@ -85,12 +90,16 @@ def main():
     #######################
     ## Training
     ####################### 
-    
+    logger = utils.get_logger('TrainingSetup')
     config = load_config_direct(filepath)
-    
+    logger.info(config)
 
 
 
+    # create trainer
+    trainer = create_trainer(config)
+    # Start training
+    trainer.fit()
 
 if __name__ == "__main__":
     main()
