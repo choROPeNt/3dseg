@@ -169,7 +169,21 @@ class UNet3DTrainer:
                 return
 
             self.num_epochs += 1
+
+        logger.info(f"Last Valdiation after {self.max_num_epochs}. Finishing with validation...")
+        ## final validation step
+        # set the model in eval mode
+        self.model.eval()
+        # evaluate on validation set
+        eval_score, loss = self.validate()
+        # remember best validation metric
+        is_best = self._is_best_eval_score(eval_score)
+        # save checkpoint
+        self._save_checkpoint(is_best)
+
         logger.info(f"Reached maximum number of epochs: {self.max_num_epochs}. Finishing training...")
+        #print statement esp. for OmniOpt (single line!!)
+        print(f"RESULT: {loss:>8f} \n")
 
     def train(self):
         """Trains the model for 1 epoch.
@@ -202,7 +216,7 @@ class UNet3DTrainer:
                 # set the model in eval mode
                 self.model.eval()
                 # evaluate on validation set
-                eval_score = self.validate()
+                eval_score, _ = self.validate()
                 # set the model back to training mode
                 self.model.train()
 
@@ -283,7 +297,7 @@ class UNet3DTrainer:
 
             self._log_stats('val', val_losses.avg, val_scores.avg)
             logger.info(f'Validation finished. Loss: {val_losses.avg}. Evaluation score: {val_scores.avg}')
-            return val_scores.avg
+            return val_scores.avg, val_losses.avg
 
     def _split_training_batch(self, t):
         def _move_to_device(input):
