@@ -166,6 +166,17 @@ class UNet3DTrainer:
 
             if should_terminate:
                 logger.info('Stopping criterion is satisfied. Finishing training')
+                logger.info(f"Last Valdiation after Stopping criterion is satisfied.. Finishing with validation...")
+                ## final validation step
+                # set the model in eval mode
+                self.model.eval()
+                # evaluate on validation set
+                eval_score, loss = self.validate()
+                # remember best validation metric
+                is_best = self._is_best_eval_score(eval_score)
+                # save checkpoint
+                self._save_checkpoint(is_best)
+                print(f"RESULT: {loss:>8f} \n")
                 return
 
             self.num_epochs += 1
