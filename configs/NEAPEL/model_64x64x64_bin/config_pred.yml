@@ -1,0 +1,45 @@
+
+device: cuda:0
+model_path: /data/horse/ws/dchristi-3dseg/checkpoints/NEAPEL/model_64x64x64_bin/run_02/best_checkpoint.pytorch
+model:
+  name: ResidualUNet3D
+  # number of input channels to the model
+  in_channels: 1
+  # number of output channels
+  out_channels: 2
+  # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
+  layer_order: gcr
+  # initial number of feature maps
+  f_maps: 24
+  # number of groups in the groupnorm
+  num_groups: 8
+  # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
+  final_sigmoid: true
+predictor:
+  name: 'StandardPredictor'
+loaders:
+  # save predictions to output_dir
+  output_dir: ./data/horse/ws/dchristi-3dseg/predict/Neapel/model_64x64x64_bin/run_02/
+  # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
+  batch_size: 32
+  # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
+  mirror_padding: [16, 32, 32]
+  # how many subprocesses to use for data loading
+  num_workers: 6
+  raw_internal_path: /vol
+  # test loaders configuration
+  test:
+    file_paths:
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_0.h5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_1.h5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_2.h5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.val_0.h5
+    slice_builder:
+      name: SliceBuilder
+      patch_shape: [64, 64, 64]
+      stride_shape: [16, 16, 16]
+    transformer:
+      raw:
+        - name: Standardize
+        - name: ToTensor
+          expand_dims: true
