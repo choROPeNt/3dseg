@@ -213,7 +213,21 @@ class UNet3DTrainer:
 
             input, target, weight = self._split_training_batch(t)
 
+            print(f" input shape {input.shape}, dtype {input.dtype}")
+            print(f" target shape {target.shape}, dtype {target.dtype}")
+
+
             output, loss = self._forward_pass(input, target, weight)
+
+            print(f"output channel 0 value {output[0,0,1,1,1]}")
+            print(f"output channel 1 value {output[0,1,1,1,1]}")
+            
+            print(f"target channel 0 value {target[0,0,1,1,1]}")
+            print(f"target channel 1 value {target[0,1,1,1,1]}")
+
+
+            print(f" output shape {output.shape}, dtype {output.dtype}")
+
 
             train_losses.update(loss.item(), self._batch_size(input))
 
