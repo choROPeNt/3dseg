@@ -1,6 +1,6 @@
 
 device: cuda:0
-model_path: /data/horse/ws/dchristi-3dseg/checkpoints/NEAPEL/model_64x64x64_bin/run_02/best_checkpoint.pytorch
+model_path: /data/horse/ws/dchristi-3dseg/checkpoints/NEAPEL/model_64x64x64_bin/run_04/best_checkpoint.pytorch
 model:
   name: ResidualUNet3D
   # number of input channels to the model
@@ -15,11 +15,13 @@ model:
   num_groups: 8
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
   final_sigmoid: true
+  # if True applies the final normalization layer (sigmoid or softmax), otherwise the networks returns the output from the final convolution layer; use False for regression problems, e.g. de-noising
+  is_segmentation: true
 predictor:
   name: 'StandardPredictor'
 loaders:
   # save predictions to output_dir
-  output_dir: /data/horse/ws/dchristi-3dseg/predict/Neapel/model_64x64x64_bin/run_02/
+  output_dir: /data/horse/ws/dchristi-3dseg/predict/Neapel/model_64x64x64_bin/run_04/
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 32
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
