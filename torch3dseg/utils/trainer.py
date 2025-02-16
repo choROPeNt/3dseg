@@ -245,6 +245,7 @@ class UNet3DTrainer:
             if self.num_iterations % self.log_after_iters == 0:
                 # compute eval criterion
                 if not self.skip_train_validation:
+                    output = nn.Sigmoid()(output)
                     eval_score = self.eval_criterion(output, target)
                     train_eval_scores.update(eval_score.item(), self._batch_size(input))
 

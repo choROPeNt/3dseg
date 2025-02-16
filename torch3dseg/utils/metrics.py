@@ -2,6 +2,8 @@ import importlib
 
 import numpy as np
 import torch
+import torch.nn as nn
+
 from skimage import measure
 from skimage.metrics import adapted_rand_error, peak_signal_noise_ratio, mean_squared_error
 
@@ -12,6 +14,71 @@ from .utils import get_logger, expand_as_one_hot, convert_to_numpy
 
 logger = get_logger('EvalMetric')
 
+
+class F1Score(nn.Module):
+    """
+    Compute F1 Score for multi-channel 3D segmentation.
+    
+    Supports:
+    - Logits (raw model outputs before sigmoid)
+    - Thresholded binary masks (0s and 1s)
+    - Skipping specific channels
+    
+    Args:
+        threshold (float): Threshold for converting probabilities to binary (default: 0.5).
+        smooth (float): Smoothing factor to avoid division by zero.
+        skip_channels (list[int]): List of channel indices to skip during F1 calculation.
+    """
+    def __init__(self, threshold=0.5, smooth=1e-6, skip_channels=None,**kwargs):
+        super(F1Score, self).__init__()
+        self.threshold = threshold
+        self.smooth = smooth
+        self.skip_channels = skip_channels if skip_channels else []
+
+    
+    def forward(self, pred, target):
+        """
+        Compute F1 Score.
+
+        Args:
+            pred (torch.Tensor): Predicted mask (logits or binary), shape [batch, channels, depth, height, width].
+            target (torch.Tensor): Ground truth mask (binary), shape [batch, channels, depth, height, width].
+
+        Returns:
+            torch.Tensor: Mean F1 Score across valid channels.
+        """
+        assert pred.shape == target.shape, f"Shape mismatch: {pred.shape} vs {target.shape}"
+
+        # print(f"Prediction Tensor - Min: {pred.min().item()}, Max: {pred.max().item()}")
+        # print(f"Target Tensor - Min: {target.min().item()}, Max: {target.max().item()}")
+        # Convert probabilities to binary masks
+        pred = (pred > self.threshold).float()
+        target = target.float()
+
+        # Compute per-channel F1 score
+        f1_per_channel = []
+        num_channels = pred.shape[1]  # Channel dimension is at index 1
+
+        for ch in range(num_channels):
+            if ch in self.skip_channels:
+                continue  # Skip this channel
+
+            # Compute True Positives (TP), False Positives (FP), False Negatives (FN)
+            tp = (pred[:, ch] * target[:, ch]).sum()  # Sum over spatial dimensions
+            fp = (pred[:, ch] * (1 - target[:, ch])).sum()
+            fn = ((1 - pred[:, ch]) * target[:, ch]).sum()
+
+            # Compute F1 Score for this channel (batch-wise)
+            f1 = (2 * tp + self.smooth) / (2 * tp + fp + fn + self.smooth)
+
+            # Take the mean F1 score over the batch
+            f1_per_channel.append(f1.mean())
+
+        if len(f1_per_channel) == 0:
+            return torch.tensor(0.0, device=pred.device)  # Return 0 if all channels are skipped
+
+        # Compute mean F1 across valid channels
+        return torch.stack(f1_per_channel).mean()
 
 
 class DiceCoefficient:
