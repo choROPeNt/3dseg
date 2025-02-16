@@ -185,7 +185,7 @@ class UNet3DTrainer:
         # set the model in eval mode
         self.model.eval()
         # evaluate on validation set
-        eval_score, loss = self.validate()
+        eval_score, eval_loss = self.validate()
         # remember best validation metric
         is_best = self._is_best_eval_score(eval_score)
         # save checkpoint
@@ -193,7 +193,7 @@ class UNet3DTrainer:
 
         logger.info(f"Reached maximum number of epochs: {self.max_num_epochs}. Finishing training...")
         #print statement esp. for OmniOpt (single line!!)
-        print(f"RESULT: {loss:>8f} \n")
+        print(f"RESULT: {eval_loss:>8f} \n")
 
     def train(self):
         """Trains the model for 1 epoch.
@@ -212,22 +212,7 @@ class UNet3DTrainer:
                         f'Epoch [{self.num_epochs}/{self.max_num_epochs - 1}]')
 
             input, target, weight = self._split_training_batch(t)
-
-            print(f" input shape {input.shape}, dtype {input.dtype}")
-            print(f" target shape {target.shape}, dtype {target.dtype}")
-
-
             output, loss = self._forward_pass(input, target, weight)
-
-            print(f"output channel 0 value {output[0,0,1,1,1]}")
-            print(f"output channel 1 value {output[0,1,1,1,1]}")
-            
-            print(f"target channel 0 value {target[0,0,1,1,1]}")
-            print(f"target channel 1 value {target[0,1,1,1,1]}")
-
-
-            print(f" output shape {output.shape}, dtype {output.dtype}")
-
 
             train_losses.update(loss.item(), self._batch_size(input))
 
@@ -307,6 +292,7 @@ class UNet3DTrainer:
                 input, target, weight = self._split_training_batch(t)
 
                 output, loss = self._forward_pass(input, target, weight)
+
                 val_losses.update(loss.item(), self._batch_size(input))
 
                 if i % 100 == 0:

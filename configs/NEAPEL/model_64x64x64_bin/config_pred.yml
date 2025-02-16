@@ -33,9 +33,9 @@ loaders:
   test:
     file_paths:
       - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_0.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_1.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_2.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.val_0.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_1.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_2.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.val_0.h5
     slice_builder:
       name: SliceBuilder
       patch_shape: [64, 64, 64]

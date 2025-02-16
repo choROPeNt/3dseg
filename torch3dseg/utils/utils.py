@@ -245,7 +245,7 @@ class DefaultTensorboardFormatter(_TensorboardFormatter):
 
     @staticmethod
     def _normalize_img(img):
-        return np.nan_to_num((img - np.min(img)) / (np.ptp(img))+ 1e-8)
+        return np.nan_to_num((img - np.min(img)) / (np.ptp(img)+ 1e-8))
 
 
 def _find_masks(batch, min_size=10):

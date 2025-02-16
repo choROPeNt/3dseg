@@ -53,7 +53,6 @@ class MeanIoU:
         assert input.dim() == 5
 
         n_classes = input.size()[1]
-
         if target.dim() == 4:
             target = expand_as_one_hot(target, C=n_classes, ignore_index=self.ignore_index)
 
@@ -72,7 +71,6 @@ class MeanIoU:
             # convert to uint8 just in case
             binary_prediction = binary_prediction.byte()
             _target = _target.byte()
-
             per_channel_iou = []
             for c in range(n_classes):
                 if c in self.skip_channels:
@@ -88,8 +86,8 @@ class MeanIoU:
 
     def _binarize_predictions(self, input, n_classes):
         """
-        Puts 1 for the class/channel with the highest probability and 0 in other channels. Returns byte tensor of the
-        same size as the input tensor.
+        Puts 1 for the class/channel with the highest probability and 0 in other channels. 
+        Returns byte tensor of the same size as the input tensor.
         """
         if n_classes == 1:
             # for single channel input just threshold the probability map
@@ -97,13 +95,15 @@ class MeanIoU:
             return result.long()
 
         _, max_index = torch.max(input, dim=0, keepdim=True)
+
         return torch.zeros_like(input, dtype=torch.uint8).scatter_(0, max_index, 1)
 
     def _jaccard_index(self, prediction, target):
         """
         Computes IoU for a given target and prediction tensors
         """
-        return torch.sum(prediction & target).float() / torch.clamp(torch.sum(prediction | target).float(), min=1e-8)
+        return torch.sum(prediction & target).float() / \
+            torch.clamp(torch.sum(prediction | target).float(), min=1e-8)
 
 
 class AdaptedRandError:

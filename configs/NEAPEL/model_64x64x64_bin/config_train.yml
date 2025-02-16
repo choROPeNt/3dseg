@@ -5,7 +5,7 @@ model:
   # number of input channels to the model
   in_channels: 1
   # number of output channels
-  out_channels: 2
+  out_channels: 1
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
@@ -31,14 +31,15 @@ optimizer:
   weight_decay: 0.00001
 # evaluation metric
 eval_metric:
-  # use AdaptedRandError metric MeanIoU
+  # currently implemented metrics : AdaptedRandError, MeanIoU, DiceCoefficient
   name: MeanIoU
   # probability maps threshold
   threshold: 0.5
-  # use the last target channel to compute the metric
-  use_last_target: false
-  # # use only the first channel for computing the metric
-  use_first_input: true
+  # skip_channels: 
+  # # use the last target channel to compute the metric
+  # use_last_target: false
+  # # # use only the first channel for computing the metric
+  # use_first_input: true
 lr_scheduler:
   name: ReduceLROnPlateau
   # make sure to use the 'min' mode cause lower AdaptedRandError is better
@@ -49,7 +50,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/NEAPEL/model_64x64x64_bin/run_04
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/NEAPEL/model_64x64x64_bin/run_test
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -60,9 +61,9 @@ trainer:
   # how many iterations between tensorboard logging
   log_after_iters: 5
   # max number of epochs
-  max_num_epochs: 20
+  max_num_epochs: 10
   # max number of iterations
-  max_num_iterations: 100000
+  max_num_iterations: 100
 # Configure training and validation loaders
 loaders:
   dataset: StandardHDF5Dataset
@@ -73,69 +74,69 @@ loaders:
   # path to the raw data within the H5
   raw_internal_path: /vol
   # path to the the label data withtin the H5
-  label_internal_path: /masks_bin
+  label_internal_path: /masks_bin2
   # configuration of the train loader
   train:
     # path to the training datasets
     file_paths:
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_0.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_1.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_2.h5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.train_0.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.train_1.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.train_2.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
       patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [16, 16, 16]
+      stride_shape: [48, 48, 48]
       # minimum volume of the labels in the patch
-      threshold: 0.1
+      threshold: 0.2
       # probability of accepting patches which do not fulfil the threshold criterion
       slack_acceptance: 0.01
     transformer:
       raw:
         - name: Standardize
-        - name: RandomFlip
-        - name: RandomRotate90
-        - name: RandomRotate
-          # rotate only in ZY plane due to anisotropy
-          axes: [[2, 1]]
-          angle_spectrum: 45
-          mode: reflect
-        - name: ElasticDeformation
-          spline_order: 3
-        - name: GaussianBlur3D
-          execution_probability: 0.5
-        - name: AdditiveGaussianNoise
-          execution_probability: 0.2
-        - name: AdditivePoissonNoise
-          execution_probability: 0.2
+        # - name: RandomFlip
+        # - name: RandomRotate90
+        # - name: RandomRotate
+        #   # rotate only in ZY plane due to anisotropy
+        #   axes: [[2, 1]]
+        #   angle_spectrum: 45
+        #   mode: reflect
+        # - name: ElasticDeformation
+        #   spline_order: 3
+        # - name: GaussianBlur3D
+        #   execution_probability: 0.5
+        # - name: AdditiveGaussianNoise
+        #   execution_probability: 0.2
+        # - name: AdditivePoissonNoise
+        #   execution_probability: 0.2
         - name: ToTensor
           expand_dims: true
       label:
-        - name: RandomFlip
-        - name: RandomRotate90
-        - name: RandomRotate
-          # rotate only in ZY plane due to anisotropy
-          axes: [[2, 1]]
-          angle_spectrum: 45
-          mode: reflect
-        - name: ElasticDeformation
-          spline_order: 0
+        # - name: RandomFlip
+        # - name: RandomRotate90
+        # - name: RandomRotate
+        #   # rotate only in ZY plane due to anisotropy
+        #   axes: [[2, 1]]
+        #   angle_spectrum: 45
+        #   mode: reflect
+        # - name: ElasticDeformation
+        #   spline_order: 3
         - name: ToTensor
-          expand_dims: False
+          expand_dims: true
            # configuration of the val loader
   val:
     # path to the val datasets
     file_paths:
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.val_0.h5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.val_0.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
       patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [16, 16, 16]
+      stride_shape: [64, 64, 64]
       # minimum volume of the labels in the patch
       threshold: 0.1
       # probability of accepting patches which do not fulfil the threshold criterion
@@ -148,4 +149,4 @@ loaders:
           expand_dims: true
       label:
         - name: ToTensor
-          expand_dims: false
+          expand_dims: true
