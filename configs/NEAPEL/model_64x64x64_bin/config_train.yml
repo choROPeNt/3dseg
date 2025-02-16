@@ -14,11 +14,13 @@ model:
   num_groups: 8
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
   final_sigmoid: true
-  # if True applies the final normalization layer (sigmoid or softmax), otherwise the networks returns the output from the final convolution layer; use False for regression problems, e.g. de-noising
+  # if True applies the final normalization layer (sigmoid or softmax), 
+  # otherwise the networks returns the output from the final convolution layer; 
+  # use False for regression problems, e.g. de-noising
   is_segmentation: true
 # loss function to be used during training
 loss:
-  name: BCEDiceLoss
+  name: BCEWithLogitsLoss
   # a target value that is ignored and does not contribute to the input gradient
   ignore_index: null
   # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
@@ -26,16 +28,16 @@ loss:
 optimizer:
   # to do learning rate scheduler
   # initial learning rate
-  learning_rate: 0.002
+  learning_rate: 0.01
   # weight decay
-  weight_decay: 0.00001
+  weight_decay: 0.000001
 # evaluation metric
 eval_metric:
   # currently implemented metrics : AdaptedRandError, MeanIoU, DiceCoefficient
   name: F1Score
   # probability maps threshold
   # threshold: 0.5
-  skip_channels: []
+  skip_channels: [1]
   # # use the last target channel to compute the metric
   # use_last_target: false
   # # # use only the first channel for computing the metric
@@ -61,7 +63,7 @@ trainer:
   # how many iterations between tensorboard logging
   log_after_iters: 5
   # max number of epochs
-  max_num_epochs: 10
+  max_num_epochs: 100
   # max number of iterations
   max_num_iterations: 100
 # Configure training and validation loaders
@@ -89,7 +91,7 @@ loaders:
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
       patch_shape: [64, 64, 64]
       # train stride between patches
-      stride_shape: [48, 48, 48]
+      stride_shape: [16, 16, 16]
       # minimum volume of the labels in the patch
       threshold: 0.2
       # probability of accepting patches which do not fulfil the threshold criterion

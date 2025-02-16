@@ -167,6 +167,7 @@ class GeneralizedDiceLoss(_AbstractDiceLoss):
         return 2 * (intersect.sum() / denominator.sum())
 
 
+
 class BCEDiceLoss(nn.Module):
     """Linear combination of BCE and Dice losses"""
 
