@@ -1,4 +1,4 @@
-model_path: checkpoints/model_128x128x128_01-24-05-16/best_checkpoint.pytorch
+model_path: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/2025-02-21_model_128x128x128_synth2/best_checkpoint.pytorch
 device: cuda:0
 model:
   name: ResidualUNet3D
@@ -9,7 +9,7 @@ model:
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
-  f_maps: 32
+  f_maps: 48
   # number of groups in the groupnorm
   num_groups: 8
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
@@ -18,34 +18,32 @@ model:
   is_segmentation: true
 predictor:
   name: 'StandardPredictor'
-  output_type: 'classes' # 'probability'
+  # output_type:  # 'probability'
 loaders:
   dataset: StandardHDF5Dataset
   # save predictions to output_dir
-  output_dir: predict/model_128x128x128_01-24-05-16/best_checkpoint/
+  output_dir: /data/horse/ws/dchristi-3dseg/predict/BIIAX/2025-02-21_model_128x128x128_synth2/
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
-  batch_size: 4
+  batch_size: 8
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
   mirror_padding: [32, 32, 32]
   # how many subprocesses to use for data loading
-  num_workers: 4
+  num_workers: 12
   # path to the raw data within the H5
-  raw_internal_path: /raw
+  raw_internal_path: /volume
   # test loaders configuration
   test:
     file_paths:
-      # - data/BIIAX/test/160_10-layer_01_0.vol.h5
-      - data/BIIAX/test/160_10-layer_01_1.vol.h5
-      # - data/BIIAX/test/200_10-layer_01_0.vol.h5
-      # - data/BIIAX/test/200_10-layer_01_1.vol.h5
-      # - data/BIIAX/test/285_10-layer_01_0.vol.h5
-      # - data/BIIAX/test/285_10-layer_01_1.vol.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/160_10-layer_00_uint8_0460-0690_0690-0920.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/160_10-layer_00_uint8_0460-0690_0690-0920.crop.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/synthetic/160_nn.crop.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/synthetic/160_mn.crop.vol.seg.h5
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
       patch_shape: [128, 128, 128]
       # train stride between patches
-      stride_shape: [96, 96, 96]
+      stride_shape: [16, 16, 16]
     transformer:
       raw:
         - name: Standardize
