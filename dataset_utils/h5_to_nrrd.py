@@ -110,19 +110,11 @@ def main():
   
         if key == "predictions":
             print(f"proccessing {key} with {item.shape} and {item.dtype}")
-            obj_ids = np.unique(item)[1:] # skip background
-            print(obj_ids)
             
-            masks = item == obj_ids[:, None, None, None]
-            labels = np.zeros((len(obj_ids),*item.shape)).astype(np.int16)
-
-            slice = 30
-            for cls in range(0,masks.shape[0]):
-                labels[cls-1] = label(masks[cls,::],connectivity=2)
-                # labels[cls-1] = masks[cls,::]
-                plt.imshow(labels[cls-1,:,:,slice])
-                plt.show()
-
+            labels = np.argmax(item,axis=0)
+            
+            print(labels.shape)
+            
             print(f"created new array labels with {labels.shape} and {labels.dtype}")
 
             data_type_seg = labels.dtype
@@ -132,11 +124,11 @@ def main():
             space_origin = (0 , 0 , 0 )
 
             header_seg = create_nrrd_header(size, spacing, space_origin, data_type_seg)
-            for i, array in enumerate(labels):
-                fileout = file_name_[0] +f".{i}" +".pred.nrrd"
-                print(f"Creating file {fileout} in {directory}")
-                nrrd.write(os.path.join(directory,fileout), labels[i,::],header=header_seg)
-        
+           
+            fileout = file_name_[0] +".pred.nrrd"
+            print(f"Creating file {fileout} in {directory}")
+            nrrd.write(os.path.join(directory,fileout), labels,header=header_seg)
+    
         
         if key == "raw":
             print(f"proccessing {key} with {item.shape} and {item.dtype}")
