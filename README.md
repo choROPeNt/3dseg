@@ -18,7 +18,9 @@ This reposirory is based on [pytorch-3dunet](https://github.com/wolny/pytorch-3d
 
 ### 🔥 PyTorch
 
-This reposirotry is builded with 
+This reposirotry is builded with PyTorch as a Python-based GPU-accelerated library
+
+
 
 #### 
 
