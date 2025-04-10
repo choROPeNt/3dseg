@@ -86,7 +86,7 @@ class Abstract3DUNet(nn.Module):
             # of the previous decoder
             x = decoder(encoder_features, x)
 
-        x = self.final_conv(x)
+        x = self.final_conv(x) # get the logits
 
         # apply final_activation (i.e. Sigmoid or Softmax) only during prediction. During training the network outputs logits
         if not self.training and self.final_activation is not None:
