@@ -34,13 +34,13 @@ loaders:
   # test loaders configuration
   test:
     file_paths:
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/160_10-layer_00_uint8_0460-0690_0690-0920/160_10-layer_00_uint8_0460-0690_0690-0920.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/160_10-layer_0055/160_10-layer_0055.vol.seg.h5
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
       patch_shape: [128, 128, 128]
       # train stride between patches
-      stride_shape: [16, 16, 16]
+      stride_shape: [8, 8, 8]
     transformer:
       raw:
         - name: Standardize

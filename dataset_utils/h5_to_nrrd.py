@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 from skimage.measure import label
 import matplotlib.pyplot as plt
-plt.rcParams['image.cmap'] = 'cividis'
+plt.rcParams['image.cmap'] = 'plasma'
 
 
 def readH5(file_path,**kwargs):
