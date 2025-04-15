@@ -8,25 +8,32 @@ import matplotlib.pyplot as plt
 plt.rcParams['image.cmap'] = 'plasma'
 
 
-def readH5(file_path,**kwargs):
+def readH5(file_path, **kwargs):
     """
-    generic function to read a h5 file with one 
-    subgroup elements by given filepath in a Dictonary 
-    """
+    Generic function to read an HDF5 file with nested groups.
+    It supports up to two subgroup levels and returns the content as a nested dictionary.
     
+    Parameters:
+    - file_path (str): Path to the HDF5 file.
+    
+    Returns:
+    - dict: Nested dictionary containing datasets from the file.
+    """
     out = {}
 
     with h5.File(file_path, 'r') as f:
-
         for key in f.keys():
-
-            if isinstance(f[key],h5.Group):
+            if isinstance(f[key], h5.Group):
                 out[key] = {}
-                for sub_key in f[key]:
-                    out[key][sub_key] = f[key][sub_key][...]
+                for sub_key in f[key].keys():
+                    if isinstance(f[key][sub_key], h5.Group):
+                        out[key][sub_key] = {}
+                        for sub_sub_key in f[key][sub_key].keys():
+                            out[key][sub_key][sub_sub_key] = f[key][sub_key][sub_sub_key][...]
+                    else:
+                        out[key][sub_key] = f[key][sub_key][...]
             else:
-                out[key] = f[key][:]
-        f.close()
+                out[key] = f[key][...]
     return out
 
 
@@ -130,7 +137,7 @@ def main():
             nrrd.write(os.path.join(directory,fileout), labels,header=header_seg)
     
         
-        if key == "raw":
+        if key == "Volume":
             print(f"proccessing {key} with {item.shape} and {item.dtype}")
             data_type_seg = item.dtype
             size = item.shape
