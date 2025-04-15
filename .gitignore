@@ -8,7 +8,12 @@ checkpoints/
 data/
 slurm_out/
 predict/
-notebooks/
+notebooks/archiv
+notebooks/BIIAX
+notebooks/conversion
+notebooks/fiberseg
+notebooks/metrics
+notebooks/NEAPEL
 ## Labelbox ap key
 api_key.txt
 
