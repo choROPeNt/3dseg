@@ -214,9 +214,9 @@ class UNet3DTrainer:
             
             input, target, weight = self._split_training_batch(t)
 
-            print(f"input {input.shape}")
-            print(f"target {target.shape}")
-            print(f"target min {target.min()}, max {target.max()} ")
+            # print(f"input {input.shape}")
+            # print(f"target {target.shape}")
+            # print(f"target min {target.min()}, max {target.max()} ")
 
             output, loss = self._forward_pass(input, target, weight)
 
