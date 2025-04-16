@@ -5,18 +5,18 @@
 ##################################################################
 ## SLURM Defintions
 ##################################################################
-#SBATCH --time=8:00:00                                 # walltime
+#SBATCH --time=8:00:00                                  # walltime
 #SBATCH --nodes=1                                       # number of nodes
 #SBATCH --ntasks=1                                      # limit to one node
-#SBATCH --cpus-per-task=24                               # number of processor cores (i.e. threads)
-#SBATCH --partition=alpha
-#SBATCH --mem-per-cpu=16G                             # memory per CPU core
+#SBATCH --cpus-per-task=24                              # number of processor cores (i.e. threads)
+#SBATCH --partition=alpha                               # specification of HPC partition
+#SBATCH --mem-per-cpu=16G                               # memory per CPU core
 #SBATCH --gres=gpu:4                                    # number of gpus
-#SBATCH -J "3dseg-torch_predict"                           # job name
-#SBATCH --output=slurm_out/3dseg-BIIAX-%j.out
+#SBATCH -J "3dseg-torch_predict"                        # job name
+#SBATCH --output=slurm_out/3dseg-BIIAX-%j.out           # output filepath for *.out file
 #SBATCH --mail-user=christian.duereth@tu-dresden.de     # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
-#SBATCH -A p_biiax
+#SBATCH -A p_biiax                                      # project for 
 ##################################################################
 ##################################################################
 
