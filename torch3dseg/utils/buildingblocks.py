@@ -307,8 +307,9 @@ class Decoder(nn.Module):
             return encoder_features + x
 
 
-def create_encoders(in_channels, f_maps, basic_module, conv_kernel_size, conv_padding, layer_order, num_groups,
-                    pool_kernel_size):
+def create_encoders(in_channels, f_maps, basic_module, conv_kernel_size, 
+                    conv_padding, layer_order, num_groups,
+                    pool_kernel_size,pool_type):
     # create encoder path consisting of Encoder modules. Depth of the encoder is equal to `len(f_maps)`
     encoders = []
     for i, out_feature_num in enumerate(f_maps):
@@ -321,22 +322,27 @@ def create_encoders(in_channels, f_maps, basic_module, conv_kernel_size, conv_pa
                               num_groups=num_groups,
                               padding=conv_padding)
         else:
-            # TODO: adapt for anisotropy in the data, i.e. use proper pooling kernel to make the data isotropic after 1-2 pooling operations
+            # TODO: adapt for anisotropy in the data, i.e. use proper 
+            # pooling kernel to make the data isotropic after 1-2 pooling operations
             encoder = Encoder(f_maps[i - 1], out_feature_num,
                               basic_module=basic_module,
                               conv_layer_order=layer_order,
                               conv_kernel_size=conv_kernel_size,
                               num_groups=num_groups,
                               pool_kernel_size=pool_kernel_size,
-                              padding=conv_padding)
+                              padding=conv_padding,
+                              pool_type=pool_type
+                              )
 
         encoders.append(encoder)
 
     return nn.ModuleList(encoders)
 
 
-def create_decoders(f_maps, basic_module, conv_kernel_size, conv_padding, layer_order, num_groups, upsample):
-    # create decoder path consisting of the Decoder modules. The length of the decoder list is equal to `len(f_maps) - 1`
+def create_decoders(f_maps, basic_module, conv_kernel_size, conv_padding, 
+                    layer_order, num_groups, upsample):
+    # create decoder path consisting of the Decoder modules. The length of 
+    # the decoder list is equal to `len(f_maps) - 1`
     decoders = []
     reversed_f_maps = list(reversed(f_maps))
     for i in range(len(reversed_f_maps) - 1):
