@@ -215,12 +215,17 @@ class Encoder(nn.Module):
                  pool_kernel_size=2, pool_type='max', basic_module=DoubleConv, conv_layer_order='gcr',
                  num_groups=8, padding=1):
         super(Encoder, self).__init__()
-        assert pool_type in ['max', 'avg']
+        assert pool_type in ['max', 'avg', 'conv'], "`pool_type` must be 'max', 'avg', or 'conv'"
         if apply_pooling:
             if pool_type == 'max':
                 self.pooling = nn.MaxPool3d(kernel_size=pool_kernel_size)
-            else:
+            elif pool_type == 'avg':
                 self.pooling = nn.AvgPool3d(kernel_size=pool_kernel_size)
+            elif pool_type == 'conv':
+                self.pooling = nn.Conv3d(
+                    in_channels, in_channels, kernel_size=pool_kernel_size,
+                    stride=pool_kernel_size, padding=0, groups=in_channels, bias=False
+                )
         else:
             self.pooling = None
 
