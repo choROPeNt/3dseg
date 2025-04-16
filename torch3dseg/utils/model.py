@@ -63,7 +63,7 @@ class Abstract3DUNet(nn.Module):
             if final_sigmoid:
                 self.final_activation = nn.Sigmoid()
             else:
-                self.final_activation = nn.Softmax(dim=1) # [b,classes,x,y,z] dim = 1 equals classes 
+                self.final_activation = nn.Softmax(dim=1) # [b,classes,x,y,z] dim = 1 represents classes to convert from logits to probs 
         else:
             # regression problem
             self.final_activation = None
