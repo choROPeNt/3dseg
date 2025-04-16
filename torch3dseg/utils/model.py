@@ -37,7 +37,7 @@ class Abstract3DUNet(nn.Module):
 
     def __init__(self, in_channels, out_channels, final_sigmoid, basic_module, f_maps=64, layer_order='gcr',
                  num_groups=8, num_levels=4, is_segmentation=True, conv_kernel_size=3, pool_kernel_size=2,
-                 conv_padding=1, **kwargs):
+                 conv_padding=1,pool_type="max", **kwargs):
         super(Abstract3DUNet, self).__init__()
 
         if isinstance(f_maps, int):
@@ -47,11 +47,13 @@ class Abstract3DUNet(nn.Module):
         assert len(f_maps) > 1, "Required at least 2 levels in the U-Net"
 
         # create encoder path
-        self.encoders = create_encoders(in_channels, f_maps, basic_module, conv_kernel_size, conv_padding, layer_order,
-                                        num_groups, pool_kernel_size)
+        self.encoders = create_encoders(in_channels, f_maps, basic_module, conv_kernel_size, 
+                                        conv_padding, layer_order,
+                                        num_groups, pool_kernel_size,pool_type)
 
         # create decoder path
-        self.decoders = create_decoders(f_maps, basic_module, conv_kernel_size, conv_padding, layer_order, num_groups,
+        self.decoders = create_decoders(f_maps, basic_module, conv_kernel_size, conv_padding, 
+                                        layer_order, num_groups,
                                         upsample=True)
 
         # in the last layer a 1×1 convolution reduces the number of output
