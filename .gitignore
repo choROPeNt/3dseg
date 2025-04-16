@@ -12,6 +12,11 @@ notebooks/
 ## Labelbox ap key
 api_key.txt
 
+## virtual enviroments
+
+.venv_torch/
+.venv_3dseg/
+
 # MacOSX 
 
 .DS_Store
