@@ -1,6 +1,6 @@
 # device: cuda:0
 model:
-  name: ResidualUNet3D
+  name: UNet3D
   # number of input channels to the model
   in_channels: 1
   # number of output channels
@@ -11,13 +11,17 @@ model:
   f_maps: 32
   # number of groups in the groupnorm
   num_groups: 8
+  # number of levels in the encoder/decoder path (applied only if f_maps is an int)
+  num_levels: 4
+  # down-pooling type for encoder branch: ["max", "avg", "conv"] 
+  pool_type: conv
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
   final_sigmoid: false
   # if True applies the final normalization layer (sigmoid or softmax), otherwise the networks returns the output from the final convolution layer; use False for regression problems, e.g. de-noising
   is_segmentation: true
 # loss function to be used during training
 loss:
-  name: BCEDiceLoss
+  name: BCEDiceloss
   # a target value that is ignored and does not contribute to the input gradient
   ignore_index: null
   # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
