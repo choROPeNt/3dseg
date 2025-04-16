@@ -5,18 +5,30 @@
 ##################################################################
 ## SLURM Defintions
 ##################################################################
-#SBATCH --time=8:00:00                                  # walltime
-#SBATCH --nodes=1                                       # number of nodes
-#SBATCH --ntasks=1                                      # limit to one node
-#SBATCH --cpus-per-task=24                              # number of processor cores (i.e. threads)
-#SBATCH --partition=alpha                               # specification of HPC partition
-#SBATCH --mem-per-cpu=16G                               # memory per CPU core
-#SBATCH --gres=gpu:4                                    # number of gpus
-#SBATCH -J "3dseg-torch_predict"                        # job name
-#SBATCH --output=slurm_out/3dseg-BIIAX-%j.out           # output filepath for *.out file
-#SBATCH --mail-user=christian.duereth@tu-dresden.de     # email address
+# walltime
+#SBATCH --time=4:00:00                                  
+# number of nodes
+#SBATCH --nodes=1                                       
+# number of tasks
+#SBATCH --ntasks=1 
+# number of processor cores (i.e. threads)                                     
+#SBATCH --cpus-per-task=24     
+ # specification of HPC partition
+#SBATCH --partition=alpha      
+ # memory per CPU core; max 16G per CPU
+#SBATCH --mem-per-cpu=16G                       
+# number of GPUs max 6 CPU per GPU on alpha
+#SBATCH --gres=gpu:4     
+# job name                               
+#SBATCH -J "3dseg-torch_predict"  
+# output filepath for *.out file                     
+#SBATCH --output=slurm_out/3dseg-BIIAX-%j.out  
+# email address         
+#SBATCH --mail-user=christian.duereth@tu-dresden.de   
+# e-mail notifications  
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
-#SBATCH -A p_biiax                                      # project for 
+# project for ressources
+#SBATCH -A p_biiax                                      
 ##################################################################
 ##################################################################
 
