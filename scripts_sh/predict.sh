@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
 #!/bin/bash
 
 #Submit this script with: sbatch thefilename
@@ -24,12 +20,12 @@
 ##################################################################
 ##################################################################
 
-module load release/23.04 GCC/12.2.0 Python/3.10.8 OpenMPI/4.1.4 CUDA/11.8.0
+ml release/24.04  GCC/12.3.0  OpenMPI/4.1.5 PyTorch-bundle/2.1.2-CUDA-12.1.1
 
 ## Display GPUs
 nvidia-smi
 
-source .venv_3dseg/bin/activate
+source .venv_torch/bin/activate
 echo $1
 python ./scripts/predict.py --config $1
 

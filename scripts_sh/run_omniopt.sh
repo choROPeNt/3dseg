@@ -1,8 +1,8 @@
 #!/bin/bash -l
 
-ml release/23.04 GCC/12.2.0 Python/3.10.8 OpenMPI/4.1.4 CUDA/11.8.0
+ml release/24.04  GCC/12.3.0  OpenMPI/4.1.5 PyTorch-bundle/2.1.2-CUDA-12.1.1
 
-source /home/dchristi/projects_alpha/3dseg/.venv_3dseg/bin/activate
+source /home/dchristi/projects_alpha/3dseg/.venv_torch/bin/activate
 
 #FIXED Arguments / pathes are absolute!
 BASE_CONFIG=/home/dchristi/projects_alpha/3dseg/configs/OmniOpt/train_config.yml

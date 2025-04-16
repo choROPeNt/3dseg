@@ -20,9 +20,9 @@
 ##################################################################
 ##################################################################
 
-module load release/23.04 GCC/12.2.0 Python/3.10.8 OpenMPI/4.1.4 CUDA/11.8.0
+ml release/24.04  GCC/12.3.0  OpenMPI/4.1.5 PyTorch-bundle/2.1.2-CUDA-12.1.1
 
-source .venv_3dseg/bin/activate
+source .venv_torch/bin/activate
 
 train_config=configs/NEAPEL/model_64x64x64_bin/config_train.yml
 pred_config=configs/NEAPEL/model_64x64x64_bin/config_pred.yml
