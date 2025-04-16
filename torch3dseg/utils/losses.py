@@ -27,7 +27,6 @@ def compute_per_channel_dice(input, target, epsilon=1e-6, weight=None):
     input = flatten(input)
     target = flatten(target)
     target = target.float()
-
     # compute per channel Dice Coefficient
     intersect = (input * target).sum(-1)
     if weight is not None:
@@ -313,6 +312,7 @@ def get_loss_criterion(config):
 #######################################################################################################################
 
 def _create_loss(name, loss_config, weight, ignore_index, pos_weight):
+    ## Classification losses
     if name == 'BCEWithLogitsLoss':
         return nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     elif name == 'BCEDiceLoss':
@@ -335,6 +335,7 @@ def _create_loss(name, loss_config, weight, ignore_index, pos_weight):
     elif name == 'DiceLoss':
         normalization = loss_config.get('normalization', 'sigmoid')
         return DiceLoss(weight=weight, normalization=normalization)
+    ## Regression losses
     elif name == 'MSELoss':
         return MSELoss()
     elif name == 'SmoothL1Loss':
