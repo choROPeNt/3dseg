@@ -85,7 +85,7 @@ def numpy_dtype_to_nrrd_dtype(dtype):
     return dtype_mapping.get(dtype, 'unknown')
 
 
-
+## TODO make it more generic.
 def main():
 
     parser = argparse.ArgumentParser(description="Process a file path.")
