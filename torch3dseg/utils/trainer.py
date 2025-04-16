@@ -214,9 +214,9 @@ class UNet3DTrainer:
             
             input, target, weight = self._split_training_batch(t)
 
-            # print(f"input {input.shape}")
-            # print(f"target {target.shape}")
-            # print(f"target min {target.min()}, max {target.max()} ")
+            print(f"input {input.shape}")
+            print(f"target {target.shape}")
+            print(f"target min {target.min()}, max {target.max()} ")
 
             output, loss = self._forward_pass(input, target, weight)
 
@@ -336,6 +336,11 @@ class UNet3DTrainer:
         output = self.model(input)
         # compute the loss
         if weight is None:
+            ## just for prototyping
+            # print(output[0,:,64,64,64])
+            # print(target[0,:,64,64,64])
+            # print(target[0,:,64,64,64].view(1, 3, 1, 1, 1).shape)
+            # print(self.loss_criterion(output[0,:,64,64,64].view(1, 3, 1, 1, 1) , target[0,:,64,64,64].view(1, 3, 1, 1, 1) ))
             loss = self.loss_criterion(output, target)
         else:
             loss = self.loss_criterion(output, target, weight)
