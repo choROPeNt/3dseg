@@ -50,7 +50,12 @@ python -m pip install -e .
 This should install the `3dseg` python package via PIP in the current active virtual enviroment. How to set up a virtual enviroment please refer to [virtual enviroment section](#virtual-enviroment)
 
 
+## HPC 
 
+
+```bash
+ml release/24.04  GCC/12.3.0  OpenMPI/4.1.5 PyTorch-bundle/2.1.2-CUDA-12.1.1
+```
 
 
 ## 3DUnet model
