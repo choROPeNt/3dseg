@@ -13,10 +13,10 @@
 #SBATCH --mem-per-cpu=16G                             # memory per CPU core
 #SBATCH --gres=gpu:4                                    # number of gpus
 #SBATCH -J "3dseg-torch_predict"                           # job name
-#SBATCH --output=/lustre/ssd/ws/dchristi-3dseg/slurm_out/3dseg-torch_predict-%j.out
+#SBATCH --output=slurm_out/3dseg-BIIAX-%j.out
 #SBATCH --mail-user=christian.duereth@tu-dresden.de     # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
-#SBATCH -A p_autoshear
+#SBATCH -A p_biiax
 ##################################################################
 ##################################################################
 

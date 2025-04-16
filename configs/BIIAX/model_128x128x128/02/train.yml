@@ -12,7 +12,7 @@ model:
   # number of groups in the groupnorm
   num_groups: 8
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
-  final_sigmoid: true
+  final_sigmoid: false
   # if True applies the final normalization layer (sigmoid or softmax), otherwise the networks returns the output from the final convolution layer; use False for regression problems, e.g. de-noising
   is_segmentation: true
 # loss function to be used during training
@@ -29,14 +29,8 @@ optimizer:
   weight_decay: 0.00001
 # evaluation metric
 eval_metric:
-  # use AdaptedRandError metric
+  # use MeanIoU
   name: MeanIoU
-  # probability maps threshold
-  # threshold: 0.4
-  # # use the last target channel to compute the metric
-  # use_last_target: true
-  # # use only the first channel for computing the metric
-  # use_first_input: true
 lr_scheduler:
   name: ReduceLROnPlateau
   # make sure to use the 'max' mode cause higher MeanIoU is better
@@ -58,14 +52,14 @@ trainer:
   # how many iterations between tensorboard logging
   log_after_iters: 100
   # max number of epochs
-  max_num_epochs: 20
+  max_num_epochs: 50
   # max number of iterations
   max_num_iterations: 150000
 # Configure training and validation loaders
 loaders:
   dataset: StandardHDF5Dataset
   # how many subprocesses to use for data loading
-  num_workers: 8
+  num_workers: 24
   # size of every batch (please check GPU mem size)
   batch_size: 6
   # path to the raw data within the H5
@@ -78,6 +72,11 @@ loaders:
     file_paths:
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/160_10-layer_0055/160_10-layer_0055.vol.seg.h5
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/200_10-layer_00_0/200_10-layer_00_0.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/200_10-layer_00_1/200_10-layer_00_1.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/200_10-layer_01_0/200_10-layer_01_0.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/285_10-layer_00_0/285_10-layer_00_0.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/285_10-layer_00_1/285_10-layer_00_1.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/285_10-layer_01_0/285_10-layer_01_0.vol.seg.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
@@ -114,8 +113,8 @@ loaders:
     # path to the val datasets
     file_paths:
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/160_10-layer_00_uint8_0460-0690_0690-0920/160_10-layer_00_uint8_0460-0690_0690-0920.vol.seg.h5
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/200_10-layer_00_1.vol.seg.h5
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/285_10-layer_00_1.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/200_10-layer_00_1/200_10-layer_00_1.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/285_10-layer_00_1/285_10-layer_00_1.vol.seg.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
