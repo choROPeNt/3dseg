@@ -282,7 +282,8 @@ def get_tensorboard_formatter(formatter_config):
 
 def expand_as_one_hot(input, C, ignore_index=None):
     """
-    Converts NxSPATIAL label image to NxCxSPATIAL, where each label gets converted to its corresponding one-hot vector.
+    Converts NxSPATIAL label image to NxCxSPATIAL, where each label gets converted to 
+    its corresponding one-hot vector.
     It is assumed that the batch dimension is present.
     Args:
         input (torch.Tensor): 3D/4D input image
