@@ -1,4 +1,5 @@
-# device: cuda:0
+device: cuda
+manual_seed: 42
 model:
   name: UNet3D
   # number of input channels to the model
@@ -21,7 +22,7 @@ model:
   is_segmentation: true
 # loss function to be used during training
 loss:
-  name: BCEDiceLoss
+  name: CrossEntropyLoss
   # a target value that is ignored and does not contribute to the input gradient
   ignore_index: null
   # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
@@ -40,21 +41,21 @@ lr_scheduler:
   # make sure to use the 'max' mode cause higher MeanIoU is better
   mode: max
   factor: 0.5
-  patience: 2
+  patience: 10
 trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run01/model_128x128x128-02_25-04-16/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run01/model_128x128x128-04_25-04-16/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
   pre_trained: null
   # how many iterations between validations
-  validate_after_iters: 200
+  validate_after_iters: 100
   # how many iterations between tensorboard logging
-  log_after_iters: 100
+  log_after_iters: 10
   # max number of epochs
   max_num_epochs: 50
   # max number of iterations
