@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Submit this script with: sbatch thefilename
+#Submit this script with: sbatch thefilename for the config yml
 
 ##################################################################
 ## SLURM Defintions
