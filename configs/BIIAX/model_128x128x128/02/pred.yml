@@ -1,12 +1,7 @@
-<<<<<<< HEAD
-model_path: checkpoints/BIIAX/model_128x128x128-02_24-07-05/best_checkpoint.pytorch
-device: cpu
-=======
-model_path: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/model_128x128x128-02_24-07-05/best_checkpoint.pytorch
+model_path: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run02/model_128x128x128-00_25-04-21/best_checkpoint.pytorch
 device: cuda:0
->>>>>>> 0d06ee2 (Re-initialize repository without old history.)
 model:
-  name: ResidualUNet3D
+  name: UNet3D
   # number of input channels to the model
   in_channels: 1
   # number of output channels
@@ -17,25 +12,23 @@ model:
   f_maps: 32
   # number of groups in the groupnorm
   num_groups: 8
+  # number of levels in the encoder/decoder path (applied only if f_maps is an int)
+  num_levels: 4
+  # down-pooling type for encoder branch: ["max", "avg", "conv"] 
+  pool_type: conv
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
-  final_sigmoid: true
+  final_sigmoid: false
   # if True applies the final normalization layer (sigmoid or softmax), otherwise the networks returns the output from the final convolution layer; use False for regression problems, e.g. de-noising
   is_segmentation: true
 predictor:
   name: 'StandardPredictor'
-  output_type: 'classes' # 'probability'
+  output_type: 'probability' # 'probability'
 loaders:
   dataset: StandardHDF5Dataset
   # save predictions to output_dir
-<<<<<<< HEAD
-  output_dir: predict/BIIAX/model_128x128x128-02_24-07-05/best_checkpoint
+  output_dir: /data/horse/ws/dchristi-3dseg/predict/BIIAX/run02/model_128x128x128-00_25-04-21/best_checkpoint
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 2
-=======
-  output_dir: ./predict/BIIAX/model_128x128x128-02_24-07-05/best_checkpoint
-  # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
-  batch_size: 16
->>>>>>> 0d06ee2 (Re-initialize repository without old history.)
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
   mirror_padding: [32, 32, 32]
   # how many subprocesses to use for data loading
@@ -45,32 +38,17 @@ loaders:
   # test loaders configuration
   test:
     file_paths:
-<<<<<<< HEAD
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/285_10-layer_01_1.vol.h5
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/285_10-layer_01_0.vol.h5
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/200_10-layer_01_1.vol.h5
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/200_10-layer_01_0.vol.h5
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/160_10-layer_01_1.vol.h5
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/160_10-layer_01_0.vol.h5
-      - data/BIIAX/200_10-layer_01_1.vol.h5
-=======
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/285_10-layer_01_1.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/285_10-layer_01_0.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/200_10-layer_01_1.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/200_10-layer_01_0.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/160_10-layer_01_1.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/test/160_10-layer_01_0.vol.h5
->>>>>>> 0d06ee2 (Re-initialize repository without old history.)
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/285_10-layer_00_0/285_10-layer_00_0.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/285_10-layer_00_1/285_10-layer_00_1.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/285_10-layer_01_0/285_10-layer_01_0.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/285_10-layer_00_1/285_10-layer_00_1.vol.seg.h5
     slice_builder:
       name: FilterSliceBuilder
-      # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
+      # train patch size given to the network (adapt to fit in your GPU mem,
+      # generally the bigger patch the better) origninal [80,170,170]
       patch_shape: [128, 128, 128]
       # train stride between patches
-<<<<<<< HEAD
-      stride_shape: [96, 96, 96]
-=======
-      stride_shape: [16, 16, 16]
->>>>>>> 0d06ee2 (Re-initialize repository without old history.)
+      stride_shape: [48, 48, 48]
     transformer:
       raw:
         - name: Standardize
