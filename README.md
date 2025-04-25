@@ -1,4 +1,4 @@
-# 3dseg for CT-Data
+# 🩻 3Dseg for CT-Data
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15230978.svg)](https://doi.org/10.5281/zenodo.15230978)
 
@@ -58,11 +58,11 @@ source .venv/bin/activate
 ```
 
 
-##  Training
+## 🏋️‍♂️ Training
 
-## Prediction
+## 🤖 Prediction
 
-## Descriptor-based Evaluation
+## 📊 Descriptor-based Evaluation
 
 Currently the FFT-based 2-Point Correlation in PyTorch is available. For more higher dimensional descriptors we kindly revise to [MCRpy](https://github.com/NEFM-TUDresden/MCRpy) from the NEFM at TU Dresden. 
 
