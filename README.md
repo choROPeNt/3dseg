@@ -78,7 +78,7 @@ where
 - $|\Omega|$ is the total number of elements (for normalization)
 
 
-
+TODO add functionality
 
 
 
