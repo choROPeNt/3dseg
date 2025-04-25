@@ -58,9 +58,25 @@ source .venv/bin/activate
 ```
 
 
-## Training
+##  Training
 
-The model is a 3D-UNet 
+## Prediction
+
+## Descriptor-based Evaluation
+
+Currently the FFT-based 2-Point Correlation in PyTorch is available. For more higher dimensional descriptors we kindly revise to [MCRpy](https://github.com/NEFM-TUDresden/MCRpy) from the NEFM at TU Dresden. 
+
+
+The FFT-based 2-Point correlation function is defined as follows:
+
+$$ S_2(\mathbf{r}) = \frac{1}{|\Omega|} \left( x \ast x \right)(\mathbf{r}) = \frac{1}{|\Omega|} \, \mathcal{F}^{-1}\left\{ |\mathcal{F}[x]|^2 \right\}(\mathbf{r})$$
+
+where 
+- $x$ is your binary input (microstructure or phase)
+- $\ast$ is convolution (autocorrelation)
+- $\mathcal{F}$ and $\mathcal{F}^{-1}$ are FFT and IFFT
+- $|\Omega|$ is the total number of elements (for normalization)
+
 
 
 
