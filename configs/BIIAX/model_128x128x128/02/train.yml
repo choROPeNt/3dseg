@@ -46,7 +46,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run02/model_128x128x128-00_25-04-21/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run03/model_128x128x128-00_25-04-22/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -75,13 +75,10 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/160_10-layer_0055/160_10-layer_0055.vol.seg.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/200_10-layer_00_0/200_10-layer_00_0.vol.seg.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/200_10-layer_00_1/200_10-layer_00_1.vol.seg.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/200_10-layer_01_0/200_10-layer_01_0.vol.seg.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/285_10-layer_00_0/285_10-layer_00_0.vol.seg.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/285_10-layer_00_1/285_10-layer_00_1.vol.seg.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/train/285_10-layer_01_0/285_10-layer_01_0.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_0/285_10-layer_00_0.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_1/285_10-layer_00_1.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_0/285_10-layer_01_0.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_1/285_10-layer_01_1.vol.seg.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
@@ -118,9 +115,8 @@ loaders:
   val:
     # path to the val datasets
     file_paths:
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/160_10-layer_00_uint8_0460-0690_0690-0920/160_10-layer_00_uint8_0460-0690_0690-0920.vol.seg.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/200_10-layer_00_1/200_10-layer_00_1.vol.seg.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/val/285_10-layer_00_1/285_10-layer_00_1.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_1/285_10-layer_00_1.copy.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_1/285_10-layer_01_1.copy.vol.seg.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
