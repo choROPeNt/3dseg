@@ -321,13 +321,12 @@ class CE_DiceLoss(nn.Module):
 
     def forward(self, input, target):
         """
-            input: [b,c,(z,y,x)] 
+            input: [b,c,(z,y,x)] as raw logits, normalization for DICE via softmax
             target: [b,c,(z,y,x)] as one_hot has to be converted to labelmap for CE
         """
-        print(target.shape)
+        
         target_ce = torch.argmax(target,dim=1) # convert to labelmap from one hot
-        print(target_ce.shape)
-
+        
         return self.alpha * self.CE(input, target_ce) + self.beta * self.dice(input, target)
 
 
