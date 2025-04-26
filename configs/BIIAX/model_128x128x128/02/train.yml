@@ -28,7 +28,7 @@ loss:
   # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
   skip_last_target: false
 optimizer:
-  name: AdamW
+  name: Adam
   # initial learning rate
   learning_rate: 0.010
   # weight decay
