@@ -309,6 +309,28 @@ def get_loss_criterion(config):
     return loss
 
 
+class CE_DiceLoss(nn.Module):
+    """Linear combination of CE and Dice losses"""
+
+    def __init__(self, alpha, beta, weight,ignore_index):
+        super(CE_DiceLoss, self).__init__()
+        self.alpha = alpha
+        self.CE = nn.CrossEntropyLoss(weight=weight,ignore_index=ignore_index)
+        self.beta = beta
+        self.dice = DiceLoss(normalization="softmax")
+
+    def forward(self, input, target):
+        """
+            input: [b,c,(z,y,x)] 
+            target: [b,c,(z,y,x)] as one_hot has to be converted to labelmap for CE
+        """
+        print(target.shape)
+        target_ce = torch.argmax(target,dim=1) # convert to labelmap from one hot
+        print(target_ce.shape)
+
+        return self.alpha * self.CE(input, target_ce) + self.beta * self.dice(input, target)
+
+
 #######################################################################################################################
 
 def _create_loss(name, loss_config, weight, ignore_index, pos_weight):
@@ -319,6 +341,15 @@ def _create_loss(name, loss_config, weight, ignore_index, pos_weight):
         alpha = loss_config.get('alphs', 1.)
         beta = loss_config.get('beta', 1.)
         return BCEDiceLoss(alpha, beta)
+    elif name == 'CE_DiceLoss':
+        if ignore_index is None:
+            ignore_index = -100  
+        alpha = loss_config.get('alphs', 1.)
+        beta = loss_config.get('beta', 1.)
+        return CE_DiceLoss(
+                            alpha,beta,
+                            weight=weight,ignore_index=ignore_index,
+                           )
     elif name == 'CrossEntropyLoss':
         if ignore_index is None:
             ignore_index = -100  # use the default 'ignore_index' as defined in the CrossEntropyLoss
