@@ -12,11 +12,11 @@
 # number of tasks
 #SBATCH --ntasks=1 
 # number of processor cores (i.e. threads)                                     
-#SBATCH --cpus-per-task=24     
+#SBATCH --cpus-per-task=12     
  # specification of HPC partition
 #SBATCH --partition=alpha      
  # memory per CPU core; max 16G per CPU
-#SBATCH --mem-per-cpu=16G                       
+#SBATCH --mem-per-cpu=8G                       
 # number of GPUs max 6 CPU per GPU on alpha
 #SBATCH --gres=gpu:4     
 # job name                               

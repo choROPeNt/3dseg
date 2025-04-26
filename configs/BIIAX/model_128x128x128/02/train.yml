@@ -9,7 +9,7 @@ model:
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
-  f_maps: 32
+  f_maps: 48
   # number of groups in the groupnorm
   num_groups: 8
   # number of levels in the encoder/decoder path (applied only if f_maps is an int)
@@ -18,17 +18,19 @@ model:
   pool_type: conv
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
   final_sigmoid: false
-  # if True applies the final normalization layer (sigmoid or softmax), otherwise the networks returns the output from the final convolution layer; use False for regression problems, e.g. de-noising
+  # if True applies the final normalization layer (sigmoid or softmax), 
+  # otherwise the networks returns the output from the final convolution layer; 
+  # use False for regression problems, e.g. de-noising
   is_segmentation: true
 # loss function to be used during training
 loss:
-  name: CrossEntropyLoss
+  name: CE_DiceLoss
   # a target value that is ignored and does not contribute to the input gradient
-  ignore_index: null
-  # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
-  skip_last_target: false
+  alpha: 0.3
+  beta: 0.7
+  weight: [.2,.40,.40]
 optimizer:
-  name: Adam
+  name: AdamW
   # initial learning rate
   learning_rate: 0.010
   # weight decay
@@ -37,17 +39,19 @@ optimizer:
 eval_metric:
   # use MeanIoU
   name: MeanIoU
+  # skip the background channel for metric 
+  skip_channels: [0] 
 lr_scheduler:
-  name: ReduceLROnPlateau
+  name: StepLR
   # make sure to use the 'max' mode cause higher MeanIoU is better
-  mode: max
-  factor: 0.5
-  patience: 10
+  # mode: max
+  gamma: 0.5
+  step_size: 10
 trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run03/model_128x128x128-00_25-04-22/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run05/model_128x128x128-00_25-04-26-0/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -65,13 +69,13 @@ trainer:
 loaders:
   dataset: StandardHDF5Dataset
   # how many subprocesses to use for data loading
-  num_workers: 24
+  num_workers: 12
   # size of every batch (please check GPU mem size)
-  batch_size: 6
+  batch_size: 4
   # path to the raw data within the H5
   raw_internal_path: /volume
   # path to the the label data withtin the H5
-  label_internal_path: /labels
+  label_internal_path: /masks
   # configuration of the train loader
   train:
     # path to the training datasets
@@ -110,7 +114,7 @@ loaders:
         #   spline_order: 3
         - name: ToTensor
           expand_dims: false
-          dtype: int64
+          # dtype: int64
 
   # configuration of the val loader
   val:
@@ -138,4 +142,4 @@ loaders:
       label:
         - name: ToTensor
           expand_dims: false
-          dtype: int64
+          # dtype: int64
