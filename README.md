@@ -1,72 +1,88 @@
-# 3dseg for CT-Data
+# 🩻 3Dseg for CT-Data
 
-This reposirory is based on [pytorch-3dunet](https://github.com/wolny/pytorch-3dunet.git) implementation. 
-
-
-## TODO's
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15230978.svg)](https://doi.org/10.5281/zenodo.15230978)
 
 
+This repository builds upon the original [pytorch-3dunet](https://github.com/wolny/pytorch-3dunet.git) implementation by Wolny et al. We extended the codebase by adding functionality and integrating additional loss functions tailored for multi-class segmentation of textile reinforcements in low-resolution CT data.
 
+The corresponding [paper]() and [preprint]() can be found here, and the dataset is available on [Zenodo](https://doi.org/10.5281/zenodo.15230978).
 
+<img src="content/fig_rUnet_2.png" alt="Description" style="width: 100%;" />
 
-
-- [ ] create bigger dataset of volume
 
 ## :cd: Installation
 
 
 
-### 🔥 PyTorch
+### 🔥 PyTorch Compatibility
 
-This reposirotry is builded with PyTorch as a Python-based GPU-accelerated library
+This repository is built with PyTorch, a Python-based, GPU-accelerated deep learning library. It leverages the CUDA toolkit for efficient computation on NVIDIA GPUs.
 
+⚠️ Note: PyTorch’s Metal backend (for Apple M1/M2 chips) currently only supports up to 4D tensors. This means 5D inputs required for 3D convolutions (shape [batch, channel, depth, height, width]) are not supported on Metal devices.
 
+We strongly recommend using an NVIDIA GPU and installing the appropriate CUDA drivers for full functionality and performance.
 
-#### 
-
-
-#### macOS
-Please not also that 3D-segemtantion is not available on a macOS machine, as pytorch with metal support only supports 4D arrays!
-
-
-
-Clone this repository using the terminal:
-
+### 📦 Installation Steps
+1.	Clone the repository and navigate to it in your terminal. 
 ```bash
 git clone https://github.com/choROPeNt/3dseg.git
-```
-
-and navigate to it in your terminal. 
-```bash
 cd 3dseg
 ```
-
 Then run:
 
 ```bash
 python -m pip install -e .
 ```
-
 This should install the `3dseg` python package via PIP in the current active virtual enviroment. How to set up a virtual enviroment please refer to [virtual enviroment section](#virtual-enviroment)
 
 
-## HPC 
+## 🧠 HPC 
 
-
+If you are using the High Performance Computing (HPC) cluster of the TU Dresden, we recommend using one of the GPU clsuters like `Alpha` (Nvidia A100 SXM 40 GB) or `Capella` (Nvidia H100). First, allocate some ressources e.g. for `alpha`
+```bash
+ srun -p alpha -N 1 -t 01:00:00 -c 8 --mem=16G --gres=gpu:1  --pty /bin/bash -l
+```
+You can use the following module setup (adjust as needed for your cluster’s module system):
 ```bash
 ml release/24.04  GCC/12.3.0  OpenMPI/4.1.5 PyTorch-bundle/2.1.2-CUDA-12.1.1
 ```
+afterwards, create a new virtual enviroment in directory:
+```bash
+python -m venv --system-site-packages .venv
+```
+It is important to set the flag `--system-site-packages` otherwise you dont have access to the prebuild pytorch package (recommended workaround).
+
+Activate the enviroment via:
+```bash
+source .venv/bin/activate
+```
 
 
-## 3DUnet model
+## 🏋️‍♂️ Training
 
-The model is a 3D-UNet 
+## 🤖 Prediction
+
+## 📊 Descriptor-based Evaluation
+
+Currently the FFT-based 2-Point Correlation in PyTorch is available. For more higher dimensional descriptors we kindly revise to [MCRpy](https://github.com/NEFM-TUDresden/MCRpy) from the NEFM at TU Dresden. 
+
+
+The FFT-based 2-Point correlation function is defined as follows:
+
+$$ S_2(\mathbf{r}) = \frac{1}{|\Omega|} \left( x \ast x \right)(\mathbf{r}) = \frac{1}{|\Omega|} \, \mathcal{F}^{-1}\left\{ |\mathcal{F}[x]|^2 \right\}(\mathbf{r})$$
+
+where 
+- $x$ is your binary input (microstructure or phase)
+- $\ast$ is convolution (autocorrelation)
+- $\mathcal{F}$ and $\mathcal{F}^{-1}$ are FFT and IFFT
+- $|\Omega|$ is the total number of elements (for normalization)
+
+
+TODO add functionality
 
 
 
-
-
-## losses
+<!-- ## losses
 
 ### Dice Loss
 The DiceLoss $\mathcal{L}_{Dice}$ is defined as following
@@ -150,4 +166,4 @@ Install the python package `h5py` with
  % python -m pip install --no-binary=h5py --no-cache-dir h5py
 ```
 
-the options `--no-binary=h5py` and `--no-cache-dir` that `pip` is forced to build the package from source via `wheel`
+the options `--no-binary=h5py` and `--no-cache-dir` that `pip` is forced to build the package from source via `wheel` -->
