@@ -256,11 +256,14 @@ class UNet3DTrainer:
                     train_eval_scores.update(eval_score.item(), self._batch_size(input))
 
                 # log stats, params and images
+                lr = self.optimizer.param_groups[0]['lr']
                 logger.info(
-                    f'Training stats. Loss: {train_losses.avg}. Evaluation score: {train_eval_scores.avg}')
+                    f'Training stats. Loss: {train_losses.avg}. Evaluation score: {train_eval_scores.avg}. lr-rate {lr}')
                 self._log_stats('train', train_losses.avg, train_eval_scores.avg)
+                self._log_lr()
                 self._log_params()
-                self._log_images(input, target, output, 'train_')
+                # TODO disabled for faster training and less IO
+                # self._log_images(input, target, output, 'train_')
 
             if self.should_stop():
                 return True
