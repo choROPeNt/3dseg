@@ -317,7 +317,7 @@ class CE_DiceLoss(nn.Module):
         self.alpha = alpha
         self.CE = nn.CrossEntropyLoss(weight=weight,ignore_index=ignore_index)
         self.beta = beta
-        self.dice = DiceLoss(normalization="softmax")
+        self.dice = DiceLoss(weight,normalization="softmax")
 
     def forward(self, input, target):
         """
