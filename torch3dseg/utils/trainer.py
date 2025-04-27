@@ -177,7 +177,9 @@ class UNet3DTrainer:
                 self._save_checkpoint(is_best)
                 print(f"RESULT: {eval_loss:>8f} \n")
                 return
-
+            
+            if not isinstance(self.scheduler, ReduceLROnPlateau):
+                    self.scheduler.step()
             self.num_epochs += 1
 
         logger.info(f"Last Valdiation after {self.max_num_epochs}. Finishing with validation...")
@@ -227,6 +229,8 @@ class UNet3DTrainer:
             loss.backward()
             self.optimizer.step()
 
+    
+
             if self.num_iterations % self.validate_after_iters == 0:
                 # set the model in eval mode
                 self.model.eval()
@@ -238,8 +242,7 @@ class UNet3DTrainer:
                 # adjust learning rate if necessary
                 if isinstance(self.scheduler, ReduceLROnPlateau):
                     self.scheduler.step(eval_score)
-                else:
-                    self.scheduler.step()
+
                 # log current learning rate in tensorboard
                 self._log_lr()
                 # remember best validation metric
