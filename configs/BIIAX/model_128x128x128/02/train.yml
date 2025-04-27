@@ -9,7 +9,7 @@ model:
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
-  f_maps: 48
+  f_maps: 32
   # number of groups in the groupnorm
   num_groups: 8
   # number of levels in the encoder/decoder path (applied only if f_maps is an int)
@@ -46,12 +46,12 @@ lr_scheduler:
   # make sure to use the 'max' mode cause higher MeanIoU is better
   # mode: max
   gamma: 0.5
-  step_size: 10
+  step_size: 20
 trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run05/model_128x128x128-00_25-04-26-0/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run05/model_128x128x128-00_25-04-26-2/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -62,7 +62,7 @@ trainer:
   # how many iterations between tensorboard logging
   log_after_iters: 10
   # max number of epochs
-  max_num_epochs: 50
+  max_num_epochs: 100
   # max number of iterations
   max_num_iterations: 150000
 # Configure training and validation loaders
