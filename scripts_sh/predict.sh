@@ -6,7 +6,7 @@
 ## SLURM Defintions
 ##################################################################
 # walltime
-#SBATCH --time=5:00:00                                  
+#SBATCH --time=1:00:00                                  
 # number of nodes
 #SBATCH --nodes=1                                       
 # number of tasks
@@ -28,7 +28,7 @@
 # e-mail notifications  
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 # project for ressources
-#SBATCH -A p_biiax                                      
+#SBATCH -A p_biiax                                          
 ##################################################################
 ##################################################################
 

@@ -9,7 +9,7 @@ model:
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
-  f_maps: 32
+  f_maps: 48
   # number of groups in the groupnorm
   num_groups: 8
   # number of levels in the encoder/decoder path (applied only if f_maps is an int)
@@ -51,7 +51,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run05/model_128x128x128-00_25-04-26-2/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run05/model_128x128x128-00_25-04-26-3/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
