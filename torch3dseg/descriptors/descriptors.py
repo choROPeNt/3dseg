@@ -85,17 +85,10 @@ class compute_s2(torch.nn.Module):
             autocorr = autocorr / maxval
 
         if self.limit_to is not None:
-            if x.dim() != 5:
-                raise ValueError("limit_to cropping is only supported for 3D (5D tensor) input.")
-
-            center_z, center_y, center_x = [s // 2 for s in autocorr.shape[2:]]
-            l = self.limit_to
-            autocorr = autocorr[
-                :,
-                :,
-                center_z - l : center_z + l,
-                center_y - l : center_y + l,
-                center_x - l : center_x + l
-            ]
+                    centers = [s // 2 for s in autocorr.shape[2:]]
+                    slices = tuple(
+                        slice(c - self.limit_to, c + self.limit_to) for c in centers
+                    )
+                    autocorr = autocorr[(...,) + slices]  # keep B, C dims
 
         return autocorr
