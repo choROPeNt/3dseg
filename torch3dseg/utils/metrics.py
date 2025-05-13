@@ -522,3 +522,27 @@ def get_evaluation_metric(config):
     metric_config = config['eval_metric']
     metric_class = _metric_class(metric_config['name'])
     return metric_class(**metric_config)
+
+
+def get_evaluation_metrics(config):
+    """
+    Returns a dict of evaluation metric instances keyed by their name.
+    :param config: (dict) a top-level configuration object containing the 'eval_metrics' key
+    :return: a dict {name: metric_instance}
+    """
+
+    def _metric_class(class_name):
+        m = importlib.import_module('torch3dseg.utils.metrics')
+        return getattr(m, class_name)
+
+    assert 'eval_metrics' in config, 'Could not find evaluation metrics configuration'
+    metrics_config = config['eval_metrics']
+
+    metrics = {}
+    for metric_cfg in metrics_config:
+        metric_name = metric_cfg['name']
+        metric_class = _metric_class(metric_name)
+        kwargs = {k: v for k, v in metric_cfg.items() if k != 'name'}
+        metrics[metric_name] = metric_class(**kwargs)
+
+    return metrics
