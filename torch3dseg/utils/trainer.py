@@ -10,7 +10,7 @@ from torch3dseg.utils.utils import get_logger, get_number_of_learnable_parameter
     create_lr_scheduler, get_tensorboard_formatter
 from torch3dseg.utils.model import get_model
 from torch3dseg.utils.losses import get_loss_criterion
-from torch3dseg.utils.metrics import get_evaluation_metric
+from torch3dseg.utils.metrics import get_evaluation_metrics
 from torch3dseg.datasets.utils import get_train_loaders
 
 from torchsummary import summary
@@ -39,8 +39,7 @@ def create_trainer(config):
     # Create loss criterion
     loss_criterion = get_loss_criterion(config)
     # Create evaluation metric
-    eval_criterion = get_evaluation_metric(config)
-
+    eval_criterion = get_evaluation_metrics(config)
     # Create data loaders
     loaders = get_train_loaders(config)
 
@@ -105,6 +104,7 @@ class UNet3DTrainer:
                  max_num_epochs, max_num_iterations,
                  validate_after_iters=200, log_after_iters=100,
                  validate_iters=None, num_iterations=1, num_epoch=0,
+                 main_eval_metric="MeanIoU",
                  eval_score_higher_is_better=True,
                  tensorboard_formatter=None, skip_train_validation=False,
                  resume=None, pre_trained=None, **kwargs):
@@ -122,6 +122,7 @@ class UNet3DTrainer:
         self.validate_after_iters = validate_after_iters
         self.log_after_iters = log_after_iters
         self.validate_iters = validate_iters
+        self.main_eval_metric = main_eval_metric
         self.eval_score_higher_is_better = eval_score_higher_is_better
 
         logger.info(model)
@@ -204,7 +205,7 @@ class UNet3DTrainer:
             True if the training should be terminated immediately, False otherwise
         """
         train_losses = utils.RunningAverage()
-        train_eval_scores = utils.RunningAverage()
+        train_eval_scores = {name: utils.RunningAverage() for name in self.eval_criterion}
 
         # sets the model in training mode
         self.model.train()
@@ -216,9 +217,6 @@ class UNet3DTrainer:
             
             input, target, weight = self._split_training_batch(t)
 
-            # print(f"input {input.shape}")
-            # print(f"target {target.shape}")
-            # print(f"target min {target.min()}, max {target.max()} ")
 
             output, loss = self._forward_pass(input, target, weight)
 
@@ -255,14 +253,24 @@ class UNet3DTrainer:
                 # compute eval criterion
                 if not self.skip_train_validation:
                     output = nn.Sigmoid()(output)
-                    eval_score = self.eval_criterion(output, target)
-                    train_eval_scores.update(eval_score.item(), self._batch_size(input))
+                    
+                    # Update each metric separately
+                    for name, metric in self.eval_criterion.items():
+                        score = metric(output, target)
+                        train_eval_scores[name].update(score.item(), self._batch_size(input))
+                    
+                    # eval_score = self.eval_criterion(output, target)
+                    # train_eval_scores.update(eval_score.item(), self._batch_size(input))
 
                 # log stats, params and images
                 lr = self.optimizer.param_groups[0]['lr']
+                  # Logging averaged results
+                avg_scores_str = ', '.join(f'{k}: {v.avg:.4f}' for k, v in train_eval_scores.items())
                 logger.info(
-                    f'Training stats. Loss: {train_losses.avg}. Evaluation score: {train_eval_scores.avg}. lr-rate {lr}')
-                self._log_stats('train', train_losses.avg, train_eval_scores.avg)
+                    f'Training stats. Loss: {train_losses.avg}. Evaluation score: {avg_scores_str}. lr-rate {lr}')
+                # log to tensorboard
+                eval_score_avg_dict = {k: v.avg for k, v in train_eval_scores.items()}
+                self._log_stats('train', train_losses.avg, eval_score_avg_dict)
                 self._log_lr()
                 self._log_params()
                 # TODO disabled for faster training and less IO
@@ -296,7 +304,7 @@ class UNet3DTrainer:
         logger.info('Validating...')
 
         val_losses = utils.RunningAverage()
-        val_scores = utils.RunningAverage()
+        val_scores = {name: utils.RunningAverage() for name in self.eval_criterion}
 
         with torch.no_grad():
             for i, t in enumerate(self.loaders['val']):
@@ -311,16 +319,23 @@ class UNet3DTrainer:
                 if i % 100 == 0:
                     self._log_images(input, target, output, 'val_')
 
-                eval_score = self.eval_criterion(output, target)
-                val_scores.update(eval_score.item(), self._batch_size(input))
+                # Update all metrics
+                for name, metric in self.eval_criterion.items():
+                    score = metric(output, target)
+                    val_scores[name].update(score.item(), self._batch_size(input))
+                
+                # eval_score = self.eval_criterion(output, target)
+                # val_scores.update(eval_score.item(), self._batch_size(input))
 
                 if self.validate_iters is not None and self.validate_iters <= i:
                     # stop validation
                     break
-
-            self._log_stats('val', val_losses.avg, val_scores.avg)
-            logger.info(f'Validation finished. Loss: {val_losses.avg}. Evaluation score: {val_scores.avg}')
-            return val_scores.avg, val_losses.avg
+                
+            val_score_avg_dict = {k: v.avg for k, v in val_scores.items()}
+            self._log_stats('val', val_losses.avg, val_score_avg_dict)
+            avg_scores_str = ', '.join(f'{k}: {v.avg:.4f}' for k, v in val_scores.items())
+            logger.info(f'Validation finished. Loss: {val_losses.avg}. Evaluation score: {avg_scores_str}')
+            return val_score_avg_dict, val_losses.avg
 
     def _split_training_batch(self, t):
         def _move_to_device(input):
@@ -353,7 +368,8 @@ class UNet3DTrainer:
 
         return output, loss
 
-    def _is_best_eval_score(self, eval_score):
+    def _is_best_eval_score(self, eval_score_dict):
+        eval_score = eval_score_dict[self.main_eval_metric] ## TODO adjust to a class attrribute
         if self.eval_score_higher_is_better:
             is_best = eval_score > self.best_eval_score
         else:
@@ -388,14 +404,15 @@ class UNet3DTrainer:
         lr = self.optimizer.param_groups[0]['lr']
         self.writer.add_scalar('learning_rate', lr, self.num_iterations)
 
-    def _log_stats(self, phase, loss_avg, eval_score_avg):
-        tag_value = {
-            f'{phase}_loss_avg': loss_avg,
-            f'{phase}_eval_score_avg': eval_score_avg
-        }
 
-        for tag, value in tag_value.items():
-            self.writer.add_scalar(tag, value, self.num_iterations)
+    def _log_stats(self, phase, loss_avg, eval_score_avg_dict):
+        # Log the loss
+        self.writer.add_scalar(f'{phase}_loss_avg', loss_avg, self.num_iterations)
+
+        # Log each evaluation metric individually
+        for metric_name, value in eval_score_avg_dict.items():
+            self.writer.add_scalar(f'{phase}_{metric_name}_avg', value, self.num_iterations)
+
 
     def _log_params(self):
         logger.info('Logging model parameters and gradients')
