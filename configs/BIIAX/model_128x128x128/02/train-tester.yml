@@ -28,7 +28,7 @@ loss:
   # a target value that is ignored and does not contribute to the input gradient
   alpha: 0.3
   beta: 0.7
-  weight: [.2,.40,.40]
+  weight: [.2,.4,.4]
 optimizer:
   name: AdamW
   # initial learning rate
@@ -36,11 +36,12 @@ optimizer:
   # weight decay
   weight_decay: 0.00001
 # evaluation metric
-eval_metric:
-  # use MeanIoU
-  name: MeanIoU
-  # skip the background channel for metric 
-  skip_channels: [0] 
+eval_metrics:
+  - name: MeanIoU
+    skip_channels: [0]
+  - name: F1Score
+    skip_channels: [0]
+
 lr_scheduler:
   name: StepLR
   # make sure to use the 'max' mode cause higher MeanIoU is better
@@ -48,28 +49,29 @@ lr_scheduler:
   gamma: 0.5
   step_size: 20
 trainer:
+  main_eval_metric: MeanIoU
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run05/model_128x128x128-00_25-04-26-3/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/test/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
   pre_trained: null
   # how many iterations between validations
-  validate_after_iters: 100
+  validate_after_iters: 2
   # how many iterations between tensorboard logging
-  log_after_iters: 10
+  log_after_iters: 1
   # max number of epochs
-  max_num_epochs: 100
+  max_num_epochs: 2
   # max number of iterations
-  max_num_iterations: 150000
+  max_num_iterations: 10
 # Configure training and validation loaders
 loaders:
   dataset: StandardHDF5Dataset
   # how many subprocesses to use for data loading
-  num_workers: 12
+  num_workers: 8
   # size of every batch (please check GPU mem size)
   batch_size: 4
   # path to the raw data within the H5
@@ -81,27 +83,18 @@ loaders:
     # path to the training datasets
     file_paths:
       # stage 0
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_0/285_10-layer_00_0.vol.seg.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_1/285_10-layer_00_1.vol.seg.h5
-      # stage 1
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_0/285_10-layer_01_0.vol.seg.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_1/285_10-layer_01_1.vol.seg.h5
-      # stage 3
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02_1/285_10-layer_02_1.vol.seg.h5
-      # stage 4
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_1/285_10-layer_03_1.vol.seg.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_0/285_10-layer_00_0.vol.seg.train.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
       patch_shape: [128, 128, 128]
       # train stride between patches
-      stride_shape: [48, 48, 48]
+      stride_shape: [96, 96, 96]
       # minimum volume of the labels in the patch
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
       slack_acceptance: 0.001
-
     transformer:
       raw:
         - name: Standardize
@@ -121,12 +114,11 @@ loaders:
         - name: ToTensor
           expand_dims: false
           # dtype: int64
-
   # configuration of the val loader
   val:
     # path to the val datasets
     file_paths:
-      
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_3/285_10-layer_00_3.vol.seg.eval.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
