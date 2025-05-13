@@ -14,7 +14,7 @@
 # number of processor cores (i.e. threads)                                     
 #SBATCH --cpus-per-task=12     
  # specification of HPC partition
-#SBATCH --partition=alpha      
+#SBATCH --partition=capella      
  # memory per CPU core; max 16G per CPU
 #SBATCH --mem-per-cpu=8G                       
 # number of GPUs max 6 CPU per GPU on alpha
