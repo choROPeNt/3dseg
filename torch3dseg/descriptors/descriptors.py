@@ -44,3 +44,51 @@ def compute_s2_torch(ms: torch.Tensor, limit_to = 64, device=None):
         )
         s2 = s2[slices]
     return s2
+
+class compute_s2(torch.nn.Module):
+    def __init__(self, normalize: bool = True,limit_to: int = None):
+        """
+        Parameters:
+            normalize (bool): Whether to normalize the autocorrelation by its maximum.
+            limit_to (int or None): If set, returns a cropped central region of size 2*limit_to - 1 in each dim.
+        """
+        super().__init__()
+        self.normalize = normalize
+        self.limit_to = limit_to
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Computes the autocorrelation via FFT for 2D or 3D binary input.
+
+        Parameters:
+            x (Tensor): Shape (B, C, H, W) or (B, C, D, H, W)
+
+        Returns:
+            Tensor: Autocorrelation of shape (B, C, ...) possibly cropped.
+        """
+        spatial_dims = x.shape[2:]
+        pad_sizes = []
+        for dim in reversed(spatial_dims):
+            pad_sizes += [0, dim]  # pad both sides
+
+        x_mean = x.mean(dim=tuple(range(2, x.dim())), keepdim=True)
+        x_centered = x - x_mean
+        x_padded = torch.nn.functional.pad(x_centered, pad=pad_sizes, mode='constant', value=0)
+
+        fft_x = torch.fft.fftn(x_padded, dim=tuple(range(2, x.dim())))
+        autocorr_fft = fft_x * torch.conj(fft_x)
+        autocorr = torch.fft.ifftn(autocorr_fft, dim=tuple(range(2, x.dim()))).real
+        autocorr = torch.fft.fftshift(autocorr, dim=tuple(range(2, x.dim())))
+
+        if self.normalize:
+            maxval = autocorr.amax(dim=tuple(range(2, x.dim())), keepdim=True) + 1e-8
+            autocorr = autocorr / maxval
+
+        if self.limit_to is not None:
+                    centers = [s // 2 for s in autocorr.shape[2:]]
+                    slices = tuple(
+                        slice(c - self.limit_to, c + self.limit_to) for c in centers
+                    )
+                    autocorr = autocorr[(...,) + slices]  # keep B, C dims
+
+        return autocorr
