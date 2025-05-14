@@ -52,7 +52,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run_final/2025-05-13_00/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run_final/2025-05-14_00/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -87,17 +87,17 @@ loaders:
       # stage 1
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_0/285_10-layer_01_0.vol.seg.train.h5
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_1/285_10-layer_01_1.vol.seg.train.h5
-      # stage 3
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02_0/285_10-layer_02_0.vol.seg.train.h5
-      # stage 4
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_0/285_10-layer_03_0.vol.seg.train.h5
+      # # stage 3
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02_0/285_10-layer_02_0.vol.seg.train.h5
+      # # stage 4
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_0/285_10-layer_03_0.vol.seg.train.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
       patch_shape: [128, 128, 128]
       # train stride between patches
-      stride_shape: [32, 32, 32]
+      stride_shape: [48, 48, 48]
       # minimum volume of the labels in the patch
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
@@ -107,7 +107,7 @@ loaders:
       raw:
         - name: Standardize
         - name: GaussianBlur3D
-          execution_probability: 0.2
+          execution_probability: 0.5
         - name: AdditiveGaussianNoise
           execution_probability: 0.2
         - name: AdditivePoissonNoise
@@ -130,10 +130,10 @@ loaders:
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_3/285_10-layer_00_3.vol.seg.eval.h5
       # stage 1
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_3/285_10-layer_01_3.vol.seg.eval.h5
-      # stage 3
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02_0/285_10-layer_02_0.vol.seg.eval.h5
-      # stage 4
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_0/285_10-layer_03_0.vol.seg.eval.h5
+      # # stage 3
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02_0/285_10-layer_02_0.vol.seg.eval.h5
+      # # stage 4
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_0/285_10-layer_03_0.vol.seg.eval.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder

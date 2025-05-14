@@ -5,12 +5,12 @@
 
 This repository builds upon the original [pytorch-3dunet](https://github.com/wolny/pytorch-3dunet.git) implementation by Wolny et al. We extended the codebase by adding functionality and integrating additional loss functions tailored for multi-class segmentation of textile reinforcements in low-resolution CT data.
 
-The corresponding [paper]() and [preprint]() can be found here, and the dataset is available on [Zenodo](https://doi.org/10.5281/zenodo.15230978).
+The corresponding [paper]() and [preprint]() can be found here, and the dataset is available on [Zenodo](https://doi.org/10.5281/zenodo.15230978) as `*.h5` and `*.nrrd` files. Only the `*h5` files can be used for training. All other data mentioned in [paper]() or [preprint]() can be requested via <a href="mailto:christian.duereth@tu-dresden.de">mail</a>.
 
 <img src="content/fig_rUnet_2.png" alt="Description" style="width: 100%;" />
 
 
-## :cd: Installation
+## 💿 Installation
 
 
 
@@ -59,6 +59,8 @@ source .venv/bin/activate
 
 
 ## 🏋️‍♂️ Training
+Training a model can be 
+
 
 ## 🤖 Prediction
 
@@ -69,16 +71,15 @@ Currently the FFT-based 2-Point Correlation in PyTorch is available. For more hi
 
 The FFT-based 2-Point correlation function is defined as follows:
 
-$$ S_2(\mathbf{r}) = \frac{1}{|\Omega|} \left( x \ast x \right)(\mathbf{r}) = \frac{1}{|\Omega|} \, \mathcal{F}^{-1}\left\{ |\mathcal{F}[x]|^2 \right\}(\mathbf{r})$$
+$$ S_2(\mathbf{r}) = \frac{1}{N} \; \mathcal{F}^{-1} \left( \mathcal{F}(\mathbf{M}) \odot \mathcal{F}^*(\mathbf{M}) \right)$$
 
 where 
 - $x$ is your binary input (microstructure or phase)
 - $\ast$ is convolution (autocorrelation)
 - $\mathcal{F}$ and $\mathcal{F}^{-1}$ are FFT and IFFT
-- $|\Omega|$ is the total number of elements (for normalization)
+- $N$ is the total number of elements (for normalization)
 
 
-TODO add functionality
 
 
 
