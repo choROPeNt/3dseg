@@ -46,13 +46,13 @@ lr_scheduler:
   # make sure to use the 'max' mode cause higher MeanIoU is better
   # mode: max
   gamma: 0.5
-  step_size: 15
+  step_size: 10
 trainer:
   main_eval_metric: MeanIoU
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run_final/2025-05-15_00/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/model_2025-05-15_01/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -87,10 +87,10 @@ loaders:
       # stage 1
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_0/285_10-layer_01_0.vol.seg.train.h5
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_1/285_10-layer_01_1.vol.seg.train.h5
-      # # stage 3
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02_0/285_10-layer_02_0.vol.seg.train.h5
-      # # stage 4
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_0/285_10-layer_03_0.vol.seg.train.h5
+      # stage 3
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02_0/285_10-layer_02_0.vol.seg.train.h5
+      # stage 4
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_0/285_10-layer_03_0.vol.seg.train.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
@@ -130,10 +130,10 @@ loaders:
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_3/285_10-layer_00_3.vol.seg.eval.h5
       # stage 1
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_3/285_10-layer_01_3.vol.seg.eval.h5
-      # # stage 3
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02_0/285_10-layer_02_0.vol.seg.eval.h5
-      # # stage 4
-      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_0/285_10-layer_03_0.vol.seg.eval.h5
+      # stage 3
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02_0/285_10-layer_02_0.vol.seg.eval.h5
+      # stage 4
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_0/285_10-layer_03_0.vol.seg.eval.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
