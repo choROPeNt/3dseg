@@ -20,7 +20,7 @@ class F1Score(nn.Module):
     Compute F1 Score for multi-channel 3D segmentation.
     
     Supports:
-    - Logits (raw model outputs before sigmoid)
+    - probabilities (model outputs after activiation)
     - Thresholded binary masks (0s and 1s)
     - Skipping specific channels
     
@@ -48,9 +48,9 @@ class F1Score(nn.Module):
             torch.Tensor: Mean F1 Score across valid channels.
         """
         assert pred.shape == target.shape, f"Shape mismatch: {pred.shape} vs {target.shape}"
+        assert pred.min() >= 0.0 and pred.max() <= 1.0, \
+                f"Input `pred` must be probabilities or binary values in [0, 1], got range ({pred.min().item()}, {pred.max().item()})"
 
-        # print(f"Prediction Tensor - Min: {pred.min().item()}, Max: {pred.max().item()}")
-        # print(f"Target Tensor - Min: {target.min().item()}, Max: {target.max().item()}")
         # Convert probabilities to binary masks
         pred = (pred > self.threshold).float()
         target = target.float()
