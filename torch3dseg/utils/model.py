@@ -117,7 +117,7 @@ class Abstract3DUNet(nn.Module):
             # return both probabilities and logits
             return out, x
 
-        return x, x 
+        return x, None
 
 
 
