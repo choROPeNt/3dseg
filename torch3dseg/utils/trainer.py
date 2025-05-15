@@ -315,8 +315,8 @@ class UNet3DTrainer:
 
                 val_losses.update(loss.item(), self._batch_size(input))
 
-                if i % 100 == 0:
-                    self._log_images(input, target, output, 'val_')
+                # if i % 100 == 0:
+                #     self._log_images(input, target, output, 'val_')
 
                 # Update all metrics
                 for name, metric in self.eval_criterion.items():
@@ -353,7 +353,7 @@ class UNet3DTrainer:
 
     def _forward_pass(self, input, target, weight=None):
         # forward pass
-        output,logits = self.model(input,return_logits=True)
+        output,logits = self.model(input,True)
         # compute the loss
         if weight is None:
             loss = self.loss_criterion(logits, target)

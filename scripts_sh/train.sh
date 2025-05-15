@@ -14,10 +14,11 @@
 # number of processor cores (i.e. threads)                                     
 #SBATCH --cpus-per-task=12     
  # specification of HPC partition
-#SBATCH --partition=capella      
+#SBATCH --partition=alpha      
  # memory per CPU core; max 16G per CPU
 #SBATCH --mem-per-cpu=8G                       
 # number of GPUs max 6 CPU per GPU on alpha
+# 
 #SBATCH --gres=gpu:2     
 # job name                               
 #SBATCH -J "3dseg-torch_predict"  
@@ -32,15 +33,25 @@
 ##################################################################
 ##################################################################
 
+# === Load Environment ===
 ml release/24.04  GCC/12.3.0  OpenMPI/4.1.5 PyTorch-bundle/2.1.2-CUDA-12.1.1
-
-## Display GPUs
-nvidia-smi
-
 source .venv_torch/bin/activate
 
-echo $1
-python ./scripts/train.py --config $1
+# === Debug Info ===
+echo "Job ID: $SLURM_JOB_ID"
+echo "CUDA_VISIBLE_DEVICES: $CUDA_VISIBLE_DEVICES"
+echo "OMP_NUM_THREADS: $SLURM_CPUS_PER_TASK"
+nvidia-smi
 
+# === Bind GPU explicitly ===
+# export CUDA_VISIBLE_DEVICES=0
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+# export PYTHONUNBUFFERED=1
+# export NCCL_DEBUG=INFO
+# export TORCH_USE_RTLD_GLOBAL=YES
+
+# === Run Training ===
+echo "Running config: $1"
+srun --unbuffered python ./scripts/train.py --config "$1"
 
 exit 0

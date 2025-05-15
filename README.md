@@ -59,10 +59,35 @@ source .venv/bin/activate
 
 
 ## 🏋️‍♂️ Training
-Training a model can be 
+Model training is initiated using the train.py script and a corresponding YAML configuration file:
+
+```bash
+python scripts/train.py --config=<path-to-congig-yml>
+```
+The configuration file specifies model architecture, dataset paths, training hyperparameters, logging, and checkpointing options.
+Example configurations can be found in the [configs](configs) folder. Each config file contains inline comments or is self-explanatory with regard to most parameters such as batch size, learning rate, data augmentation, loss functions, and optimizer settings.
+
+During training, checkpoints are saved periodically, and training metrics are logged for visualization (e.g., via TensorBoard or custom loggers).
 
 
 ## 🤖 Prediction
+To run inference using a trained model, use:
+```bash
+python scripts/predict.py --config=<path-to-congig-yml>
+```
+This will load the model from the checkpoint defined in the config file and perform prediction on the specified input data.
+
+Please note that the choice of a padding (e.g. mirror) padding is recommended for better prediction on the edges. 
+
+The model will output the prediction probabilities after choosen activation function (eg. sigmoid or softmax) for every channel. Please consider memory allocations and space on your hard drive, precition will save a `[c,z,y,x]` array as float32.
+
+## Hyperparameter Optimization with OmniOpt
+
+We employ OmniOpt, a hyperparameter optimization framework developed at TU Dresden, to tune model parameters for improved performance.
+Integration into this project is currently under development, and future releases will include automated optimization workflows using OmniOpt.
+
+Further information can be found here [Documematation OmniOpt](https://compendium.hpc.tu-dresden.de/software/hyperparameter_optimization/) or from [ScaDS.AI](https://scads.ai/transfer/software/omniopt/)
+
 
 ## 📊 Descriptor-based Evaluation
 
