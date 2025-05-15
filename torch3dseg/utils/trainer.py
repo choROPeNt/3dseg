@@ -252,8 +252,7 @@ class UNet3DTrainer:
             if self.num_iterations % self.log_after_iters == 0:
                 # compute eval criterion
                 if not self.skip_train_validation:
-                    output = nn.Sigmoid()(output)
-                    
+                                        
                     # Update each metric separately
                     for name, metric in self.eval_criterion.items():
                         score = metric(output, target)
@@ -354,17 +353,12 @@ class UNet3DTrainer:
 
     def _forward_pass(self, input, target, weight=None):
         # forward pass
-        output = self.model(input)
+        output,logits = self.model(input,return_logits=True)
         # compute the loss
         if weight is None:
-            ## just for prototyping
-            # print(output[0,:,64,64,64])
-            # print(target[0,:,64,64,64])
-            # print(target[0,:,64,64,64].view(1, 3, 1, 1, 1).shape)
-            # print(self.loss_criterion(output[0,:,64,64,64].view(1, 3, 1, 1, 1) , target[0,:,64,64,64].view(1, 3, 1, 1, 1) ))
-            loss = self.loss_criterion(output, target)
+            loss = self.loss_criterion(logits, target)
         else:
-            loss = self.loss_criterion(output, target, weight)
+            loss = self.loss_criterion(logits, target, weight)
 
         return output, loss
 
