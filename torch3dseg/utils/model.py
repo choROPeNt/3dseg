@@ -76,7 +76,7 @@ class Abstract3DUNet(nn.Module):
         Forward pass through the network.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (N, C, D, H, W) for 3D or (N, C, H, W) for 2D,
+            x (torch.Tensor): Input tensor of shape (B, C, D, H, W) for 3D or (B, C, H, W) for 2D,
                               where N is the batch size, C is the number of channels,
                               D is the depth, H is the height, and W is the width.
             return_logits (bool): If True, returns both the output and the logits.
