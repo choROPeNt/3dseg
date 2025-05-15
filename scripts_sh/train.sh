@@ -18,7 +18,7 @@
  # memory per CPU core; max 16G per CPU
 #SBATCH --mem-per-cpu=8G                       
 # number of GPUs max 6 CPU per GPU on alpha
-#SBATCH --gres=gpu:4     
+#SBATCH --gres=gpu:2     
 # job name                               
 #SBATCH -J "3dseg-torch_predict"  
 # output filepath for *.out file                     
