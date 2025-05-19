@@ -20,9 +20,9 @@
 # number of GPUs max 6 CPU per GPU on alpha
 #SBATCH --gres=gpu:2     
 # job name                               
-#SBATCH -J "3dseg-torch_predict"  
+#SBATCH -J "3dseg-BIIAX-train-%j"  
 # output filepath for *.out file                     
-#SBATCH --output=slurm_out/3dseg-BIIAX-%j.out  
+#SBATCH --output=slurm_out/3dseg-BIIAX-train-%j.out  
 # email address         
 #SBATCH --mail-user=christian.duereth@tu-dresden.de   
 # e-mail notifications  
