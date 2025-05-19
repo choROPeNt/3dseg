@@ -1,4 +1,4 @@
-model_path: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/run05/model_128x128x128-00_25-04-26-2/last_checkpoint.pytorch
+model_path: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/model_2025-05-15_02/last_checkpoint.pytorch
 device: cuda:0
 model:
   name: UNet3D
@@ -9,7 +9,7 @@ model:
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
-  f_maps: 32
+  f_maps: 48
   # number of groups in the groupnorm
   num_groups: 8
   # number of levels in the encoder/decoder path (applied only if f_maps is an int)
@@ -26,7 +26,7 @@ predictor:
 loaders:
   dataset: StandardHDF5Dataset
   # save predictions to output_dir
-  output_dir: /data/horse/ws/dchristi-3dseg/predict/BIIAX/run05/model_128x128x128-00_25-04-26-3/last_checkpoint_2
+  output_dir: /data/horse/ws/dchristi-3dseg/predict/BIIAX/model_2025-05-15_02/
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 8
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
@@ -38,9 +38,23 @@ loaders:
   # test loaders configuration
   test:
     file_paths:
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_0/285_10-layer_03_0.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_1/285_10-layer_03_1.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_3/285_10-layer_03_3.vol.h5
+      # stage 0
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_0/285_10-layer_00_0.vol.seg.train.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_1/285_10-layer_00_1.vol.seg.train.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00_3/285_10-layer_00_3.vol.seg.eval.h5
+      # stage 1
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_0/285_10-layer_01_0.vol.seg.train.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_1/285_10-layer_01_1.vol.seg.train.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01_3/285_10-layer_01_3.vol.seg.eval.h5
+      # # stage 3
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02_0/285_10-layer_02_0.vol.seg.h5
+      # # stage 4
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03_0/285_10-layer_03_0.vol.seg.h5
+      #######
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/00/285_10-layer_00.vol.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/01/285_10-layer_01.vol.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/02/285_10-layer_02.vol.h5
+      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_10-layer/03/285_10-layer_03.vol.h5
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem,

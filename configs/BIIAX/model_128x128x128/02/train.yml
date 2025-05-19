@@ -52,7 +52,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/model_2025-05-15_01/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/BIIAX/model_2025-05-19_00/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -102,7 +102,6 @@ loaders:
       threshold: 0.01
       # probability of accepting patches which do not fulfil the threshold criterion
       slack_acceptance: 0.001
-
     transformer:
       raw:
         - name: Standardize
@@ -111,6 +110,7 @@ loaders:
         - name: AdditiveGaussianNoise
           execution_probability: 0.2
         - name: AdditivePoissonNoise
+
           execution_probability: 0.2
         # - name: RandomContrast
         #   execution_probability: 0.2
@@ -154,4 +154,4 @@ loaders:
       label:
         - name: ToTensor
           expand_dims: false
-          # dtype: int64
+          # dtype: float

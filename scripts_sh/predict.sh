@@ -6,7 +6,7 @@
 ## SLURM Defintions
 ##################################################################
 # walltime
-#SBATCH --time=1:00:00                                  
+#SBATCH --time=6:00:00                                  
 # number of nodes
 #SBATCH --nodes=1                                       
 # number of tasks

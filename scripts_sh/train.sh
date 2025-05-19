@@ -16,9 +16,8 @@
  # specification of HPC partition
 #SBATCH --partition=alpha      
  # memory per CPU core; max 16G per CPU
-#SBATCH --mem-per-cpu=8G                       
+#SBATCH --mem-per-cpu=12G                       
 # number of GPUs max 6 CPU per GPU on alpha
-# 
 #SBATCH --gres=gpu:2     
 # job name                               
 #SBATCH -J "3dseg-torch_predict"  
@@ -45,13 +44,13 @@ nvidia-smi
 
 # === Bind GPU explicitly ===
 # export CUDA_VISIBLE_DEVICES=0
-export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+# export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 # export PYTHONUNBUFFERED=1
 # export NCCL_DEBUG=INFO
 # export TORCH_USE_RTLD_GLOBAL=YES
 
 # === Run Training ===
 echo "Running config: $1"
-srun --unbuffered python ./scripts/train.py --config "$1"
+python ./scripts/train.py --config "$1"
 
 exit 0
