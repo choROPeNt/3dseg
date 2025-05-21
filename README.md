@@ -18,7 +18,7 @@ The corresponding [paper]() and [preprint]() can be found here, and the dataset 
 
 This repository is built with PyTorch, a Python-based, GPU-accelerated deep learning library. It leverages the CUDA toolkit for efficient computation on NVIDIA GPUs.
 
-⚠️ Note: PyTorch’s Metal backend (for Apple M1/M2 chips) currently only supports up to 4D tensors. This means 5D inputs required for 3D convolutions (shape [batch, channel, depth, height, width]) are not supported on Metal devices.
+⚠️ Note: PyTorch’s Metal backend (for Apple M1/M2 chips) currently only supports up to 4D tensors. This means 5D inputs required for 3D convolutions (shape [batch, channel, depth, height, width]) are not supported on Metal GPU devices. Running on CPU still possible but not reccommended.
 
 We strongly recommend using an NVIDIA GPU and installing the appropriate CUDA drivers for full functionality and performance.
 
