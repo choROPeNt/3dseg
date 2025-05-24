@@ -71,9 +71,9 @@ class compute_s2(torch.nn.Module):
         for dim in reversed(spatial_dims):
             pad_sizes += [0, dim]  # pad both sides
 
-        x_mean = x.mean(dim=tuple(range(2, x.dim())), keepdim=True)
-        x_centered = x - x_mean
-        x_padded = torch.nn.functional.pad(x_centered, pad=pad_sizes, mode='constant', value=0)
+        # x_mean = x.mean(dim=tuple(range(2, x.dim())), keepdim=True)
+        # x_centered = x - x_mean
+        x_padded = torch.nn.functional.pad(x, pad=pad_sizes, mode='constant', value=0)
 
         fft_x = torch.fft.fftn(x_padded, dim=tuple(range(2, x.dim())))
         autocorr_fft = fft_x * torch.conj(fft_x)
