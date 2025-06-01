@@ -6,6 +6,7 @@ __pycache__/
 # Folders to omit
 checkpoints/
 data/
+test/
 slurm_out/
 predict/
 notebooks/archiv
