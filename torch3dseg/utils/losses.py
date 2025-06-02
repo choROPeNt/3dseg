@@ -343,7 +343,7 @@ def _create_loss(name, loss_config, weight, ignore_index, pos_weight):
     elif name == 'CE_DiceLoss':
         if ignore_index is None:
             ignore_index = -100  
-        alpha = loss_config.get('alphs', 1.)
+        alpha = loss_config.get('alpha', 1.)
         beta = loss_config.get('beta', 1.)
         return CE_DiceLoss(
                             alpha,beta,
