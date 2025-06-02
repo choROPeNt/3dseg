@@ -16,6 +16,8 @@ notebooks/fiberseg
 notebooks/metrics
 notebooks/NEAPEL
 notebooks/AMHAWER
+.vscode/
+
 ## Labelbox ap key
 api_key.txt
 
