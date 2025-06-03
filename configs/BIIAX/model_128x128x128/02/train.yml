@@ -38,9 +38,7 @@ optimizer:
 # evaluation metric
 eval_metrics:
   - name: MeanIoU
-    skip_channels: [0]
   - name: F1Score
-    skip_channels: [0]
 lr_scheduler:
   name: StepLR
   # make sure to use the 'max' mode cause higher MeanIoU is better
