@@ -6,7 +6,7 @@
 ## SLURM Defintions
 ##################################################################
 # walltime
-#SBATCH --time=15:00:00                                  
+#SBATCH --time=12:00:00                                  
 # number of nodes
 #SBATCH --nodes=1                                       
 # number of tasks
@@ -18,11 +18,11 @@
  # memory per CPU core; max 16G per CPU
 #SBATCH --mem-per-cpu=12G                       
 # number of GPUs max 6 CPU per GPU on alpha
-#SBATCH --gres=gpu:2     
+#SBATCH --gres=gpu:2    
 # job name                               
-#SBATCH -J "3dseg-BIIAX-train-%j"  
+#SBATCH -J "3dseg-NEAPEL-train-%j"  
 # output filepath for *.out file                     
-#SBATCH --output=slurm_out/3dseg-BIIAX-train-%j.out  
+#SBATCH --output=slurm_out/3dseg-NEAPEL-train-%j.out  
 # email address         
 #SBATCH --mail-user=christian.duereth@tu-dresden.de   
 # e-mail notifications  

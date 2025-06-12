@@ -6,6 +6,7 @@ __pycache__/
 # Folders to omit
 checkpoints/
 data/
+test/
 slurm_out/
 predict/
 notebooks/archiv
@@ -15,6 +16,8 @@ notebooks/fiberseg
 notebooks/metrics
 notebooks/NEAPEL
 notebooks/AMHAWER
+.vscode/
+
 ## Labelbox ap key
 api_key.txt
 

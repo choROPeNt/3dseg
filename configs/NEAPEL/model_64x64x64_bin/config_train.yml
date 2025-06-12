@@ -1,7 +1,8 @@
 
-device: cuda:0
+device: cuda
+manual_seed: 42
 model:
-  name: ResidualUNet3D
+  name: UNet3D
   # number of input channels to the model
   in_channels: 1
   # number of output channels
@@ -12,6 +13,10 @@ model:
   f_maps: 32
   # number of groups in the groupnorm
   num_groups: 8
+  # number of levels in the encoder/decoder path (applied only if f_maps is an int)
+  num_levels: 4
+  # down-pooling type for encoder branch: ["max", "avg", "conv"] 
+  pool_type: conv
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
   final_sigmoid: true
   # if True applies the final normalization layer (sigmoid or softmax), 
@@ -20,78 +25,73 @@ model:
   is_segmentation: true
 # loss function to be used during training
 loss:
-  name: BCEWithLogitsLoss
+  name: DiceLoss
   # a target value that is ignored and does not contribute to the input gradient
-  ignore_index: null
-  # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
-  skip_last_target: false
+  # ignore_index: null
+  # # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
+  # skip_last_target: false
 optimizer:
+  name: AdamW
   # to do learning rate scheduler
   # initial learning rate
-  learning_rate: 0.01
+  learning_rate: 0.010
   # weight decay
-  weight_decay: 0.000001
+  weight_decay: 0.00001
 # evaluation metric
-eval_metric:
-  # currently implemented metrics : AdaptedRandError, MeanIoU, DiceCoefficient
-  name: F1Score
-  # probability maps threshold
-  # threshold: 0.5
-  skip_channels: [1]
-  # # use the last target channel to compute the metric
-  # use_last_target: false
-  # # # use only the first channel for computing the metric
-  # use_first_input: true
+eval_metrics:
+  - name: MeanIoU
+    skip_channels: [1]
+  - name: F1Score
+    skip_channels: [1]
 lr_scheduler:
-  name: ReduceLROnPlateau
-  # make sure to use the 'min' mode cause lower AdaptedRandError is better
-  mode: max
-  factor: 0.2
-  patience: 20
+  name: StepLR
+  # make sure to use the 'max' mode cause higher MeanIoU is better
+  # mode: max
+  gamma: 0.5
+  step_size: 10
 trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/NEAPEL/model_64x64x64_bin/run_test2
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/NEAPEL/model_64x64x64_bin_02
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
   pre_trained: null
   # how many iterations between validations
-  validate_after_iters: 10
+  validate_after_iters: 20
   # how many iterations between tensorboard logging
-  log_after_iters: 5
+  log_after_iters: 10
   # max number of epochs
-  max_num_epochs: 100
+  max_num_epochs: 50
   # max number of iterations
-  max_num_iterations: 100
+  max_num_iterations: 10000
 # Configure training and validation loaders
 loaders:
   dataset: StandardHDF5Dataset
   # how many subprocesses to use for data loading
-  num_workers: 6
+  num_workers: 12
   # size of every batch (please check GPU mem size)
-  batch_size: 32
+  batch_size: 8
   # path to the raw data within the H5
-  raw_internal_path: /raw
+  raw_internal_path: /volume
   # path to the the label data withtin the H5
-  label_internal_path: /masks
+  label_internal_path: /masks_bin
   # configuration of the train loader
   train:
     # path to the training datasets
     file_paths:
-      - /data/horse/ws/dchristi-3dseg/data/PoreDetection/Parallelprobe_Grauwerte.seg.vol.train.h5
-      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.train_0.h5
-      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.train_1.h5
-      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.train_2.h5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.train_0.h5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.train_1.h5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.train_2.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better) origninal [80,170,170]
-      patch_shape: [64, 64, 64]
+      patch_shape: [64, 128, 128]
       # train stride between patches
-      stride_shape: [16, 16, 16]
+      stride_shape: [16, 32, 32]
       # minimum volume of the labels in the patch
       threshold: 0.2
       # probability of accepting patches which do not fulfil the threshold criterion
@@ -99,48 +99,47 @@ loaders:
     transformer:
       raw:
         - name: Standardize
-        # - name: RandomFlip
-        # - name: RandomRotate90
-        # - name: RandomRotate
-        #   # rotate only in ZY plane due to anisotropy
-        #   axes: [[2, 1]]
-        #   angle_spectrum: 45
-        #   mode: reflect
-        # - name: ElasticDeformation
-        #   spline_order: 3
-        # - name: GaussianBlur3D
-        #   execution_probability: 0.5
-        # - name: AdditiveGaussianNoise
-        #   execution_probability: 0.2
-        # - name: AdditivePoissonNoise
-        #   execution_probability: 0.2
+        - name: RandomFlip
+        - name: RandomRotate90
+        - name: RandomRotate
+          # rotate only in ZY plane due to anisotropy
+          axes: [[2, 1]]
+          angle_spectrum: 45
+          mode: reflect
+        - name: ElasticDeformation
+          spline_order: 3
+        - name: GaussianBlur3D
+          execution_probability: 0.5
+        - name: AdditiveGaussianNoise
+          execution_probability: 0.2
+        - name: AdditivePoissonNoise
+          execution_probability: 0.2
         - name: ToTensor
           expand_dims: true
       label:
-        # - name: RandomFlip
-        # - name: RandomRotate90
-        # - name: RandomRotate
-        #   # rotate only in ZY plane due to anisotropy
-        #   axes: [[2, 1]]
-        #   angle_spectrum: 45
-        #   mode: reflect
-        # - name: ElasticDeformation
-        #   spline_order: 3
+        - name: RandomFlip
+        - name: RandomRotate90
+        - name: RandomRotate
+          # rotate only in ZY plane due to anisotropy
+          axes: [[2, 1]]
+          angle_spectrum: 45
+          mode: reflect
+        - name: ElasticDeformation
+          spline_order: 3
         - name: ToTensor
           expand_dims: false
   # configuration of the val loader
   val:
     # path to the val datasets
     file_paths:
-      - /data/horse/ws/dchristi-3dseg/data/PoreDetection/Parallelprobe_Grauwerte.seg.vol.val.h5
-      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.val_0.h5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001/neapel_001.vol.seg.val_0.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [64, 64, 64]
+      patch_shape: [64, 128, 128]
       # train stride between patches
-      stride_shape: [64, 64, 64]
+      stride_shape: [16, 32, 32]
       # minimum volume of the labels in the patch
       threshold: 0.1
       # probability of accepting patches which do not fulfil the threshold criterion

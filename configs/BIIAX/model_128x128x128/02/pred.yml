@@ -38,20 +38,20 @@ loaders:
   # test loaders configuration
   test:
     file_paths:
-      # 285-1_layer
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_01-layer/00/285_01-layer_00.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_01-layer/01/285_01-layer_01.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_01-layer/02/285_01-layer_02.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_01-layer/03/285_01-layer_03.vol.h5
-      # 285-5_layer
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_05-layer/00/285_05-layer_00.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_05-layer/01/285_05-layer_01.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_05-layer/02/285_05-layer_02.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_05-layer/03/285_05-layer_03.vol.h5
-      # 285-37_layer
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_37-layer/00/285_37-layer_00.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_37-layer/01/285_37-layer_01.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_37-layer/02/285_37-layer_02.vol.h5
+      # # 285-1_layer
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_01-layer/00/285_01-layer_00.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_01-layer/01/285_01-layer_01.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_01-layer/02/285_01-layer_02.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_01-layer/03/285_01-layer_03.vol.h5
+      # # 285-5_layer
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_05-layer/00/285_05-layer_00.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_05-layer/01/285_05-layer_01.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_05-layer/02/285_05-layer_02.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_05-layer/03/285_05-layer_03.vol.h5
+      # # 285-37_layer
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_37-layer/00/285_37-layer_00.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_37-layer/01/285_37-layer_01.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_37-layer/02/285_37-layer_02.vol.h5
       - /data/horse/ws/dchristi-3dseg/data/BIIAX/285_37-layer/03/285_37-layer_03.vol.h5
        
       # # stage 0
