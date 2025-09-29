@@ -39,25 +39,26 @@ loaders:
   # test loaders configuration
   test:
     file_paths:
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_012.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_021.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_102.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_120.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_201.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_210.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_012.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_021.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_102.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_120.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_201.vol.h5
-      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_210.vol.h5
+      - /data/horse/ws/dchristi-3dseg/data/NEAPEL/Probe_11-4_5J_nanotom/Probe_11-4_5J_.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_012.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_021.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_102.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_120.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_201.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#10.2_gelege_210.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_012.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_021.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_102.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_120.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_201.vol.h5
+      # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/#11.3_geflecht_210.vol.h5
       # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_1.h5
       # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.train_2.h5
       # - /data/horse/ws/dchristi-3dseg/data/NEAPEL/neapel_001.vol.seg.val_0.h5
     slice_builder:
       name: SliceBuilder
       patch_shape:  [64, 128, 128]
-      stride_shape: [16, 32, 32]
+      stride_shape: [24, 48, 48]
     transformer:
       raw:
         - name: Standardize

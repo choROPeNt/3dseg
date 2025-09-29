@@ -6,7 +6,7 @@
 ## SLURM Defintions
 ##################################################################
 # walltime
-#SBATCH --time=10:30:00                                  
+#SBATCH --time=10:00:00                                  
 # number of nodes
 #SBATCH --nodes=1                                       
 # number of tasks
@@ -16,13 +16,13 @@
  # specification of HPC partition
 #SBATCH --partition=alpha      
  # memory per CPU core; max 16G per CPU
-#SBATCH --mem-per-cpu=16G                       
+#SBATCH --mem-per-cpu=9G                       
 # number of GPUs max 6 CPU per GPU on alpha
 #SBATCH --gres=gpu:4     
 # job name                               
 #SBATCH -J "3dseg-torch_predict"  
 # output filepath for *.out file                     
-#SBATCH --output=slurm_out/3dseg-BIIAX-predict-%j.out  
+#SBATCH --output=slurm_out/3dseg-NEAPEL-predict-%j.out  
 # email address         
 #SBATCH --mail-user=christian.duereth@tu-dresden.de   
 # e-mail notifications  
