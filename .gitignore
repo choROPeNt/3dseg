@@ -9,6 +9,7 @@ data/
 test/
 slurm_out/
 predict/
+results/
 notebooks/archiv
 notebooks/BIIAX
 notebooks/conversion
