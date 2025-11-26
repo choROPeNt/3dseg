@@ -50,7 +50,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/DFG_Benni/model_2025-11-26_02/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/DFG_Benni/model_2025-11-26_04/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -61,7 +61,7 @@ trainer:
   # how many iterations between tensorboard logging
   log_after_iters: 10
   # max number of epochs
-  max_num_epochs: 20
+  max_num_epochs: 50
   # max number of iterations
   max_num_iterations: 150000
 # Configure training and validation loaders
@@ -102,13 +102,13 @@ loaders:
         #   execution_probability: 0.2
         # - name: RandomContrast
         #   execution_probability: 0.2
-        - name: RandomRotate
-        - name: RandomFlip
+        # - name: RandomRotate
+        # - name: RandomFlip
         - name: ToTensor
           expand_dims: true
       label:
-        - name: RandomRotate
-        - name: RandomFlip
+        # - name: RandomRotate
+        # - name: RandomFlip
         - name: ToTensor
           expand_dims: false
           # dtype: int64
