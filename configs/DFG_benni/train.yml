@@ -28,7 +28,8 @@ loss:
   # a target value that is ignored and does not contribute to the input gradient
   alpha: 0.3
   beta: 0.7
-  weight: [.05,.50,.50]
+  weight: [.50, .50]
+  skip_last_target: True
 optimizer:
   name: AdamW
   # initial learning rate

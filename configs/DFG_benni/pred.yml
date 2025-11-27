@@ -1,4 +1,4 @@
-model_path: /data/horse/ws/dchristi-3dseg/checkpoints/DFG_Benni/model_2025-11-26_00/best_checkpoint.pytorch
+model_path: /data/horse/ws/dchristi-3dseg/checkpoints/DFG_Benni/model_2025-11-26_04/best_checkpoint.pytorch
 device: cuda:0
 model:
   name: UNet3D
