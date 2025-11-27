@@ -114,7 +114,8 @@ class MeanIoU:
     def __call__(self, input, target):
         """
         :param input: 5D probability maps torch float tensor (NxCxDxHxW)
-        :param target: 4D or 5D ground truth torch tensor. 4D (NxDxHxW) tensor will be expanded to 5D as one-hot
+        :param target: 4D or 5D ground truth torch tensor. 4D (NxDxHxW) tensor 
+            will be expanded to 5D as one-hot
         :return: intersection over union averaged over all channels
         """
         assert input.dim() == 5
