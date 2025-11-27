@@ -44,7 +44,7 @@ If you are using the High Performance Computing (HPC) cluster of the TU Dresden,
 ```
 You can use the following module setup (adjust as needed for your cluster’s module system):
 ```bash
-ml release/24.04  GCC/12.3.0  OpenMPI/4.1.5 PyTorch-bundle/2.1.2-CUDA-12.1.1
+ml release/24.10 GCC/13.3.0 Python/3.12.3 CUDA/12.8.0 OpenMPI/5.0.3
 ```
 afterwards, create a new virtual enviroment in directory:
 ```bash

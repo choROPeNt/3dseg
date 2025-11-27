@@ -6,23 +6,23 @@
 ## SLURM Defintions
 ##################################################################
 # walltime
-#SBATCH --time=12:00:00                                  
+#SBATCH --time=5:00:00                                  
 # number of nodes
 #SBATCH --nodes=1                                       
 # number of tasks
 #SBATCH --ntasks=1 
 # number of processor cores (i.e. threads)                                     
-#SBATCH --cpus-per-task=12     
+#SBATCH --cpus-per-task=6     
  # specification of HPC partition
-#SBATCH --partition=alpha      
+#SBATCH --partition=capella      
  # memory per CPU core; max 16G per CPU
 #SBATCH --mem-per-cpu=12G                       
 # number of GPUs max 6 CPU per GPU on alpha
-#SBATCH --gres=gpu:2    
+#SBATCH --gres=gpu:1    
 # job name                               
-#SBATCH -J "3dseg-NEAPEL-train-%j"  
+#SBATCH -J "3dseg-DFG_Benni-train-%j"  
 # output filepath for *.out file                     
-#SBATCH --output=slurm_out/3dseg-NEAPEL-train-%j.out  
+#SBATCH --output=slurm_out/3dseg-DFG_Benni-train-%j.out  
 # email address         
 #SBATCH --mail-user=christian.duereth@tu-dresden.de   
 # e-mail notifications  
@@ -33,8 +33,8 @@
 ##################################################################
 
 # === Load Environment ===
-ml release/24.04  GCC/12.3.0  OpenMPI/4.1.5 PyTorch-bundle/2.1.2-CUDA-12.1.1
-source .venv_torch/bin/activate
+ml release/24.10 GCC/13.3.0 Python/3.12.3 CUDA/12.8.0 OpenMPI/5.0.3
+source /data/horse/ws/dchristi-3dseg/.venv/bin/activate
 
 # === Debug Info ===
 echo "Job ID: $SLURM_JOB_ID"
