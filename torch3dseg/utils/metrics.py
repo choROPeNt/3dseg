@@ -539,10 +539,9 @@ def get_evaluation_metrics(config):
     metrics_config = config['eval_metrics']
 
     metrics = {}
-    for metric_cfg in metrics_config:
-        metric_name = metric_cfg['name']
+    for metric_name, metric_params in metrics_config.items():
         metric_class = _metric_class(metric_name)
-        kwargs = {k: v for k, v in metric_cfg.items() if k != 'name'}
-        metrics[metric_name] = metric_class(**kwargs)
+        # kwargs = {k: v for k, v in metric_cfg.items() if k != 'name'}
+        metrics[metric_name] = metric_class(**metric_params)
 
     return metrics
