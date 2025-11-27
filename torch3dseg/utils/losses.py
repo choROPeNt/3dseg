@@ -258,6 +258,25 @@ class WeightedSmoothL1Loss(nn.SmoothL1Loss):
 
         return l1.mean()
 
+class CE_DiceLoss(nn.Module):
+    """Linear combination of CE and Dice losses"""
+
+    def __init__(self, alpha, beta, weight,ignore_index):
+        super(CE_DiceLoss, self).__init__()
+        self.alpha = alpha
+        self.CE = nn.CrossEntropyLoss(weight=weight,ignore_index=ignore_index)
+        self.beta = beta
+        self.dice = DiceLoss(weight,normalization="softmax")
+
+    def forward(self, input, target):
+        """
+            input: [b,c,(z,y,x)] as raw logits, normalization for DICE via softmax
+            target: [b,c,(z,y,x)] as one_hot has to be converted to labelmap for CE
+        """
+        
+        target_ce = torch.argmax(target,dim=1) # convert to labelmap from one hot
+        
+        return self.alpha * self.CE(input, target_ce) + self.beta * self.dice(input, target)
 
 def flatten(tensor):
     """Flattens a given tensor such that the channel axis is first.
@@ -273,6 +292,7 @@ def flatten(tensor):
     # Flatten: (C, N, D, H, W) -> (C, N * D * H * W)
     return transposed.contiguous().view(C, -1)
 
+#######################################################################################################################
 
 def get_loss_criterion(config):
     """
@@ -307,28 +327,6 @@ def get_loss_criterion(config):
         loss = SkipLastTargetChannelWrapper(loss, loss_config.get('squeeze_channel', False))
 
     return loss
-
-
-class CE_DiceLoss(nn.Module):
-    """Linear combination of CE and Dice losses"""
-
-    def __init__(self, alpha, beta, weight,ignore_index):
-        super(CE_DiceLoss, self).__init__()
-        self.alpha = alpha
-        self.CE = nn.CrossEntropyLoss(weight=weight,ignore_index=ignore_index)
-        self.beta = beta
-        self.dice = DiceLoss(weight,normalization="softmax")
-
-    def forward(self, input, target):
-        """
-            input: [b,c,(z,y,x)] as raw logits, normalization for DICE via softmax
-            target: [b,c,(z,y,x)] as one_hot has to be converted to labelmap for CE
-        """
-        
-        target_ce = torch.argmax(target,dim=1) # convert to labelmap from one hot
-        
-        return self.alpha * self.CE(input, target_ce) + self.beta * self.dice(input, target)
-
 
 #######################################################################################################################
 
