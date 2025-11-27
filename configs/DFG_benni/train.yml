@@ -28,8 +28,8 @@ loss:
   # a target value that is ignored and does not contribute to the input gradient
   alpha: 0.3
   beta: 0.7
-  weight: [.50, .50]
-  skip_last_target: True
+  weight: [.50, .50, 0.05]
+  # skip_last_target: True
 optimizer:
   name: AdamW
   # initial learning rate
@@ -38,8 +38,17 @@ optimizer:
   weight_decay: 0.00001
 # evaluation metric
 eval_metrics:
-  - name: MeanIoU
-  - name: F1Score
+  MeanIoU:
+    # Channels (class indices) to skip when computing IoU, e.g. [0] to ignore background.
+    skip_channels: []
+    # Label index in the target mask to ignore during IoU computation (e.g. 0 for background pixels).
+    ignore_index: null
+  F1Score:
+    skip_channels: []
+    ignore_index: null
+
+  # - name: MeanIoU
+  # - name: F1Score
 lr_scheduler:
   name: StepLR
   # make sure to use the 'max' mode cause higher MeanIoU is better
@@ -51,7 +60,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/DFG_Benni/model_2025-11-26_04/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/DFG_Benni/model_2025-11-27_01/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -80,7 +89,7 @@ loaders:
   train:
     # path to the training datasets
     file_paths:
-      - /data/horse/ws/dchristi-3dseg/data/DFG_Benni/Probe4_klein/Probe4_klein_subset.h5
+      - /data/horse/ws/dchristi-3dseg/data/DFG_Benni/Probe4_klein/Probe4_klein_subset_reversed.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
@@ -118,7 +127,7 @@ loaders:
     # path to the val datasets
     file_paths:
       # stage 0
-      - /data/horse/ws/dchristi-3dseg/data/DFG_Benni/Probe4_klein/Probe4_klein_subset_val.h5
+      - /data/horse/ws/dchristi-3dseg/data/DFG_Benni/Probe4_klein/Probe4_klein_subset_reversed_val.h5
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
