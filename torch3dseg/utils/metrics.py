@@ -120,37 +120,71 @@ class MeanIoU:
         """
         assert input.dim() == 5
 
-        n_classes = input.size()[1]
+        n_classes = input.size(1)
+
         if target.dim() == 4:
             target = expand_as_one_hot(target, C=n_classes, ignore_index=self.ignore_index)
 
-        assert input.size() == target.size()
+        assert input.size() == target.size(),\
+            f"input size of {input.size()} not equal to target size of {target.size()}" 
+
+        device = input.device
 
         per_batch_iou = []
-        for _input, _target in zip(input, target):
+
+        # (N, C) – fill with NaNs, then overwrite valid channels
+        per_batch_channel_iou = torch.full(
+            (input.size(0), n_classes),
+            float("nan"),
+            device=device,
+            dtype=torch.float32,
+        )
+        
+        # precompute mask of valid channels (not skipped)
+        valid_channels = torch.ones(n_classes, dtype=torch.bool, device=device)
+        for c in self.skip_channels:
+            valid_channels[c] = False
+
+        for idx, (_input, _target) in enumerate(zip(input, target)):
+            # _input, _target: (C, D, H, W)
             binary_prediction = self._binarize_predictions(_input, n_classes)
 
             if self.ignore_index is not None:
                 # zero out ignore_index
                 mask = _target == self.ignore_index
+                binary_prediction = binary_prediction.clone()
+                _target = _target.clone()
                 binary_prediction[mask] = 0
                 _target[mask] = 0
 
             # convert to uint8 just in case
             binary_prediction = binary_prediction.byte()
             _target = _target.byte()
-            per_channel_iou = []
+
+            sample_channel_ious = torch.full(
+                (n_classes,),
+                float("nan"),
+                device=device,
+                dtype=torch.float32,
+            )
+
+            # compute per-channel IoU
             for c in range(n_classes):
                 if c in self.skip_channels:
                     continue
+                iou_c = self._jaccard_index(binary_prediction[c], _target[c])
+                sample_channel_ious[c] = iou_c
 
-                per_channel_iou.append(self._jaccard_index(binary_prediction[c], _target[c]))
+            valid_ious = sample_channel_ious[valid_channels]
+            assert valid_ious.numel() > 0, "All channels were ignored from the computation"
 
-            assert per_channel_iou, "All channels were ignored from the computation"
-            mean_iou = torch.mean(torch.tensor(per_channel_iou))
-            per_batch_iou.append(mean_iou)
+            mean_iou_sample = valid_ious.mean()
+            per_batch_iou.append(mean_iou_sample)
+            per_batch_channel_iou[idx] = sample_channel_ious
 
-        return torch.mean(torch.tensor(per_batch_iou))
+        per_batch_iou = torch.stack(per_batch_iou)  # (N,)
+
+        return per_batch_iou, per_batch_channel_iou
 
     def _binarize_predictions(self, input, n_classes):
         """
