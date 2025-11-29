@@ -153,13 +153,18 @@ class UNet3DTrainer:
             self.best_eval_score = state['best_eval_score']
             self.num_iterations = state['num_iterations']
             self.num_epochs = state['num_epochs']
+                
+
             # self.checkpoint_dir = os.path.split(resume)[0]
         elif pre_trained is not None:
             logger.info(f"Logging pre-trained model from '{pre_trained}'...")
-            utils.load_checkpoint(pre_trained, self.model, None)
+            state = utils.load_checkpoint(pre_trained, self.model, None)
             # if 'checkpoint_dir' not in kwargs:
                 # self.checkpoint_dir = os.path.split(pre_trained)[0]
-
+            logger.info(
+                f"Checkpoint loaded from '{pre_trained}'. Epoch: {state['num_epochs']}.  Iteration: {state['num_iterations']}. "
+                f"Best val score: {state['best_eval_score']}."
+            )
     def fit(self):
         for _ in range(self.num_epochs, self.max_num_epochs):
             # train for one epoch
@@ -255,8 +260,40 @@ class UNet3DTrainer:
                                         
                     # Update each metric separately
                     for name, metric in self.eval_criterion.items():
-                        score = metric(output, target)
-                        train_eval_scores[name].update(score.item(), self._batch_size(input))
+                        result = metric(output, target)
+
+                        batch_size = self._batch_size(input)
+
+                        # Case A: metric returns (per_batch, per_batch_channel)
+                        if isinstance(result, tuple) and len(result) == 2:
+                            per_batch, per_batch_channel = result   # shapes: (N,), (N, C)
+
+                            # 1) main metric: average over this batch
+                            main_value = per_batch.mean().item()
+                            train_eval_scores[name].update(main_value, batch_size)
+
+                            # 2) per-channel metrics: average over batch, ignore NaN
+                            #    -> per_channel_mean: (C,)
+                            per_channel_mean = torch.nanmean(per_batch_channel, dim=0)
+
+                            n_classes = per_channel_mean.shape[0]
+                            for c in range(n_classes):
+                                v = per_channel_mean[c]
+                                if torch.isnan(v):
+                                    continue  # skip channels that are entirely NaN / ignored
+
+                                ch_name = f"{name}_c{c}"
+                                if ch_name not in train_eval_scores:
+                                    train_eval_scores[ch_name] = utils.RunningAverage()
+                                train_eval_scores[ch_name].update(v.item(), batch_size)
+
+                        # Case B: metric returns a single scalar tensor / float
+                        else:
+                            if torch.is_tensor(result):
+                                value = result.item()
+                            else:
+                                value = float(result)
+                            train_eval_scores[name].update(value, batch_size)
                     
                     # eval_score = self.eval_criterion(output, target)
                     # train_eval_scores.update(eval_score.item(), self._batch_size(input))
@@ -320,8 +357,42 @@ class UNet3DTrainer:
 
                 # Update all metrics
                 for name, metric in self.eval_criterion.items():
-                    score = metric(output, target)
-                    val_scores[name].update(score.item(), self._batch_size(input))
+                    result = metric(output, target)
+
+                    batch_size = self._batch_size(input)
+
+                    # Case A: metric returns (per_batch, per_batch_channel)
+                    if isinstance(result, tuple) and len(result) == 2:
+                        per_batch, per_batch_channel = result   # shapes: (N,), (N, C)
+
+                        # 1) main metric: average over this batch
+                        main_value = per_batch.mean().item()
+                        val_scores[name].update(main_value, batch_size)
+
+                        # 2) per-channel metrics: average over batch, ignore NaN
+                        #    -> per_channel_mean: (C,)
+                        per_channel_mean = torch.nanmean(per_batch_channel, dim=0)
+
+                        n_classes = per_channel_mean.shape[0]
+                        for c in range(n_classes):
+                            v = per_channel_mean[c]
+                            if torch.isnan(v):
+                                continue  # skip channels that are entirely NaN / ignored
+
+                            ch_name = f"{name}_c{c}"
+                            if ch_name not in val_scores:
+                                val_scores[ch_name] = utils.RunningAverage()
+                            val_scores[ch_name].update(v.item(), batch_size)
+
+                    # Case B: metric returns a single scalar tensor / float
+                    else:
+                        if torch.is_tensor(result):
+                            value = result.item()
+                        else:
+                            value = float(result)
+                        val_scores[name].update(value, batch_size)
+
+
                 
                 # eval_score = self.eval_criterion(output, target)
                 # val_scores.update(eval_score.item(), self._batch_size(input))
