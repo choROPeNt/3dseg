@@ -23,10 +23,11 @@ model:
 predictor:
   name: 'StandardPredictor'
   output_type: 'probability' # 'probability' otherwise "class": performs torch.argmax [c,spatial] to [spatial] with c as int label
+  precision: float16
 loaders:
   dataset: StandardHDF5Dataset
   # save predictions to output_dir
-  output_dir: /data/horse/ws/dchristi-3dseg/last_checkpoint #results/ #
+  output_dir: /data/horse/ws/dchristi-3dseg/last_checkpoint #results/ # # #
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 8
   # mirror pad the raw data in each axis for sharper prediction near the boundaries of the volume
