@@ -177,33 +177,160 @@ class StandardPredictor(_AbstractPredictor):
         normalization_masks = [np.zeros(output_shape, dtype='uint8') for _ in range(output_heads)]
         return prediction_maps, normalization_masks
 
-    def _save_results(self, prediction_maps, normalization_masks, output_heads, output_file, dataset):
+    def _save_results(
+        self,
+        prediction_maps,
+        normalization_masks,
+        output_heads,
+        output_file,
+        dataset,
+    ):
+        """
+        Save prediction maps to the given HDF5 output file.
+
+        - probabilities:
+            precision ∈ {float16, float32, float64}
+        - classes:
+            precision ∈ {uint8, uint16}
+
+        Defaults:
+            output_type  = "probabilities"
+            precision    = "float32"
+        """
+
         def _slice_from_pad(pad):
-            if pad == 0:
-                return slice(None, None)
+            return slice(None, None) if pad == 0 else slice(pad, -pad)
+
+        def _suggest_chunks(shape, dtype, max_chunk_bytes=64 * 1024 * 1024):
+            """
+            Pick a chunk shape such that:
+                prod(chunk) * itemsize <= max_chunk_bytes
+            by iteratively shrinking the largest dimension > 1.
+            """
+            import numpy as np
+
+            itemsize = np.dtype(dtype).itemsize
+            chunk = list(shape)
+
+            # If full array already small enough, just use full shape
+            if np.prod(chunk) * itemsize <= max_chunk_bytes:
+                return tuple(chunk)
+
+            # Iteratively shrink until under budget
+            while np.prod(chunk) * itemsize > max_chunk_bytes:
+                # find axis with largest size > 1
+                idx_candidates = [i for i, s in enumerate(chunk) if s > 1]
+                if not idx_candidates:
+                    break  # cannot shrink further
+                idx = max(idx_candidates, key=lambda i: chunk[i])
+                chunk[idx] = max(1, chunk[idx] // 2)
+
+            return tuple(chunk)
+
+
+        # Dataset names for each output head
+        prediction_datasets = self.get_output_dataset_names(
+            output_heads, prefix="predictions"
+        )
+
+        predictor_cfg = self.config.get("predictor", {})
+
+        # -------------------------------------------------------------
+        # Default behavior
+        # -------------------------------------------------------------
+        output_type = predictor_cfg.get("output_type", "probabilities")
+        precision_cfg = predictor_cfg.get("precision", "float32")
+
+        # Allowed dtypes
+        prob_dtype_map = {
+            "float16": np.float16,
+            "float32": np.float32,
+            "float64": np.float64,
+        }
+        class_dtype_map = {
+            "uint8": np.uint8,
+            "uint16": np.uint16,
+        }
+
+        # Validate dtype based on output_type
+        if output_type == "classes":
+            if precision_cfg not in class_dtype_map:
+                logger.warning(
+                    f"precision='{precision_cfg}' is invalid for class outputs. "
+                    "Falling back to 'uint8'."
+                )
+                precision_cfg = "uint8"
+            out_dtype = class_dtype_map[precision_cfg]
+        else:
+            # output_type == "probabilities"
+            if precision_cfg not in prob_dtype_map:
+                logger.warning(
+                    f"precision='{precision_cfg}' is invalid for probabilities. "
+                    "Falling back to 'float32'."
+                )
+                precision_cfg = "float32"
+            out_dtype = prob_dtype_map[precision_cfg]
+
+        for prediction_map, normalization_mask, prediction_dataset in zip(
+            prediction_maps,
+            normalization_masks,
+            prediction_datasets,
+        ):
+            # ---------------------------------------------------------
+            # 1. Normalize safely (always compute in float32)
+            # ---------------------------------------------------------
+            prediction_map = np.asarray(prediction_map, dtype=np.float32)
+            normalization_mask = np.asarray(normalization_mask, dtype=np.float32)
+
+            normalization_mask_safe = np.where(
+                normalization_mask == 0.0,
+                1.0,
+                normalization_mask,
+            )
+            prediction_map = prediction_map / normalization_mask_safe
+
+            # ---------------------------------------------------------
+            # 2. Remove mirror padding if present
+            # ---------------------------------------------------------
+            mirror_padding = getattr(dataset, "mirror_padding", None)
+            if mirror_padding is not None:
+                z_s, y_s, x_s = (_slice_from_pad(p) for p in mirror_padding)
+                logger.info(
+                    f"Dataset loaded with mirror padding: {mirror_padding}. "
+                    "Cropping before saving..."
+                )
+                if prediction_map.ndim == 4:      # (C, Z, Y, X)
+                    prediction_map = prediction_map[:, z_s, y_s, x_s]
+                elif prediction_map.ndim == 3:    # (Z, Y, X)
+                    prediction_map = prediction_map[z_s, y_s, x_s]
+
+            # ---------------------------------------------------------
+            # 3. Convert to class labels if needed
+            # ---------------------------------------------------------
+            if output_type == "classes":
+                prediction_map = np.argmax(prediction_map, axis=0)
+                prediction_map = prediction_map.astype(out_dtype, copy=False)
             else:
-                return slice(pad, -pad)
+                # probabilities → chosen float precision
+                prediction_map = prediction_map.astype(out_dtype, copy=False)
 
-        # save probability maps
-        prediction_datasets = self.get_output_dataset_names(output_heads, prefix='predictions')
-        for prediction_map, normalization_mask, prediction_dataset in zip(prediction_maps, normalization_masks,
-                                                                          prediction_datasets):
-            
-            prediction_map = prediction_map / normalization_mask
+            # ---------------------------------------------------------
+            # 4. Chunked + compressed HDF5 writing
+            # ---------------------------------------------------------
+            dset_shape = prediction_map.shape
+            dset_dtype = prediction_map.dtype
 
-            if dataset.mirror_padding is not None:
-                z_s, y_s, x_s = [_slice_from_pad(p) for p in dataset.mirror_padding]
+            chunk_shape = _suggest_chunks(dset_shape, dset_dtype)
 
-                logger.info(f'Dataset loaded with mirror padding: {dataset.mirror_padding}. Cropping before saving...')
+            output_file.create_dataset(
+                prediction_dataset,
+                data=prediction_map,
+                dtype=dset_dtype,
+                compression="gzip",
+                compression_opts=4,
+                chunks=chunk_shape,
+            )
 
-                prediction_map = prediction_map[:, z_s, y_s, x_s]
-            
-            ##TODO set out put to labels
-            if 'output_type' in self.config.get('predictor', {}):
-                if self.config['predictor']['output_type'] == 'classes':
-                    prediction_map = np.argmax(prediction_map, axis=0).astype(np.uint8)
-
-            output_file.create_dataset(prediction_dataset, data=prediction_map, compression="gzip")
 
     @staticmethod
     def _validate_halo(patch_halo, slice_builder_config):
