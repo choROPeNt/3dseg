@@ -13,7 +13,7 @@ model:
   # number of groups in the groupnorm, f_maps must be devidable through that
   num_groups: 8
   # number of levels in the encoder/decoder path (applied only if f_maps is an int)
-  num_levels: 3
+  num_levels: 4
   # down-pooling type for encoder branch: ["max", "avg", "conv"] 
   pool_type: conv
   # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
@@ -28,12 +28,12 @@ loss:
   # a target value that is ignored and does not contribute to the input gradient
   alpha: 0.3
   beta: 0.7
-  weight: [.50, .50, 0.05]
+  weight: [1.0, 1.0, 0.1] # almost canceled out last layer 
   # skip_last_target: True
 optimizer:
   name: AdamW
   # initial learning rate
-  learning_rate: 0.010
+  learning_rate: 0.0010
   # weight decay
   weight_decay: 0.00001
 # evaluation metric
@@ -60,18 +60,18 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: true
   # path to the checkpoint directory
-  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/DFG_Benni/model_2025-11-27_01/
+  checkpoint_dir: /data/horse/ws/dchristi-3dseg/checkpoints/DFG_Benni/model_2025-11-29_02/
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
   # make sure to decrease the learning rate in the optimizer config accordingly
-  pre_trained: null
+  pre_trained: /data/horse/ws/dchristi-3dseg/checkpoints/DFG_Benni/model_2025-11-29_01/last_checkpoint.pytorch
   # how many iterations between validations
   validate_after_iters: 100
   # how many iterations between tensorboard logging
   log_after_iters: 10
   # max number of epochs
-  max_num_epochs: 50
+  max_num_epochs: 200
   # max number of iterations
   max_num_iterations: 150000
 # Configure training and validation loaders
@@ -112,13 +112,13 @@ loaders:
         #   execution_probability: 0.2
         # - name: RandomContrast
         #   execution_probability: 0.2
-        # - name: RandomRotate
-        # - name: RandomFlip
+        - name: RandomRotate
+        - name: RandomFlip
         - name: ToTensor
           expand_dims: true
       label:
-        # - name: RandomRotate
-        # - name: RandomFlip
+        - name: RandomRotate
+        - name: RandomFlip
         - name: ToTensor
           expand_dims: false
           # dtype: int64
