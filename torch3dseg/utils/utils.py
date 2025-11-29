@@ -7,6 +7,7 @@ import sys
 import h5py
 import numpy as np
 import torch
+import torch.nn as nn
 from torch import optim
 
 
@@ -31,8 +32,13 @@ def save_checkpoint(state, is_best, checkpoint_dir):
         shutil.copyfile(last_file_path, best_file_path)
 
 
-def load_checkpoint(checkpoint_path, model, optimizer=None,
-                    model_key='model_state_dict', optimizer_key='optimizer_state_dict'):
+def load_checkpoint(
+    checkpoint_path, 
+    model, 
+    optimizer=None,
+    model_key='model_state_dict', 
+    optimizer_key='optimizer_state_dict'
+):
     """Loads model and training parameters from a given checkpoint_path
     If optimizer is provided, loads optimizer's state_dict of as well.
 
@@ -43,15 +49,36 @@ def load_checkpoint(checkpoint_path, model, optimizer=None,
             which the parameters are to be copied
 
     Returns:
-        state
+        state (dict): the full checkpoint dict
     """
     if not os.path.exists(checkpoint_path):
         raise IOError(f"Checkpoint '{checkpoint_path}' does not exist")
 
     state = torch.load(checkpoint_path, map_location='cpu')
-    model.load_state_dict(state[model_key])
 
-    if optimizer is not None:
+    state_dict = state[model_key]
+
+    # Detect styles
+    ckpt_is_dp = next(iter(state_dict.keys())).startswith("module.")
+    model_is_dp = isinstance(model, nn.DataParallel)
+
+    # Case A: checkpoint is DP, model is plain → strip "module."
+    if ckpt_is_dp and not model_is_dp:
+        new_state_dict = {}
+        for k, v in state_dict.items():
+            new_k = k[len("module."):] if k.startswith("module.") else k
+            new_state_dict[new_k] = v
+        state_dict = new_state_dict
+
+    # Case B: checkpoint is plain, model is DP → add "module."
+    elif not ckpt_is_dp and model_is_dp:
+        new_state_dict = {f"module.{k}": v for k, v in state_dict.items()}
+
+        state_dict = new_state_dict
+
+    model.load_state_dict(state_dict)
+
+    if optimizer is not None and optimizer_key in state:
         optimizer.load_state_dict(state[optimizer_key])
 
     return state
