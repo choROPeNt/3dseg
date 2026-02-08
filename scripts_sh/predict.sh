@@ -42,8 +42,8 @@ echo "CUDA_VISIBLE_DEVICES: $CUDA_VISIBLE_DEVICES"
 echo "OMP_NUM_THREADS: $SLURM_CPUS_PER_TASK"
 nvidia-smi
 
-# === Run Training ===
+# === Run Prediction ===
 echo "Running config: $1"
-python ./scripts/train.py --config "$1"
+python ./scripts/predict.py --config "$1"
 
 exit 0
