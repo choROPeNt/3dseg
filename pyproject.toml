@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "torch3dseg"
+version = "0.1.0"
+description = "3D segmentation utilities based on PyTorch"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Christian Düreth" }]
+
+dependencies = [
+  "numpy",
+  "scikit-image",
+  "tqdm",
+  "tensorboard",
+  "torchsummary",
+  "h5py",
+  "pynrrd",
+  "pyyaml",
+  # NOTE: torch/torchvision intentionally NOT pinned here; see extras below.
+]
+
+# Optional dependency groups
+[project.optional-dependencies]
+# Use one of these explicitly, because PyTorch wheels vary by OS/CUDA.
+cpu = [
+  "torch",
+  "torchvision",
+]
+
+# "gpu" here is a placeholder group. For CUDA you typically install from PyTorch index/command.
+# Keeping this group can still be useful for "semantic intent", but actual CUDA selection happens at install time.
+gpu = [
+  "torch",
+  "torchvision",
+]
+
+dev = [
+  "pytest>=7",
+  "pytest-cov>=4",
+  "ruff>=0.4",
+  "black>=24.0",
+  "mypy>=1.8",
+  "types-PyYAML",
+  "build",
+  "twine",
+  "ipykernel",
+]
+
+docs = [
+  "mkdocs>=1.5",
+  "mkdocs-material>=9",
+]
+
+[tool.setuptools]
+py-modules = ["torch3dseg"]
+# If you later turn it into a package directory, replace this with packages.find (see below).
+
+# -----------------------
+# Tooling configuration
+# -----------------------
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+lint.select = ["E", "F", "I", "B", "UP"]
+lint.ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+no_implicit_optional = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-q"
+testpaths = ["tests"]
