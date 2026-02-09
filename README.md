@@ -40,7 +40,7 @@ This should install the `3dseg` python package via PIP in the current active vir
 
 If you are using the High Performance Computing (HPC) cluster of the TU Dresden, we recommend using one of the GPU clsuters like `Alpha` (Nvidia A100 SXM 40 GB) or `Capella` (Nvidia H100). First, allocate some ressources e.g. for `alpha`
 ```bash
- srun -p alpha -N 1 -t 01:00:00 -c 8 --mem=16G --gres=gpu:1  --pty /bin/bash -l
+ srun -p alpha -N 1 -t 01:00:00 -c 6 --mem=16G --gres=gpu:1  --pty /bin/bash -l
 ```
 You can use the following module setup (adjust as needed for your cluster’s module system):
 ```bash
