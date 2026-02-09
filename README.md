@@ -12,8 +12,6 @@ The corresponding [paper]() and [preprint]() can be found here, and the dataset 
 
 ## 💿 Installation
 
-
-
 ### 🔥 PyTorch Compatibility
 
 This repository is built with PyTorch, a Python-based, GPU-accelerated deep learning library. It leverages the CUDA toolkit for efficient computation on NVIDIA GPUs.
