@@ -1,11 +1,48 @@
 # 🩻 3Dseg for CT-Data
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15230978.svg)](https://doi.org/10.5281/zenodo.15230978)
 
 
-This repository builds upon the original [pytorch-3dunet](https://github.com/wolny/pytorch-3dunet.git) implementation by Wolny et al. We extended the codebase by adding functionality and integrating additional loss functions tailored for multi-class segmentation of textile reinforcements in low-resolution CT data.
 
-The corresponding [paper]() and [preprint]() can be found here, and the dataset is available on [Zenodo](https://doi.org/10.5281/zenodo.15230978) as `*.h5` and `*.nrrd` files. Only the `*h5` files can be used for training. All other data mentioned in [paper]() or [preprint]() can be requested via <a href="mailto:christian.duereth@tu-dresden.de">mail</a>.
+
+
+<div align="center">
+
+[![GitHub](https://img.shields.io/badge/GitHub-3Dseg-181717?logo=github&logoColor=white)](https://github.com/choROPeNt/3dseg)&nbsp;
+[![Dataset](https://img.shields.io/badge/Dataset-Zenodo-0096FF?logo=zenodo&logoColor=white)](https://doi.org/10.5281/zenodo.15230978)&nbsp;
+[![Docs](https://img.shields.io/badge/Docs-Documentation-4CAF50?logo=readthedocs&logoColor=white)](./docs)
+
+[![arXiv](https://img.shields.io/badge/arXiv-2508.10943-B31B1B.svg)](https://arxiv.org/abs/2508.10943)&nbsp;
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.jcomc.2025.100662-0A7BBB.svg)](https://doi.org/10.1016/j.jcomc.2025.100662)&nbsp;
+
+</div>
+
+
+
+## Overview
+
+This repository extends the original
+pytorch-3dunet￼ implementation by Wolny et al.
+
+We substantially expanded the codebase by:
+- Adding custom loss functions for multi-class segmentation
+- Integrating orientation-aware supervision
+- Adapting the framework to low-resolution CT data
+- Optimizing the pipeline for textile reinforcement microstructures
+
+The framework is specifically tailored for segmentation of textile reinforcements (e.g. warp, weft, matrix) in volumetric composite CT datasets for multiscale analysis
+
+---
+
+## Publication & Dataset
+The corresponding publication is available at:
+
+[![arXiv](https://img.shields.io/badge/arXiv-2508.10943-B31B1B.svg)](https://arxiv.org/abs/2508.10943)&nbsp;
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.jcomc.2025.100662-0A7BBB.svg)](https://doi.org/10.1016/j.jcomc.2025.100662)
+
+The dataset can be accessed via Zenodo:
+
+[![Dataset](https://img.shields.io/badge/Dataset-Zenodo-0096FF?logo=zenodo&logoColor=white)](https://doi.org/10.5281/zenodo.15230978)
+
 
 <img src="content/fig_rUnet_2.png" alt="Description" style="width: 100%;" />
 
