@@ -20,6 +20,10 @@ notebooks/AMHAWER
 notebooks/Benni_dfg
 .vscode/
 
+## Symbolic links
+data
+
+
 ## Labelbox ap key
 api_key.txt
 
