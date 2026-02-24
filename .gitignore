@@ -12,7 +12,8 @@ predict/
 results/
 
 notebooks/*
-
+!notebooks/.gitkeep
+!notebooks/torchinfo.ipynb
 
 .vscode/
 
