@@ -10,14 +10,10 @@ test/
 slurm_out/
 predict/
 results/
-notebooks/archiv
-notebooks/BIIAX
-notebooks/conversion
-notebooks/fiberseg
-notebooks/metrics
-notebooks/NEAPEL
-notebooks/AMHAWER
-notebooks/Benni_dfg
+
+notebooks/*
+
+
 .vscode/
 
 ## Symbolic links
