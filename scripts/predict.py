@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch3dseg.datasets.utils import get_test_loaders
 from torch3dseg.utils import utils
 from torch3dseg.utils.config import load_config
-from torch3dseg.utils.model import get_model
+from torch3dseg.models.model import get_model
 
 logger = utils.get_logger('UNet3DPredict')
 

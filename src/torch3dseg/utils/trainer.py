@@ -8,7 +8,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from torch3dseg.utils.utils import get_logger, get_number_of_learnable_parameters, create_optimizer, \
     create_lr_scheduler, get_tensorboard_formatter
-from torch3dseg.utils.model import get_model
+from torch3dseg.models.model import get_model
 from torch3dseg.utils.losses import get_loss_criterion
 from torch3dseg.utils.metrics import get_evaluation_metrics
 from torch3dseg.datasets.utils import get_train_loaders
