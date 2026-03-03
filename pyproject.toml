@@ -30,7 +30,7 @@ dependencies = [
   "scikit-image",
   "tqdm",
   "tensorboard",
-  "torchsummary",
+  "torchinfo",
   "h5py",
   "pynrrd",
   "PyYAML",
