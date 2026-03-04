@@ -36,26 +36,70 @@ class AbstractUNet(nn.Module):
         pool_type (str): 
     """
 
-    def __init__(self, dims, in_channels, out_channels, final_sigmoid, basic_module, f_maps=64, layer_order='gcr',
-                 num_groups=8, num_levels=4, is_segmentation=True, conv_kernel_size=3, pool_kernel_size=2,
-                 conv_padding=1,down_pooling="max", **kwargs):
+    def __init__(
+        self,
+        dims,
+        in_channels,
+        out_channels,
+        final_sigmoid,
+        basic_module,
+        f_maps=64,
+        layer_order="cna",
+        num_groups=8,
+        num_levels=4,
+        is_segmentation=True,
+        conv_kernel_size=3,
+        pool_kernel_size=2,
+        conv_padding=1,
+        down_pooling="max",
+        up_pooling="interp",
+        activation="ReLU",
+        norm="group",
+        **kwargs,
+    ):
         super(AbstractUNet, self).__init__()
 
         if isinstance(f_maps, int):
             f_maps = number_of_features_per_level(f_maps, num_levels=num_levels)
 
-        assert isinstance(f_maps, list) or isinstance(f_maps, tuple)
+        assert isinstance(f_maps, (list, tuple))
         assert len(f_maps) > 1, "Required at least 2 levels in the U-Net"
 
         # create encoder path
-        self.encoders = create_encoders(dims, in_channels, f_maps, basic_module, conv_kernel_size, 
-                                        conv_padding, layer_order,
-                                        num_groups, pool_kernel_size,down_pooling,**kwargs)
+        self.encoders = create_encoders(
+            dims=dims,
+            in_channels=in_channels,
+            f_maps=f_maps,
+            basic_module=basic_module,
+            conv_kernel_size=conv_kernel_size,
+            conv_padding=conv_padding,
+            layer_order=layer_order,
+            num_groups=num_groups,
+            pool_kernel_size=pool_kernel_size,
+            down_pooling=down_pooling,
+            activation=activation,
+            norm=norm,
+            **kwargs,
+        )
 
         # create decoder path
-        self.decoders = create_decoders(dims, f_maps, basic_module, conv_kernel_size, conv_padding, 
-                                        layer_order, num_groups,
-                                        upsample=True,**kwargs)
+        self.decoders = create_decoders(
+            dims=dims,
+            f_maps=f_maps,
+            basic_module=basic_module,
+            conv_kernel_size=conv_kernel_size,
+            conv_padding=conv_padding,
+            layer_order=layer_order,
+            num_groups=num_groups,
+            upsample=True,              # <-- keep as bool; if you want to control skipping first upsample, pass it here
+            up_pooling=up_pooling,
+            scale_factor=pool_kernel_size,  # typical: mirror pooling kernel/stride
+            join="auto",                # or expose as param if you want
+            mode="nearest",             # or expose as param if you want
+            activation=activation,
+            norm=norm,
+            **kwargs,
+        )
 
         # in the last layer a 1×1 convolution reduces the number of output
         # channels to the number of labels
@@ -167,31 +211,8 @@ class ResidualUNet(AbstractUNet):
                                             conv_padding=conv_padding,
                                             **kwargs)
 
-## TODO thinkabout if this implementation is still necessary
-# class UNet2D(AbstractUNet):
-#     """
-#     Just a standard 2D Unet. Arises naturally by specifying conv_kernel_size=(1, 3, 3), pool_kernel_size=(1, 2, 2).
-#     """
-
-#     def __init__(self, in_channels, out_channels, final_sigmoid=True, f_maps=64, layer_order='gcr',
-#                  num_groups=8, num_levels=4, is_segmentation=True, conv_padding=1, **kwargs):
-#         if conv_padding == 1:
-#             conv_padding = (0, 1, 1)
-#         super(UNet2D, self).__init__(in_channels=in_channels,
-#                                      out_channels=out_channels,
-#                                      final_sigmoid=final_sigmoid,
-#                                      basic_module=DoubleConv,
-#                                      f_maps=f_maps,
-#                                      layer_order=layer_order,
-#                                      num_groups=num_groups,
-#                                      num_levels=num_levels,
-#                                      is_segmentation=is_segmentation,
-#                                      conv_kernel_size=(1, 3, 3),
-#                                      pool_kernel_size=(1, 2, 2),
-#                                      conv_padding=conv_padding,
-#                                      **kwargs)
 
 
-def get_model(model_config):
-    model_class = get_class(model_config['name'], modules=['torch3dseg.models.model'])
-    return model_class(**model_config)
+def get_model(model_config: dict) -> nn.Module:
+    model_class = get_class(model_config["name"], modules=["torch3dseg.models.model"])
+    return model_class(**{k: v for k, v in model_config.items() if k != "name"})
