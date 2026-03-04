@@ -1,6 +1,6 @@
 
 
-import torch
+
 from torch import nn as nn
 import inspect
 
@@ -21,6 +21,9 @@ def conv_nd(dims, *args, **kwargs):
 
 
 def conv_transpose_nd(dims, *args, **kwargs):
+    """
+    Create a 1D, 2D, or 3D transpose convolution module.
+    """
     if dims == 1:
         # maybe not really necessary
         return nn.ConvTranspose1d(*args, **kwargs)
@@ -32,6 +35,9 @@ def conv_transpose_nd(dims, *args, **kwargs):
 
 
 def batchnorm_nd(dims, num_features, **kwargs):
+    """
+    Create a 1D, 2D, or 3D batchnorm module.
+    """
     if dims == 1:
         return nn.BatchNorm1d(num_features, **kwargs)
     if dims == 2:
@@ -159,7 +165,7 @@ def create_conv(
     in_channels,
     out_channels,
     kernel_size,
-    order,
+    layer_order,
     num_groups,
     padding,
     activation="ReLU",
@@ -167,7 +173,7 @@ def create_conv(
     **kwargs,
 ) -> list[tuple[str, nn.Module]]:
     """
-    order chars:
+    layer_order chars:
       c = convolution
       n = normalization (type chosen via `norm`)
       a = activation (type chosen via `activation`)
@@ -178,16 +184,16 @@ def create_conv(
       'ca'  -> Conv → Act
       'c'   -> Conv only
     """
-    assert "c" in order, "Conv layer MUST be present"
-    assert order[0] != "a", "Activation cannot be first"
+    assert "c" in layer_order, "Conv layer MUST be present"
+    assert layer_order[0] != "a", "Activation cannot be first"
 
     modules = []
-    c_index = order.index("c")
+    c_index = layer_order.index("c")
 
     # if norm present anywhere, disable conv bias (standard practice)
-    bias = not ("n" in order and (norm or "none").lower() != "none")
+    bias = not ("n" in layer_order and (norm or "none").lower() != "none")
 
-    for i, ch in enumerate(order):
+    for i, ch in enumerate(layer_order):
         if ch == "c":
             modules.append((
                 f"conv{i}",

@@ -16,7 +16,7 @@ class SingleConv(nn.Sequential):
       - optional normalization
       - activation
 
-    The order of operations is controlled by `order`:
+    The order of operations is controlled by `layer_order`:
 
       c = convolution
       n = normalization (type selected via `norm=...`)
@@ -33,7 +33,7 @@ class SingleConv(nn.Sequential):
         in_channels (int): input channels
         out_channels (int): output channels
         kernel_size (int or tuple): convolution kernel
-        order (str): sequence of ['c','n','a']
+        layer_order (str): sequence of ['c','n','a']
         num_groups (int): number of groups for GroupNorm (if norm='group')
         padding (int or tuple): convolution padding
         activation (str): activation name (e.g. "ReLU", "SiLU", "LeakyReLU")
@@ -47,7 +47,7 @@ class SingleConv(nn.Sequential):
         in_channels,
         out_channels,
         kernel_size=3,
-        order="cna",          
+        layer_order="cna",          
         num_groups=8,
         padding=1,
         activation="ReLU",
@@ -60,7 +60,7 @@ class SingleConv(nn.Sequential):
             in_channels=in_channels,
             out_channels=out_channels,
             kernel_size=kernel_size,
-            order=order,
+            layer_order=layer_order,
             num_groups=num_groups,
             padding=padding,
             activation=activation,
@@ -76,7 +76,7 @@ class DoubleConv(nn.Sequential):
     Uses padded convolutions so spatial size is preserved.
 
     Conventions:
-      order chars:
+      layer_order chars:
         c = conv
         n = norm (selected via `norm`)
         a = activation (selected via `activation`)
@@ -91,7 +91,7 @@ class DoubleConv(nn.Sequential):
         out_channels (int): output channels
         encoder (bool): True for encoder path (optionally reduces channels in first conv)
         kernel_size (int or tuple): conv kernel size
-        order (str): layer order using ['c','n','a']
+        layer_order (str): layer order using ['c','n','a']
         num_groups (int): groups for GroupNorm if norm='group'
         padding (int or tuple): conv padding
         activation (str): activation name, e.g. "ReLU", "SiLU", "LeakyReLU"
@@ -106,7 +106,7 @@ class DoubleConv(nn.Sequential):
         out_channels,
         encoder: bool,
         kernel_size=3,
-        order="cna",
+        layer_order="cna",
         num_groups=8,
         padding=1,
         activation="ReLU",
@@ -134,7 +134,7 @@ class DoubleConv(nn.Sequential):
                 conv1_in,
                 conv1_out,
                 kernel_size=kernel_size,
-                order=order,
+                layer_order=layer_order,
                 num_groups=num_groups,
                 padding=padding,
                 activation=activation,
@@ -150,7 +150,7 @@ class DoubleConv(nn.Sequential):
                 conv2_in,
                 conv2_out,
                 kernel_size=kernel_size,
-                order=order,
+                layer_order=layer_order,
                 num_groups=num_groups,
                 padding=padding,
                 activation=activation,
@@ -169,7 +169,7 @@ class ExtResNetBlock(nn.Module):
 
     Conventions (same as SingleConv):
 
-        order chars:
+        layer_order chars:
             c = convolution
             n = normalization
             a = activation
@@ -182,7 +182,7 @@ class ExtResNetBlock(nn.Module):
         in_channels (int)
         out_channels (int)
         kernel_size (int or tuple)
-        order (str): combination of ['c','n','a']
+        layer_order (str): combination of ['c','n','a']
         num_groups (int): groups for GroupNorm
         activation (str): activation name
         norm (str): "group" | "batch" | "none"
@@ -195,7 +195,7 @@ class ExtResNetBlock(nn.Module):
         in_channels,
         out_channels,
         kernel_size=3,
-        order="cna",
+        layer_order="cna",
         num_groups=8,
         activation="ReLU",
         norm="group",
@@ -209,7 +209,7 @@ class ExtResNetBlock(nn.Module):
             in_channels,
             out_channels,
             kernel_size=kernel_size,
-            order=order,
+            layer_order=layer_order,
             num_groups=num_groups,
             activation=activation,
             norm=norm,
@@ -222,7 +222,7 @@ class ExtResNetBlock(nn.Module):
             out_channels,
             out_channels,
             kernel_size=kernel_size,
-            order=order,
+            layer_order=layer_order,
             num_groups=num_groups,
             activation=activation,
             norm=norm,
@@ -230,14 +230,14 @@ class ExtResNetBlock(nn.Module):
         )
 
         # Remove activation from third conv (applied after residual)
-        n_order = order.replace("a", "")
+        n_order = layer_order.replace("a", "")
 
         self.conv3 = SingleConv(
             dims,
             out_channels,
             out_channels,
             kernel_size=kernel_size,
-            order=n_order,
+            layer_order=n_order,
             num_groups=num_groups,
             activation=activation,
             norm=norm,
@@ -269,14 +269,14 @@ class Encoder(nn.Module):
       - "conv" : depthwise strided Conv{d}
       - disabled via apply_pooling=False -> Identity
 
-    The conv block order is controlled by `conv_layer_order` using:
+    The conv block order is controlled by `layer_order` using:
       c = convolution
       n = normalization (type via `norm`)
       a = activation     (type via `activation`)
 
     Examples:
-      conv_layer_order="cna" -> Conv → Norm → Act
-      conv_layer_order="nca" -> Norm → Conv → Act (pre-norm)
+      layer_order="cna" -> Conv → Norm → Act
+      layer_order="nca" -> Norm → Conv → Act (pre-norm)
     """
 
     def __init__(
@@ -289,7 +289,7 @@ class Encoder(nn.Module):
         pool_kernel_size=2,
         down_pooling: str = "max",
         basic_module=DoubleConv,
-        conv_layer_order: str = "cna",
+        layer_order: str = "cna",
         num_groups: int = 8,
         padding=1,
         activation: str = "ReLU",
@@ -316,7 +316,7 @@ class Encoder(nn.Module):
             out_channels,
             encoder=True,
             kernel_size=conv_kernel_size,
-            order=conv_layer_order,
+            layer_order=layer_order,
             num_groups=num_groups,
             padding=padding,
             activation=activation,
@@ -338,7 +338,7 @@ class Decoder(nn.Module):
         conv_kernel_size=3,
         scale_factor=2,
         basic_module=DoubleConv,
-        conv_layer_order: str = "cna",
+        layer_order: str = "cna",
         num_groups: int = 8,
         mode: str = "nearest",
         padding=1,
@@ -396,7 +396,7 @@ class Decoder(nn.Module):
             out_channels,
             encoder=False,
             kernel_size=conv_kernel_size,
-            order=conv_layer_order,
+            layer_order=layer_order,
             num_groups=num_groups,
             padding=padding,
             activation=activation,
@@ -562,7 +562,7 @@ def create_encoders(
                 pool_kernel_size=pool_kernel_size,
                 down_pooling=down_pooling,
                 basic_module=basic_module,
-                conv_layer_order=layer_order,
+                layer_order=layer_order,
                 num_groups=num_groups,
                 padding=conv_padding,
                 activation=activation,

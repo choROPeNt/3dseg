@@ -213,6 +213,8 @@ class ResidualUNet(AbstractUNet):
 
 
 
+
+
 def get_model(model_config: dict) -> nn.Module:
     model_class = get_class(model_config["name"], modules=["torch3dseg.models.model"])
     return model_class(**{k: v for k, v in model_config.items() if k != "name"})
