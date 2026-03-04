@@ -3,13 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Folders to omit
+# Folders and symbolic links to omit
 checkpoints/
 data/
 test/
 slurm_out/
 predict/
 results/
+configs/*
+!configs/.gitkeep
 
 notebooks/*
 !notebooks/.gitkeep
@@ -19,6 +21,11 @@ notebooks/*
 
 ## Symbolic links
 data
+checkpoints
+test
+slurm_out
+predict
+results
 
 
 ## Labelbox ap key
