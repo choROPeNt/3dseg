@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from torch import nn as nn
 from torch.autograd import Variable
 from torch.nn import MSELoss, SmoothL1Loss, L1Loss
+from typing import cast
 
 from .utils import expand_as_one_hot
 
@@ -96,12 +97,13 @@ class _AbstractDiceLoss(nn.Module):
         # However if one would like to apply Softmax in order to get the proper probability distribution from the
         # output, just specify `normalization=Softmax`
         assert normalization in ['sigmoid', 'softmax', 'none']
+        self.normalization: nn.Module
         if normalization == 'sigmoid':
             self.normalization = nn.Sigmoid()
         elif normalization == 'softmax':
             self.normalization = nn.Softmax(dim=1)
         else:
-            self.normalization = lambda x: x
+            self.normalization = nn.Identity()
 
     def dice(self, input, target, weight):
         # actual Dice score computation; to be implemented by the subclass
@@ -223,15 +225,15 @@ class PixelWiseCrossEntropyLoss(nn.Module):
 
         # create default class_weights if None
         if self.class_weights is None:
-            class_weights = torch.ones(input.size()[1]).float().to(input.device)
+            weight_factor = torch.ones(input.size()[1]).float().to(input.device)
         else:
-            class_weights = self.class_weights
+            weight_factor = cast(torch.Tensor, self.class_weights)
 
         # resize class_weights to be broadcastable into the weights
-        class_weights = class_weights.view(1, -1, 1, 1, 1)
+        weight_factor = weight_factor.view(1, -1, 1, 1, 1)
 
         # multiply weights tensor by class weights
-        weights = class_weights * weights
+        weights = weight_factor * weights
 
         # compute the losses
         result = -weights * target * log_probabilities

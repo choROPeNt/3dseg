@@ -1,8 +1,8 @@
-import os
 import h5py as h5
 import nrrd
 import argparse
 import numpy as np
+from pathlib import Path
 from skimage.measure import label
 import matplotlib.pyplot as plt
 plt.rcParams['image.cmap'] = 'plasma'
@@ -85,73 +85,52 @@ def numpy_dtype_to_nrrd_dtype(dtype):
     return dtype_mapping.get(dtype, 'unknown')
 
 
-## TODO make it more generic.
-
 def main():
 
-    parser = argparse.ArgumentParser(description="Process a file path.")
+    parser = argparse.ArgumentParser(description="Extract a dataset from an HDF5 file and save it as NRRD.")
 
-    # Add the argument
-    parser.add_argument(
-        'file_path', 
-        type=str, 
-        help='The path to the file to be processed'
-    )
+    parser.add_argument('file_path', type=str, help='Path to the HDF5 file')
+    parser.add_argument('--key', '-k', type=str, required=True,
+                        help='HDF5 dataset key to extract (use "/" for nested groups, e.g. "group/dataset")')
+    parser.add_argument('--argmax', action='store_true',
+                        help='Apply argmax along axis 0 (use for one-hot / channel-first prediction arrays)')
+    parser.add_argument('--output', '-o', type=str, default=None,
+                        help='Output NRRD file path (default: same directory as input, named <stem>.<key>.nrrd)')
 
-     # Parse the arguments
     args = parser.parse_args()
-    # Extract the directory path and file name
-    directory = os.path.dirname(args.file_path)
-    file_name = os.path.basename(args.file_path)
-    file_name_ = file_name.split('.')
 
-    # Print the directory and file name
-    print(f'Directory path: {directory}')
-    print(f'File name: {file_name}')
-    print(f'File name: {file_name_}')
+    in_path = Path(args.file_path).resolve()
+    stem = in_path.name.split('.')[0]
 
-    file   = readH5(os.path.join(directory,file_name))
+    print(f'File: {in_path}')
+    print(f'Key:  {args.key}')
 
-    data= {}
+    with h5.File(in_path, 'r') as f:
+        if args.key not in f:
+            raise KeyError(f"Key '{args.key}' not found in file. Available keys: {list(f.keys())}")
+        node = f[args.key]
+        if not isinstance(node, h5.Dataset):
+            raise ValueError(f"'{args.key}' is a group, not a dataset. Specify a leaf dataset key.")
+        data: np.ndarray = node[...]
 
-    for key, item in file.items():
-  
-        if key == "predictions":
-            print(f"proccessing {key} with {item.shape} and {item.dtype}")
-            
-            labels = np.argmax(item,axis=0)
-            
-            print(labels.shape)
-            
-            print(f"created new array labels with {labels.shape} and {labels.dtype}")
+    print(f'Loaded array with shape={data.shape}, dtype={data.dtype}')
 
-            data_type_seg = labels.dtype
-            size = labels.shape
+    if args.argmax:
+        data = np.argmax(data, axis=0)
+        print(f'After argmax: shape={data.shape}, dtype={data.dtype}')
 
-            spacing = (1,1,1)
-            space_origin = (0 , 0 , 0 )
+    spacing = (1, 1, 1)
+    space_origin = (0, 0, 0)
+    header = create_nrrd_header(data.shape, spacing, space_origin, numpy_dtype_to_nrrd_dtype(data.dtype.type))
 
-            header_seg = create_nrrd_header(size, spacing, space_origin, data_type_seg)
-           
-            fileout = file_name_[0] +".pred.nrrd"
-            print(f"Creating file {fileout} in {directory}")
-            nrrd.write(os.path.join(directory,fileout), labels,header=header_seg)
-    
-        
-        if key == "Volume":
-            print(f"proccessing {key} with {item.shape} and {item.dtype}")
-            data_type_seg = item.dtype
-            size = item.shape
+    if args.output:
+        out_path = Path(args.output)
+    else:
+        safe_key = args.key.replace('/', '_')
+        out_path = in_path.parent / f'{stem}.{safe_key}.nrrd'
 
-            spacing = (1,1,1)
-            space_origin = (0 , 0 , 0 )
-
-            header_seg = create_nrrd_header(size, spacing, space_origin, data_type_seg)
-            
-            fileout = file_name_[0] +".vol.nrrd"
-            print(f"Creating file {fileout} in {directory}")
-    
-            nrrd.write(os.path.join(directory,fileout), item,header=header_seg)
+    print(f'Writing {out_path}')
+    nrrd.write(str(out_path), data, header=header)
 
 if __name__ == "__main__":
     
