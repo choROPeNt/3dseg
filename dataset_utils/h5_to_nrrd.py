@@ -23,17 +23,21 @@ def readH5(file_path, **kwargs):
 
     with h5.File(file_path, 'r') as f:
         for key in f.keys():
-            if isinstance(f[key], h5.Group):
+            item = f[key]
+            if isinstance(item, h5.Group):
                 out[key] = {}
-                for sub_key in f[key].keys():
-                    if isinstance(f[key][sub_key], h5.Group):
+                for sub_key in item.keys():
+                    sub_item = item[sub_key]
+                    if isinstance(sub_item, h5.Group):
                         out[key][sub_key] = {}
-                        for sub_sub_key in f[key][sub_key].keys():
-                            out[key][sub_key][sub_sub_key] = f[key][sub_key][sub_sub_key][...]
-                    else:
-                        out[key][sub_key] = f[key][sub_key][...]
-            else:
-                out[key] = f[key][...]
+                        for sub_sub_key in sub_item.keys():
+                            sub_sub_item = sub_item[sub_sub_key]
+                            if isinstance(sub_sub_item, h5.Dataset):
+                                out[key][sub_key][sub_sub_key] = sub_sub_item[...]
+                    elif isinstance(sub_item, h5.Dataset):
+                        out[key][sub_key] = sub_item[...]
+            elif isinstance(item, h5.Dataset):
+                out[key] = item[...]
     return out
 
 
