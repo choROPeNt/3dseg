@@ -122,6 +122,22 @@ class MeanIoU:
 
         n_classes = input.size(1)
 
+        if self.ignore_index is not None:
+            assert not (0 <= self.ignore_index < n_classes), (
+                f"ignore_index={self.ignore_index} collides with a valid class id in "
+                f"[0, {n_classes}); choose a sentinel outside this range."
+            )
+
+        # Derive the per-voxel ignore mask from the label map *before* one-hot
+        # expansion -- a clean one-hot target otherwise loses the ignore info.
+        ignore_mask = None
+        if self.ignore_index is not None:
+            if target.dim() == 4:
+                ignore_mask = target == self.ignore_index            # (N, D, H, W)
+            else:
+                # 5D: ignored voxels are marked with ignore_index in every channel
+                ignore_mask = (target == self.ignore_index).all(dim=1)
+
         if target.dim() == 4:
             target = expand_as_one_hot(target, C=n_classes, ignore_index=self.ignore_index)
 
@@ -149,13 +165,13 @@ class MeanIoU:
             # _input, _target: (C, D, H, W)
             binary_prediction = self._binarize_predictions(_input, n_classes)
 
-            if self.ignore_index is not None:
-                # zero out ignore_index
-                mask = _target == self.ignore_index
+            if ignore_mask is not None:
+                # drop ignored voxels from both prediction and target
+                m = ignore_mask[idx]                       # (D, H, W) bool
                 binary_prediction = binary_prediction.clone()
                 _target = _target.clone()
-                binary_prediction[mask] = 0
-                _target[mask] = 0
+                binary_prediction[:, m] = 0
+                _target[:, m] = 0
 
             # convert to uint8 just in case
             binary_prediction = binary_prediction.byte()
@@ -178,7 +194,8 @@ class MeanIoU:
             valid_ious = sample_channel_ious[valid_channels]
             assert valid_ious.numel() > 0, "All channels were ignored from the computation"
 
-            mean_iou_sample = valid_ious.mean()
+            # nanmean so classes absent from both pred & target (NaN) are excluded
+            mean_iou_sample = torch.nanmean(valid_ious)
             per_batch_iou.append(mean_iou_sample)
             per_batch_channel_iou[idx] = sample_channel_ious
 
@@ -202,10 +219,14 @@ class MeanIoU:
 
     def _jaccard_index(self, prediction, target):
         """
-        Computes IoU for a given target and prediction tensors
+        Computes IoU for a given target and prediction tensors.
+        Returns NaN when the class is absent from both (union == 0) so it can be
+        excluded from the mean rather than counted as a (misleading) 0.
         """
-        return torch.sum(prediction & target).float() / \
-            torch.clamp(torch.sum(prediction | target).float(), min=1e-8)
+        union = torch.sum(prediction | target).float()
+        if union == 0:
+            return torch.tensor(float("nan"), device=prediction.device)
+        return torch.sum(prediction & target).float() / union
 
 
 class AdaptedRandError:
