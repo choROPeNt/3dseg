@@ -28,6 +28,7 @@ def main():
 
     # create trainer
     trainer = create_trainer(config)
+    
     # Start training
     trainer.fit()
 
