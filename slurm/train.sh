@@ -20,21 +20,27 @@
 # number of GPUs max 6 CPU per GPU on alpha
 #SBATCH --gres=gpu:1    
 # job name                               
-#SBATCH -J "3dseg-DFG_Benni-train-%j"  
+#SBATCH -J "3dseg-Attention_train-%j"  
 # output filepath for *.out file                     
-#SBATCH --output=slurm_out/3dseg-DFG_Benni-train-%j.out  
+#SBATCH --output=slurm_out/3dseg-Attention_train-%j.out  
 # email address         
 #SBATCH --mail-user=christian.duereth@tu-dresden.de   
 # e-mail notifications  
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 # project for ressources
-#SBATCH -A p_biiax                                      
+#SBATCH -A p_haftfaeden                                      
 ##################################################################
 ##################################################################
 
+PROJECT_DIR="$HOME/projects/alpha-capella/3Dseg"
+VENV_PATH=".venv"
+
 # === Load Environment ===
-ml release/24.10 GCC/13.3.0 Python/3.12.3 CUDA/12.8.0 OpenMPI/5.0.3
-source /data/horse/ws/dchristi-3dseg/.venv/bin/activate
+cd "$PROJECT_DIR"
+
+ml release/25.06 GCC/13.3.0 Python/3.12.3 OpenMPI/5.0.3 CUDA/13.0.0
+source "$VENV_PATH/bin/activate"
+
 
 # === Debug Info ===
 echo "Job ID: $SLURM_JOB_ID"
