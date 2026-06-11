@@ -1,3 +1,5 @@
+import warnings
+
 import torch.nn as nn
 
 from .buildingblocks import DoubleConv, ExtResNetBlock, create_encoders, \
@@ -19,15 +21,25 @@ class AbstractUNet(nn.Module):
             or BCEWithLogitsLoss (two-class) respectively)
         f_maps (int, tuple): number of feature maps at each level of the encoder; if it's an integer the number
             of feature maps is given by the geometric progression: f_maps ^ k, k=1,2,3,4
-        final_sigmoid (bool): if True apply element-wise nn.Sigmoid after the
-            final 1x1 convolution, otherwise apply nn.Softmax. MUST be True if nn.BCELoss (two-class) is used
-            to train the model. MUST be False if nn.CrossEntropyLoss (multi-class) is used to train the model.
+        final_activation (str): activation applied after the final 1x1 convolution,
+            either "sigmoid" or "softmax". Use "sigmoid" if nn.BCELoss (two-class) is used
+            to train the model, "softmax" if nn.CrossEntropyLoss (multi-class) is used.
         basic_module: basic model for the encoder/decoder (DoubleConv, ExtResNetBlock, ....)
         layer_order (string): determines the order of layers
             in `SingleConv` module. e.g. 'crg' stands for Conv+ReLU+GroupNorm.
             See `SingleConv` for more info
         num_groups (int): number of groups for the GroupNorm
-        num_levels (int): number of levels in the encoder/decoder path (applied only if f_maps is an int)
+        num_levels (int): number of levels in the encoder/decoder path. Used ONLY when
+            f_maps is an int (geometric expansion); ignored when f_maps is an explicit
+            list, where the depth is len(f_maps).
+        attention: self-attention flags, highest-res level first. None (off), a single
+            bool (all levels), or a list[bool] of length len(f_maps), e.g.
+            [False, False, True] to attend only at the bottleneck. The SAME spec drives
+            the decoders, mirrored by resolution (a decoder attends iff its same-res
+            encoder level does), so attention is symmetric and you only specify one list.
+            O(N^2) in tokens -> keep to low-res levels.
+        attention_num_heads (int): number of heads for the attention blocks, shared by
+            encoder and decoder (each enabled stage's channels must be divisible by it)
         is_segmentation (bool): if True (semantic segmentation problem) Sigmoid/Softmax normalization is applied
             after the final convolution; if False (regression problem) the normalization layer is skipped at the end
         conv_kernel_size (int or tuple): size of the convolving kernel in the basic_module
@@ -41,12 +53,12 @@ class AbstractUNet(nn.Module):
         dims,
         in_channels,
         out_channels,
-        final_sigmoid,
+        final_activation,
         basic_module,
         f_maps=64,
         layer_order="cna",
         num_groups=8,
-        num_levels=4,
+        num_levels=None,
         is_segmentation=True,
         conv_kernel_size=3,
         pool_kernel_size=2,
@@ -55,12 +67,24 @@ class AbstractUNet(nn.Module):
         up_pooling="interp",
         activation="ReLU",
         norm="group",
+        attention=None,
+        attention_num_heads=4,
         **kwargs,
     ):
         super(AbstractUNet, self).__init__()
 
+        # `num_levels` is only the depth knob for the int (geometric) form of
+        # `f_maps`. When `f_maps` is an explicit list, len(f_maps) is the single
+        # source of truth and `num_levels` is redundant -> only warn if the user
+        # explicitly passed a conflicting value.
         if isinstance(f_maps, int):
-            f_maps = number_of_features_per_level(f_maps, num_levels=num_levels)
+            f_maps = number_of_features_per_level(f_maps, num_levels=num_levels or 4)
+        elif num_levels is not None and num_levels != len(f_maps):
+            warnings.warn(
+                f"`num_levels`={num_levels} is ignored when `f_maps` is an explicit "
+                f"list; network depth is len(f_maps)={len(f_maps)}.",
+                stacklevel=2,
+            )
 
         assert isinstance(f_maps, (list, tuple))
         assert len(f_maps) > 1, "Required at least 2 levels in the U-Net"
@@ -79,6 +103,8 @@ class AbstractUNet(nn.Module):
             down_pooling=down_pooling,
             activation=activation,
             norm=norm,
+            attention=attention,
+            attention_num_heads=attention_num_heads,
             **kwargs,
         )
 
@@ -98,6 +124,8 @@ class AbstractUNet(nn.Module):
             mode="nearest",             # or expose as param if you want
             activation=activation,
             norm=norm,
+            attention=attention,   # same spec as encoders; mirrored by resolution
+            attention_num_heads=attention_num_heads,
             **kwargs,
         )
 
@@ -107,10 +135,17 @@ class AbstractUNet(nn.Module):
 
         if is_segmentation:
             # semantic segmentation problem
-            if final_sigmoid:
+            act = (final_activation or "").lower()
+            if act == "sigmoid":
                 self.final_activation = nn.Sigmoid()
+            elif act == "softmax":
+                # [b,classes,x,y,z] dim=1 are the classes -> logits to probs
+                self.final_activation = nn.Softmax(dim=1)
             else:
-                self.final_activation = nn.Softmax(dim=1) # [b,classes,x,y,z] dim = 1 represents classes to convert from logits to probs 
+                raise ValueError(
+                    f"Unsupported final_activation '{final_activation}'. "
+                    f"Use 'sigmoid' or 'softmax'."
+                )
         else:
             # regression problem
             self.final_activation = None
@@ -172,12 +207,12 @@ class UNet(AbstractUNet):
     Uses `DoubleConv` as a basic_module and nearest neighbor upsampling in the decoder
     """
 
-    def __init__(self, dims, in_channels, out_channels, final_sigmoid=True, f_maps=64, layer_order='gcr',
-                 num_groups=8, num_levels=4, is_segmentation=True, conv_padding=1, **kwargs):
+    def __init__(self, dims, in_channels, out_channels, final_activation="softmax", f_maps=64, layer_order='gcr',
+                 num_groups=8, num_levels=None, is_segmentation=True, conv_padding=1, **kwargs):
         super(UNet, self).__init__(dims=dims,
                                     in_channels=in_channels,
                                     out_channels=out_channels,
-                                    final_sigmoid=final_sigmoid,
+                                    final_activation=final_activation,
                                     basic_module=DoubleConv,
                                     f_maps=f_maps,
                                     layer_order=layer_order,
@@ -196,12 +231,12 @@ class ResidualUNet(AbstractUNet):
     Since the model effectively becomes a residual net, in theory it allows for deeper UNet.
     """
 
-    def __init__(self, dims, in_channels, out_channels, final_sigmoid=True, f_maps=64, layer_order='gcr',
-                 num_groups=8, num_levels=5, is_segmentation=True, conv_padding=1, **kwargs):
+    def __init__(self, dims, in_channels, out_channels, final_activation="softmax", f_maps=64, layer_order='gcr',
+                 num_groups=8, num_levels=None, is_segmentation=True, conv_padding=1, **kwargs):
         super(ResidualUNet, self).__init__(dims=dims,
                                             in_channels=in_channels,
                                             out_channels=out_channels,
-                                            final_sigmoid=final_sigmoid,
+                                            final_activation=final_activation,
                                             basic_module=ExtResNetBlock,
                                             f_maps=f_maps,
                                             layer_order=layer_order,
