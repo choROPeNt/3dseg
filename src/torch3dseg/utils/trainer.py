@@ -184,8 +184,10 @@ class UNet3DTrainer:
                 print(f"RESULT: {eval_loss:>8f} \n")
                 return
             
-            if not isinstance(self.scheduler, ReduceLROnPlateau):
-                    self.scheduler.step()
+            # ReduceLROnPlateau is stepped per-validation (see train()); step the
+            # other schedulers per-epoch. Skip if no scheduler was configured.
+            if self.scheduler is not None and not isinstance(self.scheduler, ReduceLROnPlateau):
+                self.scheduler.step()
             self.num_epochs += 1
 
         logger.info(f"Last Valdiation after {self.max_num_epochs}. Finishing with validation...")
@@ -232,7 +234,36 @@ class UNet3DTrainer:
             loss.backward()
             self.optimizer.step()
 
-    
+            # Accumulate training eval metrics every iteration so the logged value
+            # is a true running average over the epoch (mirrors validate()).
+            if not self.skip_train_validation:
+                for name, metric in self.eval_criterion.items():
+                    result = metric(output, target)
+                    batch_size = self._batch_size(input)
+
+                    # Case A: metric returns (per_batch, per_batch_channel)
+                    if isinstance(result, tuple) and len(result) == 2:
+                        per_batch, per_batch_channel = result   # shapes: (N,), (N, C)
+
+                        # main metric: average over this batch
+                        main_value = per_batch.mean().item()
+                        train_eval_scores[name].update(main_value, batch_size)
+
+                        # per-channel metrics: average over batch, ignore NaN
+                        per_channel_mean = torch.nanmean(per_batch_channel, dim=0)
+                        for c in range(per_channel_mean.shape[0]):
+                            v = per_channel_mean[c]
+                            if torch.isnan(v):
+                                continue  # skip channels entirely NaN / ignored
+                            ch_name = f"{name}_c{c}"
+                            if ch_name not in train_eval_scores:
+                                train_eval_scores[ch_name] = utils.RunningAverage()
+                            train_eval_scores[ch_name].update(v.item(), batch_size)
+
+                    # Case B: metric returns a single scalar tensor / float
+                    else:
+                        value = result.item() if torch.is_tensor(result) else float(result)
+                        train_eval_scores[name].update(value, batch_size)
 
             if self.num_iterations % self.validate_after_iters == 0:
                 # set the model in eval mode
@@ -255,50 +286,8 @@ class UNet3DTrainer:
                 self._save_checkpoint(is_best)
 
             if self.num_iterations % self.log_after_iters == 0:
-                # compute eval criterion
-                if not self.skip_train_validation:
-                                        
-                    # Update each metric separately
-                    for name, metric in self.eval_criterion.items():
-                        result = metric(output, target)
-
-                        batch_size = self._batch_size(input)
-
-                        # Case A: metric returns (per_batch, per_batch_channel)
-                        if isinstance(result, tuple) and len(result) == 2:
-                            per_batch, per_batch_channel = result   # shapes: (N,), (N, C)
-
-                            # 1) main metric: average over this batch
-                            main_value = per_batch.mean().item()
-                            train_eval_scores[name].update(main_value, batch_size)
-
-                            # 2) per-channel metrics: average over batch, ignore NaN
-                            #    -> per_channel_mean: (C,)
-                            per_channel_mean = torch.nanmean(per_batch_channel, dim=0)
-
-                            n_classes = per_channel_mean.shape[0]
-                            for c in range(n_classes):
-                                v = per_channel_mean[c]
-                                if torch.isnan(v):
-                                    continue  # skip channels that are entirely NaN / ignored
-
-                                ch_name = f"{name}_c{c}"
-                                if ch_name not in train_eval_scores:
-                                    train_eval_scores[ch_name] = utils.RunningAverage()
-                                train_eval_scores[ch_name].update(v.item(), batch_size)
-
-                        # Case B: metric returns a single scalar tensor / float
-                        else:
-                            if torch.is_tensor(result):
-                                value = result.item()
-                            else:
-                                value = float(result)
-                            train_eval_scores[name].update(value, batch_size)
-                    
-                    # eval_score = self.eval_criterion(output, target)
-                    # train_eval_scores.update(eval_score.item(), self._batch_size(input))
-
-                # log stats, params and images
+                # metrics were accumulated above every iteration; just log the
+                # running averages here.
                 lr = self.optimizer.param_groups[0]['lr']
                   # Logging averaged results
                 avg_scores_str = ', '.join(f'{k}: {v.avg:.4f}' for k, v in train_eval_scores.items())
@@ -342,70 +331,72 @@ class UNet3DTrainer:
         val_losses = utils.RunningAverage()
         val_scores = {name: utils.RunningAverage() for name in self.eval_criterion}
 
-        with torch.no_grad():
-            for i, t in enumerate(self.loaders['val']):
-                logger.info(f'Validation iteration {i}')
+        # own the eval-mode invariant here instead of relying on callers; restore
+        # train mode in finally so an error mid-validation doesn't leave the model
+        # stuck in eval().
+        self.model.eval()
+        try:
+            with torch.no_grad():
+                for i, t in enumerate(self.loaders['val']):
+                    logger.info(f'Validation iteration {i}')
 
-                input, target, weight = self._split_training_batch(t)
+                    input, target, weight = self._split_training_batch(t)
 
-                output, loss = self._forward_pass(input, target, weight)
+                    output, loss = self._forward_pass(input, target, weight)
 
-                val_losses.update(loss.item(), self._batch_size(input))
+                    val_losses.update(loss.item(), self._batch_size(input))
 
-                # if i % 100 == 0:
-                #     self._log_images(input, target, output, 'val_')
+                    # if i % 100 == 0:
+                    #     self._log_images(input, target, output, 'val_')
 
-                # Update all metrics
-                for name, metric in self.eval_criterion.items():
-                    result = metric(output, target)
+                    # Update all metrics
+                    for name, metric in self.eval_criterion.items():
+                        result = metric(output, target)
 
-                    batch_size = self._batch_size(input)
+                        batch_size = self._batch_size(input)
 
-                    # Case A: metric returns (per_batch, per_batch_channel)
-                    if isinstance(result, tuple) and len(result) == 2:
-                        per_batch, per_batch_channel = result   # shapes: (N,), (N, C)
+                        # Case A: metric returns (per_batch, per_batch_channel)
+                        if isinstance(result, tuple) and len(result) == 2:
+                            per_batch, per_batch_channel = result   # shapes: (N,), (N, C)
 
-                        # 1) main metric: average over this batch
-                        main_value = per_batch.mean().item()
-                        val_scores[name].update(main_value, batch_size)
+                            # 1) main metric: average over this batch
+                            main_value = per_batch.mean().item()
+                            val_scores[name].update(main_value, batch_size)
 
-                        # 2) per-channel metrics: average over batch, ignore NaN
-                        #    -> per_channel_mean: (C,)
-                        per_channel_mean = torch.nanmean(per_batch_channel, dim=0)
+                            # 2) per-channel metrics: average over batch, ignore NaN
+                            #    -> per_channel_mean: (C,)
+                            per_channel_mean = torch.nanmean(per_batch_channel, dim=0)
 
-                        n_classes = per_channel_mean.shape[0]
-                        for c in range(n_classes):
-                            v = per_channel_mean[c]
-                            if torch.isnan(v):
-                                continue  # skip channels that are entirely NaN / ignored
+                            n_classes = per_channel_mean.shape[0]
+                            for c in range(n_classes):
+                                v = per_channel_mean[c]
+                                if torch.isnan(v):
+                                    continue  # skip channels that are entirely NaN / ignored
 
-                            ch_name = f"{name}_c{c}"
-                            if ch_name not in val_scores:
-                                val_scores[ch_name] = utils.RunningAverage()
-                            val_scores[ch_name].update(v.item(), batch_size)
+                                ch_name = f"{name}_c{c}"
+                                if ch_name not in val_scores:
+                                    val_scores[ch_name] = utils.RunningAverage()
+                                val_scores[ch_name].update(v.item(), batch_size)
 
-                    # Case B: metric returns a single scalar tensor / float
-                    else:
-                        if torch.is_tensor(result):
-                            value = result.item()
+                        # Case B: metric returns a single scalar tensor / float
                         else:
-                            value = float(result)
-                        val_scores[name].update(value, batch_size)
+                            if torch.is_tensor(result):
+                                value = result.item()
+                            else:
+                                value = float(result)
+                            val_scores[name].update(value, batch_size)
 
+                    if self.validate_iters is not None and self.validate_iters <= i:
+                        # stop validation
+                        break
 
-                
-                # eval_score = self.eval_criterion(output, target)
-                # val_scores.update(eval_score.item(), self._batch_size(input))
-
-                if self.validate_iters is not None and self.validate_iters <= i:
-                    # stop validation
-                    break
-                
-            val_score_avg_dict = {k: v.avg for k, v in val_scores.items()}
-            self._log_stats('val', val_losses.avg, val_score_avg_dict)
-            avg_scores_str = ', '.join(f'{k}: {v.avg:.4f}' for k, v in val_scores.items())
-            logger.info(f'Validation finished. Loss: {val_losses.avg}. Evaluation score: {avg_scores_str}')
-            return val_score_avg_dict, val_losses.avg
+                val_score_avg_dict = {k: v.avg for k, v in val_scores.items()}
+                self._log_stats('val', val_losses.avg, val_score_avg_dict)
+                avg_scores_str = ', '.join(f'{k}: {v.avg:.4f}' for k, v in val_scores.items())
+                logger.info(f'Validation finished. Loss: {val_losses.avg}. Evaluation score: {avg_scores_str}')
+                return val_score_avg_dict, val_losses.avg
+        finally:
+            self.model.train()
 
     def _split_training_batch(self, t):
         def _move_to_device(input):
