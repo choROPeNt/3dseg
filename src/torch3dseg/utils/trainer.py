@@ -13,7 +13,7 @@ from torch3dseg.utils.losses import get_loss_criterion
 from torch3dseg.utils.metrics import get_evaluation_metrics
 from torch3dseg.datasets.utils import get_train_loaders
 
-from torchsummary import summary
+from torchinfo import summary
 
 from torch3dseg.utils import utils
 
