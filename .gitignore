@@ -3,22 +3,32 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Folders to omit
+# Folders and symbolic links to omit
 checkpoints/
 data/
 test/
 slurm_out/
 predict/
 results/
-notebooks/archiv
-notebooks/BIIAX
-notebooks/conversion
-notebooks/fiberseg
-notebooks/metrics
-notebooks/NEAPEL
-notebooks/AMHAWER
-notebooks/Benni_dfg
+configs/*
+!configs/.gitkeep
+!configs/test_config.yml
+!configs/train_config.yml
+
+notebooks/*
+!notebooks/.gitkeep
+!notebooks/torchinfo.ipynb
+
 .vscode/
+
+## Symbolic links
+data
+checkpoints
+test
+slurm_out
+predict
+results
+
 
 ## Labelbox ap key
 api_key.txt

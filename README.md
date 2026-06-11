@@ -1,18 +1,79 @@
-# 🩻 3Dseg for CT-Data
+# 3Dseg
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15230978.svg)](https://doi.org/10.5281/zenodo.15230978)
+<p align="center">
+<a href="https://github.com/choROPeNt/3dseg">
+<img src="https://img.shields.io/badge/GitHub-3Dseg-181717?logo=github&logoColor=white">
+</a>
+<a href="https://doi.org/10.5281/zenodo.15230978">
+<img src="https://img.shields.io/badge/Dataset-Zenodo-0096FF?logo=zenodo&logoColor=white">
+</a>
+<a href="./docs">
+<img src="https://img.shields.io/badge/Docs-Documentation-4CAF50?logo=readthedocs&logoColor=white">
+</a>
+<a href="https://arxiv.org/abs/2508.10943">
+<img src="https://img.shields.io/badge/arXiv-2508.10943-B31B1B.svg">
+</a>
+<a href="https://doi.org/10.1016/j.jcomc.2025.100662">
+<img src="https://img.shields.io/badge/DOI-10.1016%2Fj.jcomc.2025.100662-0A7BBB.svg">
+</a>
+</p>
 
+<p align="center">
+<img src="content/fig_rUnet_2.png" alt="Residual UNet architecture" width="100%">
+</p>
 
-This repository builds upon the original [pytorch-3dunet](https://github.com/wolny/pytorch-3dunet.git) implementation by Wolny et al. We extended the codebase by adding functionality and integrating additional loss functions tailored for multi-class segmentation of textile reinforcements in low-resolution CT data.
+---
 
-The corresponding [paper]() and [preprint]() can be found here, and the dataset is available on [Zenodo](https://doi.org/10.5281/zenodo.15230978) as `*.h5` and `*.nrrd` files. Only the `*h5` files can be used for training. All other data mentioned in [paper]() or [preprint]() can be requested via <a href="mailto:christian.duereth@tu-dresden.de">mail</a>.
+## Overview
 
-<img src="content/fig_rUnet_2.png" alt="Description" style="width: 100%;" />
+This repository provides an extended 3D U-Net framework for segmentation and analysis of volumetric composite microstructures.
 
+The implementation builds upon the original **pytorch-3dunet** framework by Wolny et al. and significantly extends it for applications in composite materials and textile reinforcements.
+
+Key extensions include:
+
+- Flexible **n-dimensional UNet architectures** with configurable blocks, normalization, and activations
+- Support for **multi-class volumetric segmentation**
+- Integration of **orientation-aware supervision** for fiber and yarn direction prediction
+- Customizable **loss functions and training pipelines**
+- Adaptation to **low-resolution industrial CT data**
+- Efficient processing of **large volumetric datasets**
+
+The framework is designed for segmentation of **textile reinforcement architectures** in composite materials, enabling identification of components such as **warp yarns, weft yarns, and matrix regions** in 3D CT scans. The resulting segmentations can be used for **microstructural characterization, multiscale modeling, and simulation-driven materials design**.
+
+---
+
+## Future Plan
+
+- [ ] Integrate spatial and self-attention mechanisms (e.g., QKV attention) to improve contextual feature aggregation  
+- [ ] Extend the framework for **AI-based segmentation and orientation estimation** in low-resolution CT scans, using **structure tensor analysis on high-resolution datasets** and **synthetic data** as reference for fiber and yarn orientation
+- [ ] Enable combined **segmentation–orientation pipelines** for multiscale microstructural characterization  
+
+---
+
+## Publication & Dataset
+The corresponding publication is available at:
+
+<p align="left">
+<a href="https://arxiv.org/abs/2508.10943">
+<img src="https://img.shields.io/badge/arXiv-2508.10943-B31B1B.svg">
+</a>
+<a href="https://doi.org/10.1016/j.jcomc.2025.100662">
+<img src="https://img.shields.io/badge/DOI-10.1016%2Fj.jcomc.2025.100662-0A7BBB.svg">
+</a>
+</p>
+
+The dataset can be accessed via Zenodo:
+
+<p align="left">
+<a href="https://doi.org/10.5281/zenodo.15230978">
+<img src="https://img.shields.io/badge/Dataset-Zenodo-0096FF?logo=zenodo&logoColor=white">
+</a>
+</p>
+
+---
 
 ## 💿 Installation
-
-
 
 ### 🔥 PyTorch Compatibility
 
@@ -35,12 +96,13 @@ python -m pip install -e .
 ```
 This should install the `3dseg` python package via PIP in the current active virtual enviroment. How to set up a virtual enviroment please refer to [virtual enviroment section](#virtual-enviroment)
 
+---
 
 ## 🧠 HPC 
 
-If you are using the High Performance Computing (HPC) cluster of the TU Dresden, we recommend using one of the GPU clsuters like `Alpha` (Nvidia A100 SXM 40 GB) or `Capella` (Nvidia H100). First, allocate some ressources e.g. for `alpha`
+If you are using the High Performance Computing (HPC) cluster of the TU Dresden, we recommend using one of the GPU clusters like `Alpha` (Nvidia A100 SXM 40 GB) or `Capella` (Nvidia H100). First, allocate some ressources e.g. for `alpha`
 ```bash
- srun -p alpha -N 1 -t 01:00:00 -c 8 --mem=16G --gres=gpu:1  --pty /bin/bash -l
+ srun -p alpha -N 1 -t 01:00:00 -c 6 --mem=16G --gres=gpu:1  --pty /bin/bash -l
 ```
 You can use the following module setup (adjust as needed for your cluster’s module system):
 ```bash
@@ -57,6 +119,7 @@ Activate the enviroment via:
 source .venv/bin/activate
 ```
 
+---
 
 ## 🏋️‍♂️ Training
 Model training is initiated using the train.py script and a corresponding YAML configuration file:
@@ -69,6 +132,7 @@ Example configurations can be found in the [configs](configs) folder. Each confi
 
 During training, checkpoints are saved periodically, and training metrics are logged for visualization (e.g., via TensorBoard or custom loggers).
 
+--- 
 
 ## 🤖 Prediction
 To run inference using a trained model, use:
@@ -81,6 +145,8 @@ Please note that the choice of a padding (e.g. mirror) padding is recommended fo
 
 The model will output the prediction probabilities after choosen activation function (eg. sigmoid or softmax) for every channel. Please consider memory allocations and space on your hard drive, precition will save a `[c,z,y,x]` array as float32.
 
+---
+
 ## Hyperparameter Optimization with OmniOpt
 
 We employ OmniOpt, a hyperparameter optimization framework developed at TU Dresden, to tune model parameters for improved performance.
@@ -88,6 +154,7 @@ Integration into this project is currently under development, and future release
 
 Further information can be found here [Documematation OmniOpt](https://compendium.hpc.tu-dresden.de/software/hyperparameter_optimization/) or from [ScaDS.AI](https://scads.ai/transfer/software/omniopt/)
 
+---
 
 ## 📊 Descriptor-based Evaluation
 
