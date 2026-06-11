@@ -159,6 +159,7 @@ class DoubleConv(nn.Sequential):
                 **kwargs,
             ),
         )
+
 class ExtResNetBlock(nn.Module):
     """
     Residual UNet block consisting of:
@@ -260,7 +261,6 @@ class ExtResNetBlock(nn.Module):
 
         return out
 
-
 class AttentionBlock(nn.Module):
     """
     Global multi-head self-attention over a (B, C, *spatial) feature map using
@@ -302,7 +302,6 @@ class AttentionBlock(nn.Module):
         out = out.transpose(-1, -2).reshape(B, C, *spatial)
 
         return x + self.proj(out)                     # residual
-
 
 class Encoder(nn.Module):
     """
@@ -597,7 +596,6 @@ class Upsampling(nn.Module):
             return F.interpolate(x, size=size, mode=self.mode)
         else:
             return self.op(x)
-
 
 def _as_flag_list(value, n, name):
     """
