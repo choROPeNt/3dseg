@@ -1,3 +1,4 @@
+import math
 from functools import partial
 
 import torch
@@ -259,6 +260,50 @@ class ExtResNetBlock(nn.Module):
 
         return out
 
+
+class AttentionBlock(nn.Module):
+    """
+    Global multi-head self-attention over a (B, C, *spatial) feature map using
+    ``F.scaled_dot_product_attention`` (SDPA -> flash / mem-efficient / math kernel).
+
+    Pre-norm + residual, dims-agnostic: all spatial dims are flattened to a single
+    sequence axis of length ``N = prod(spatial)``. Cost is O(N^2) in N, so this is
+    meant for low-resolution stages (e.g. the bottleneck) — using it at full
+    resolution is infeasible.
+
+    Args:
+        dims (int): 1/2/3 (selects Conv{d} for the qkv/out projections)
+        channels (int): feature channels; MUST be divisible by num_heads
+        num_heads (int): number of attention heads
+        norm (str): pre-norm type: "group" | "batch" | "none"
+        num_groups (int): groups for GroupNorm
+    """
+
+    def __init__(self, dims, channels, num_heads=4, norm="group", num_groups=8):
+        super().__init__()
+        assert channels % num_heads == 0, (
+            f"channels={channels} must be divisible by num_heads={num_heads}"
+        )
+        self.num_heads = num_heads
+        self.norm = get_norm(norm=norm, dims=dims, num_channels=channels, num_groups=num_groups)
+        # 1x1 conv projections so the block drops in wherever a conv block goes
+        self.qkv = conv_nd(dims, channels, channels * 3, kernel_size=1, bias=False)
+        self.proj = conv_nd(dims, channels, channels, kernel_size=1)
+
+    def forward(self, x):
+        B, C, *spatial = x.shape
+        N = math.prod(spatial)
+        hd = C // self.num_heads
+
+        qkv = self.qkv(self.norm(x))                  # (B, 3C, *spatial)
+        qkv = qkv.reshape(B, 3, self.num_heads, hd, N)
+        q, k, v = (t.transpose(-1, -2) for t in qkv.unbind(1))  # each (B, heads, N, hd)
+        out = F.scaled_dot_product_attention(q, k, v)          # (B, heads, N, hd)
+        out = out.transpose(-1, -2).reshape(B, C, *spatial)
+
+        return x + self.proj(out)                     # residual
+
+
 class Encoder(nn.Module):
     """
     One encoder stage: optional downsampling followed by a basic conv block.
@@ -294,6 +339,8 @@ class Encoder(nn.Module):
         padding=1,
         activation: str = "ReLU",
         norm: str = "group",
+        attention: bool = False,
+        attention_num_heads: int = 4,
         **kwargs,
     ):
         super().__init__()
@@ -324,9 +371,24 @@ class Encoder(nn.Module):
             **kwargs,
         )
 
+        # optional self-attention after the conv block (intended for low-res stages)
+        self.attention = (
+            AttentionBlock(
+                dims,
+                out_channels,
+                num_heads=attention_num_heads,
+                norm=norm,
+                num_groups=num_groups,
+            )
+            if attention
+            else None
+        )
+
     def forward(self, x):
         x = self.downsampling(x)
         x = self.basic_module(x)
+        if self.attention is not None:
+            x = self.attention(x)
         return x
 
 class Decoder(nn.Module):
@@ -347,6 +409,8 @@ class Decoder(nn.Module):
         join: str = "auto",           # 'auto' | 'concat' | 'sum'
         activation: str = "ReLU",
         norm: str = "group",
+        attention: bool = False,
+        attention_num_heads: int = 4,
         **kwargs,
     ):
         super().__init__()
@@ -404,6 +468,19 @@ class Decoder(nn.Module):
             **kwargs,
         )
 
+        # optional self-attention after the conv block (intended for low-res stages)
+        self.attention = (
+            AttentionBlock(
+                dims,
+                out_channels,
+                num_heads=attention_num_heads,
+                norm=norm,
+                num_groups=num_groups,
+            )
+            if attention
+            else None
+        )
+
     def forward(self, encoder_features, x):
         x = self.upsampling(encoder_features=encoder_features, x=x)
 
@@ -416,6 +493,8 @@ class Decoder(nn.Module):
             x = encoder_features + x
 
         x = self.basic_module(x)
+        if self.attention is not None:
+            x = self.attention(x)
         return x
 
 class Downsampling(nn.Module):
@@ -520,6 +599,26 @@ class Upsampling(nn.Module):
             return self.op(x)
 
 
+def _as_flag_list(value, n, name):
+    """
+    Normalize a bool / None / sequence-of-bool into a list[bool] of length n.
+
+      None       -> [False] * n
+      bool       -> [value] * n   (broadcast to every level)
+      sequence   -> validated to have exactly length n
+    """
+    if value is None:
+        return [False] * n
+    if isinstance(value, bool):
+        return [value] * n
+    value = list(value)
+    if len(value) != n:
+        raise ValueError(
+            f"`{name}` must have one entry per level (length {n}), got {len(value)}: {value}"
+        )
+    return [bool(v) for v in value]
+
+
 def create_encoders(
     dims: int,
     in_channels: int,
@@ -533,6 +632,8 @@ def create_encoders(
     down_pooling: str = "max",
     activation: str = "ReLU",
     norm: str = "group",
+    attention=None,
+    attention_num_heads: int = 4,
     **kwargs,
 ) -> nn.ModuleList:
     """
@@ -544,8 +645,14 @@ def create_encoders(
       (in=in_channels -> 32, no pool),
       (in=32 -> 64, pool),
       (in=64 -> 128, pool)
+
+    attention: per-level self-attention flags. Accepts None (off everywhere),
+      a single bool (broadcast to all levels), or a list[bool] of length
+      len(f_maps), e.g. [False, False, True] to attend only at the bottleneck.
     """
     assert down_pooling in ["max", "avg", "conv"], "down_pooling must be one of ['max','avg','conv']"
+
+    attention = _as_flag_list(attention, len(f_maps), "attention")
 
     encoders = []
     for i, out_ch in enumerate(f_maps):
@@ -567,6 +674,8 @@ def create_encoders(
                 padding=conv_padding,
                 activation=activation,
                 norm=norm,
+                attention=attention[i],
+                attention_num_heads=attention_num_heads,
                 **kwargs,
             )
         )
@@ -589,6 +698,8 @@ def create_decoders(
     mode: str = "nearest",
     activation: str = "ReLU",
     norm: str = "group",
+    attention=None,
+    attention_num_heads: int = 4,
     **kwargs,
 ) -> nn.ModuleList:
     """
@@ -599,12 +710,22 @@ def create_decoders(
     reversed:      [256, 128, 64, 32]
     decoders:
       (in=256 -> out=128), (in=128 -> out=64), (in=64 -> out=32)
+
+    attention: the SAME encoder-style spec passed to `create_encoders` (None, a
+      single bool, or a list[bool] of length len(f_maps), highest-res first). It is
+      mirrored onto the decoders by resolution: reversed to deepest-first, then the
+      bottleneck entry is dropped (it has no decoder). So a decoder attends iff its
+      same-resolution encoder level does. e.g. encoder [False, True, True] -> the
+      16^3 decoder attends, the top decoder does not.
     """
     assert up_pooling in ["interp", "trans_conv"]
     assert join in ["auto", "concat", "sum"]
 
     decoders = []
     rf = list(reversed(f_maps))
+
+    # mirror the encoder attention spec onto decoders by resolution
+    attention = list(reversed(_as_flag_list(attention, len(f_maps), "attention")))[1:]
 
     for i in range(len(rf) - 1):
         in_ch = rf[i]        # from previous decoder/bottleneck
@@ -619,7 +740,7 @@ def create_decoders(
                 in_channels=in_ch,
                 out_channels=out_ch,
                 basic_module=basic_module,
-                conv_layer_order=layer_order,
+                layer_order=layer_order,
                 conv_kernel_size=conv_kernel_size,
                 num_groups=num_groups,
                 padding=conv_padding,
@@ -630,6 +751,8 @@ def create_decoders(
                 mode=mode,
                 activation=activation,
                 norm=norm,
+                attention=attention[i],
+                attention_num_heads=attention_num_heads,
                 **kwargs,
             )
         )
